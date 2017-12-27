@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- this has currently been superseded by a 301 redirect in conf file to api/podcast-sitemap.php -->
+<!--# config timefmt="%Y-%m-%d" -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+	<url>
+		<changefreq>weekly</changefreq>
+		<image:image>
+			<image:caption><!--# echo var="siteDescription" --></image:caption>
+			<image:loc><!--# echo var='siteImage' --></image:loc>
+			<image:title><!--# echo var="siteTitle" --></image:title>
+		</image:image>
+		<lastmod><!--# echo var="date_local" --></lastmod>
+		<loc>https://<!--# echo var="host" -->/</loc> 
+		<priority>1.0</priority>
+	</url>
+</urlset>

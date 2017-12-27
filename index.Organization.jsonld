@@ -1,0 +1,10 @@
+{
+	"@context": "https://schema.org",
+	"@type": "Organization",
+	"@id": "https://4chan.org/mlp/#",
+	"image": "https://podcast.mlp.one/%252Fmlp%252F.jpg",
+	"logo": "https://podcast.mlp.one/%252Fmlp%252F.jpg",
+	"name": "/mlp/",
+	"sameAs": "https://www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg",
+	"url": "https://4chan.org/mlp/"
+}

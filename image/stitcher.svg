@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-201 -314 25 25">
+  <defs>
+    <style>
+      .cls-3{fill:#fff}.cls-7{fill:#fbc723}
+    </style>
+    <linearGradient id="linear-gradient" x1=".5" x2=".5" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#646464"/>
+      <stop offset="1"/>
+    </linearGradient>
+  </defs>
+  <g id="icon-Stitcher" transform="translate(-199 -313)">
+    <path id="XMLID_20_" fill="url(#linear-gradient)" fill-rule="evenodd" d="M28.349 25.313A4.765 4.765 0 0 1 26.91 27.2a4.706 4.706 0 0 1-1.585.823 9.794 9.794 0 0 1-2.719.286H12.481a9.794 9.794 0 0 1-2.719-.286 4.759 4.759 0 0 1-3.023-2.712 8.83 8.83 0 0 1-.445-3.189V12a8.808 8.808 0 0 1 .445-3.189A4.759 4.759 0 0 1 9.762 6.1a9.794 9.794 0 0 1 2.719-.286h10.126a9.794 9.794 0 0 1 2.719.286 4.759 4.759 0 0 1 3.023 2.712A8.83 8.83 0 0 1 28.794 12v10.124a8.808 8.808 0 0 1-.445 3.189z" transform="translate(-7.294 -5.811)"/>
+    <g id="shows_stitcher" transform="translate(-5 -121.789)">
+      <g id="Stitcher_icon" transform="translate(4 127.742)">
+        <path id="path16" d="M69.414-304.428h.011v-6.94h-.011z" class="cls-7" transform="translate(-66.341 313.406)"/>
+        <path id="path22" fill="#ef2e2a" d="M69.991-311.367h-.333v6.94h4.618v-6.94h-4.285" transform="translate(-66.574 313.406)"/>
+        <path id="path24" fill="#f78d1f" d="M48.232-304.428h1v-6.94h-1z" transform="translate(-46.154 313.406)"/>
+        <path id="path26" fill="#459cdc" d="M170.3-311.367h-2.321v6.94h6.648v-6.94H170.3" transform="translate(-160.274 313.406)"/>
+        <path id="path28" d="M326.326-304.428h.133v-6.94h-.133z" class="cls-3" transform="translate(-311.186 313.406)"/>
+        <path id="path30" d="M355.807-304.428h.133v-6.94h-.133z" class="cls-3" transform="translate(-339.282 313.406)"/>
+        <path id="path32" d="M336.2-343.657h.554v-11.1h-.554z" class="cls-3" transform="translate(-320.6 354.758)"/>
+        <path id="Rectangle_1" d="M0 0h2.067v6.952H0z" class="cls-7" transform="translate(0 2.032)"/>
+        <path id="Rectangle_2" fill="#adda1e" d="M0 0h5.073v6.952H0z" transform="translate(17.427 2.032)"/>
+      </g>
+    </g>
+  </g>
+</svg>

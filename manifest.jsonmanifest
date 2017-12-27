@@ -1,0 +1,23 @@
+{
+	"name": "<!--# echo var='siteTitle' -->",
+	"short_name": "<!--# echo var='host' -->",
+	"description": "<!--# echo var='siteDescription' -->",
+	"author": "/mlp/",
+	"background_color": "#a99dd7",
+	"developer": {
+		"name": "Corpulent Brony",
+		"url": "https://plus.google.com/+CorpulentBrony"
+	},
+	"display": "browser",
+	"icons": [
+		{ "sizes": "1280x720", "src": "<!--# echo var='siteThumbnail' -->", "type": "image/png" }
+	],
+	"orientation": "any",
+	"related_applications": [{
+		"platform": "web",
+		"url": "https://<!--# echo var='host' -->"
+	}],
+	"scope": "/",
+	"start_url": "/",
+	"theme_color": "#363b74"
+}

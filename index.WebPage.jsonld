@@ -1,0 +1,58 @@
+{
+	"@context": "https://schema.org",
+	"@id": "https://<!--# echo var='host' -->",
+	"@type": "WebPage",
+	"about": {
+		"@type": "Thing",
+		"description": "<!--# echo var='siteDescription' -->"
+	},
+	"accessMode": "visual",
+	"accessModeSufficient": "visual",
+	"audience": {
+		"@type": "Audience",
+		"audienceType": "bronies",
+		"alternateName": "horse fuckers",
+		"description": "People who like the TV show My Little Pony: Friendship is Magic way too much",
+		"image": "http://valleyadvocate.com/wp-content/uploads/2015/03/va11-brony-20151-e1426106036636.jpeg",
+		"name": "brony audience",
+		"sameAs": "https://en.wikipedia.org/wiki/Bronies:_The_Extremely_Unexpected_Adult_Fans_of_My_Little_Pony"
+	},
+	"author": {
+		"@type": "Person",
+		"additionalName": "Corpulent Brony",
+		"address": {
+			"@type": "PostalAddress",
+			"addressCountry": "US",
+			"addressLocality": "Orlando",
+			"addressRegion": "FL",
+			"postOfficeBoxNumber": "621622",
+			"postalCode": "32862-1622"
+		},
+		"email": "corpulent@brony.email",
+		"gender": "horse fucker",
+		"givenName": "Josh",
+		"honorificPrefix": "Mr.",
+		"nationality": "US",
+		"telephone": "+1 (844) 4TWI-FAG",
+		"weight": {
+			"@type": "QuantitativeValue",
+			"unitText": "corpulent",
+			"value": 1
+		},
+		"name": "Corpulent Brony",
+		"url": "https://plus.google.com/+CorpulentBrony"
+	},
+	"encoding": {
+		"@type": "MediaObject",
+		"contentUrl": "https://<!--# echo var='host' -->",
+		"encodingFormat": "html"
+	},
+	"fileFormat": "text/html",
+	"genre": "podcast",
+	"isAccessibleForFree": true,
+	"material": "bits",
+	"publisher": { "@type": "Organization", "@id": "https://4chan.org/mlp/#" },
+	"sourceOrganization": { "@type": "Organization", "@id": "https://4chan.org/mlp/#" },
+	"timeRequired": "P1H",
+	"typicalAgeRange": "16-"
+}
