@@ -1,6 +1,6 @@
 # mlp.one
 
-Contains the [mlp.one](https://mlp.one) Web site for the [/mlp/odcast](https://www.youtube.com/playlist?list=PLpXLx1a_owv0xfz2JH8TEHcCLGBE2kfaX), a simple podcast manager Web app, and an RSS feed generator.
+The [mlp.one](https://mlp.one) Web site for the [/mlp/odcast](https://www.youtube.com/playlist?list=PLpXLx1a_owv0xfz2JH8TEHcCLGBE2kfaX), a [simple podcast manager](https://mlp.one/manager) Web app, and an [RSS feed generator](http://api.mlp.one/podcast).
 
 [![Creative Commons License BY-NC-SA 4.0][Creative Commons License Logo]](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
