@@ -1,7 +1,9 @@
 github
 next_podcast_date.txt
+.sass-cache/
 api/composer.lock
 api/composer.phar
 api/vendor
+css/
 manager/client_secrets.json
 manager/secrets.php

@@ -19,27 +19,31 @@
 	$commonSampleRateValues = [32, 44.1, 48, 96, 192];
 	$inputFields = [
 		"episode" => [
-			"number" => ["max" => 4294967295, "min" => 1, "name" => "Episode Number", "pattern" => "[1-9][0-9]{0,9}"],
-			"title" => ["maxlength" => 255, "minlength" => 1, "name" => "Episode Title"],
-			"subtitle" => ["maxlength" => 255, "name" => "Episode Subtitle"],
-			"description" => ["maxlength" => 4000, "minlength" => 1, "name" => "Episode Description"],
-			"note" => ["maxlength" => 4000, "name" => "Episode Note"],
+			"number" => ["filter" => FILTER_SANITIZE_NUMBER_INT, "max" => 9999, "min" => 1, "name" => "Episode Number", "pattern" => "[0-9]+"],
+			"title" => ["filter" => FILTER_SANITIZE_STRING, "maxlength" => 255, "minlength" => 1, "name" => "Episode Title"],
+			"subtitle" => ["filter" => FILTER_SANITIZE_STRING, "maxlength" => 255, "name" => "Episode Subtitle"],
+			"description" => ["filter" => FILTER_SANITIZE_STRING, "maxlength" => 4000, "minlength" => 1, "name" => "Episode Description"],
+			"keywords" => ["filter" => FILTER_SANITIZE_STRING, "name" => "Episode Keywords"],
+			"note" => ["filter" => FILTER_SANITIZE_STRING, "maxlength" => 4000, "name" => "Episode Note"],
 			"publishDate" => [
+				"filter" => FILTER_SANITIZE_STRING, 
 				"max" => $currentDate, 
 				"min" => date("Y-m-d", $priorYearTime), 
 				"name" => "Episode Publish Date", 
 				"pattern" => "(?:" . date("Y") . "|" . date("Y", $priorYearTime) . ")-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])"
 			],
-			"length" => ["max" => 24 * 60 * 60, "min" => 1, "name" => "Episode Length", "pattern" => "[1-9][0-9]{0,4}"],
-			"youTubeId" => ["maxlength" => 11, "minlength" => 11, "name" => "Episode YouTube ID", "pattern" => "[A-za-z0-9-_]{11}"]
+			"length" => ["filter" => FILTER_SANITIZE_NUMBER_INT, "max" => 24 * 60 * 60, "min" => 1, "name" => "Episode Length", "pattern" => "[0-9]+"],
+			"youTubeId" => ["filter" => FILTER_SANITIZE_STRING, "maxlength" => 11, "minlength" => 11, "name" => "Episode YouTube ID", "pattern" => "[A-za-z0-9-_]+"]
 		],
 		"file" => [
-			"bitRate" => ["max" => 18000, "min" => 1, "name" => "File Bit Rate", "pattern" => "[1-9][0-9]{0,4}"],
-			"samplingRate" => ["max" => 192, "min" => 32, "name" => "File Sampling Rate", "pattern" => "(?:[3-9][0-9]|1[0-9]{2})(?:\.[0-9]){0,1}"],
-			"numberChannels" => ["max" => 10, "min" => 1, "name" => "File Number of Channels"]
+			"bitRate" => ["filter" => FILTER_SANITIZE_NUMBER_INT, "max" => 18000, "min" => 1, "name" => "File Bit Rate", "pattern" => "[0-9]+"],
+			"samplingRate" => ["filter" => FILTER_SANITIZE_NUMBER_FLOAT, "max" => 192, "min" => 32, "name" => "File Sampling Rate", "pattern" => "(?:[3-9][0-9]|1[0-9]{2})(?:\.[0-9]){0,1}"],
+			"numberChannels" => ["filter" => FILTER_SANITIZE_NUMBER_INT, "max" => 10, "min" => 1, "name" => "File Number of Channels"]
 		]
 	];
+	$requiredInputFields = ["episode" => ["number", "title", "description", "publishDate", "length", "youTubeId"], "file" => ["numberChannels"]];
 	$_SESSION["input_fields"] = $inputFields;
+	$_SESSION["required_input_fields"] = $requiredInputFields;
 
 	function arrayToOptions(array $array): string {
 		return array_reduce($array, function (string $carry, $item): string { return $carry . "<option value=\"" . strval($item) . "\">"; }, "");
@@ -76,24 +80,32 @@
 		<link async href="/podcast/%252Fmlp%252F.jpg" itemprop="thumbnailUrl" rel="icon" sizes="88x88" type="image/jpeg">
 		<style type="text/css">
 			@charset "utf-8";
-			/*abbr { text-decoration: none; }*/
+			/* this should probably be moved to a separate scss based file eventually */
 			fieldset {
-				border: 1px solid #363b74;
-				border-radius: 1ex;
+				border: 1px solid var(--fg-color);
+				border-radius: 5px;
 			}
-			input:invalid, textarea:invalid { box-shadow: 0 0 5px 1px red; }
-			input:focus:invalid, textarea:focus:invalid {
-				box-shadow: 0 0 10px 3px red;
+/*			label { position: relative; }
+			label[data-message]:after {
+				bottom: -100%;
+				content: attr(data-message);
+				left: 110%;
+				position: absolute;
+				width: 270%;
+			}*/
+			input, textarea { transition: all 0.5s; }
+			input:invalid, textarea:invalid { box-shadow: 0 0 2px 1px var(--twi-hair-highlight-pink); }
+			input:focus, textarea:focus {
+				box-shadow: 0 0 2px 3px var(--bg-secondary-color);
 				outline: none;
 			}
+			input:focus:invalid, textarea:focus:invalid { box-shadow: 0 0 2px 3px var(--twi-hair-highlight-pink); }
 			form > div { padding: 5px 0 5px 5px; }
-			form > fieldset {
-				width: 30em;
-			}
+			form > fieldset { width: 30em; }
 			fieldset > div {
 				display: grid;
 				grid-gap: 5px;
-				grid-template-columns: [labels] 1fr [inputs] 2fr;
+				grid-template-columns: [labels] 9fr [inputs] 11fr;
 				width: 100%;
 			}
 			fieldset > div > label {
@@ -105,31 +117,44 @@
 				opacity: 0;
 				width: 5px;
 			}
+			output[for=file] { overflow-x: hidden; }
 			.button {
-				background-color: #ef4f91;
+				background: var(--twi-hair-highlight-pink);
 				border: 1px ridge black;
 				border-radius: 5px;
 				color: inherit;
 				font: inherit;
 				font-size: inherit;
 				padding: 5px 10px;
+				position: relative;
 				-webkit-touch-callout: none;
+				transition: all 0.5s;
 				-webkit-user-select: none;
 				-moz-user-select: none;
 				user-select: none;
 			}
-			.button:hover {
-				background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), linear-gradient(#ef4f91, #ef4f91);
-				color: #cac58c;
+			.button:before {
+				background: #000;
+				bottom: 0;
+				content: "";
+				left: 0;
+				opacity: 0;
+				position: absolute;
+				right: 0;
+				top: 0;
+				transition: all 0.5s;
 			}
-			.button:active {
-				background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), linear-gradient(#ef4f91, #ef4f91);
-				color: #cac58c;
-			}
+			.button:active, .button:hover { color: var(--fg-color-invert); }
+			.button:hover:before { opacity: 0.2; }
+			.button:active:before { opacity: 0.6; }
 			.col-span-2 { grid-column: 1 / span 2; }
 			.justify-start { justify-self: start; }
 			section { padding-top: 10px; }
 		</style>
+		<style media="(max-width: 500px)" type="text/css">
+		/* stuff in here to re-layout the page maybe? */
+		</style>
+		<!-- <script id="inputFields" type="application/json"><?= json_encode($inputFields) ?></script> -->
 		<title><?= $pageTitle ?></title>
 	</head>
 	<body>
@@ -141,11 +166,13 @@
 			<section role="main">
 				<!-- for grid layout: https://css-tricks.com/snippets/css/complete-guide-grid/ -->
 				<form action="submit" aria-labelledby="welcomeMessage" autocomplete="on" enctype="multipart/form-data" method="post" name="episodeUpload" role="form">
+					<div aria-live="polite" id="errorMessageDiv"></div>
 					<fieldset>
 						<legend>Episode</legend>
 						<div>
-							<label for="episodeNumber">Number: <abbr title="required">*</abbr></label>
+							<label data-message="testing something" for="episodeNumber">Number: <abbr title="required">*</abbr></label>
 							<input 
+								aria-errormessage="errorMessageDiv"
 								aria-required="true"
 								id="episodeNumber"
 								max="<?= $inputFields["episode"]["number"]["max"] ?>" 
@@ -157,6 +184,7 @@
 								type="number">
 							<label for="episodeTitle">Title: <abbr title="required">*</abbr></label>
 							<input 
+								aria-errormessage="errorMessageDiv"
 								aria-required="true"
 								autocapitalize="words" 
 								id="episodeTitle"
@@ -170,6 +198,7 @@
 								type="text">
 							<label for="episodeSubtitle">Subtitle: </label>
 							<input 
+								aria-errormessage="errorMessageDiv"
 								autocapitalize="words" 
 								id="episodeSubtitle"
 								inputmode="latin-prose" 
@@ -180,6 +209,7 @@
 								type="text">
 							<label for="episodeDescription">Description: <abbr title="required">*</abbr></label>
 							<textarea 
+								aria-errormessage="errorMessageDiv"
 								aria-multiline="true" 
 								aria-required="true"
 								autocapitalize="sentences" 
@@ -195,6 +225,7 @@
 							<input aria-placeholder="comma separated list" id="episodeKeywords" inputmode="latin-prose" name="episodeKeywords" placeholder="comma separated list" spellcheck title="Episode Keywords" type="text">
 							<label for="episodeNote">Note: </label>
 							<textarea 
+								aria-errormessage="errorMessageDiv"
 								aria-multiline="true"
 								autocapitalize="sentences" 
 								id="episodeNote" 
@@ -205,6 +236,7 @@
 								title="Episode Note"></textarea>
 							<label for="episodePublishDate">Publish Date: <abbr title="required">*</abbr></label>
 							<input 
+								aria-errormessage="errorMessageDiv"
 								aria-required="true"
 								id="episodePublishDate"
 								max="<?= $inputFields["episode"]["publishDate"]["max"] ?>" 
@@ -217,6 +249,7 @@
 								value="<?= $currentDate ?>">
 							<label for="episodeLength">Duration (in seconds): <abbr title="required">*</abbr></label>
 							<input 
+								aria-errormessage="errorMessageDiv"
 								aria-placeholder="in seconds"
 								aria-required="true"
 								id="episodeLength"
@@ -231,19 +264,21 @@
 								type="number">
 							<label for="youTubeId">YouTube ID: <abbr title="required">*</abbr></label>
 							<input 
+								aria-errormessage="errorMessageDiv"
 								aria-required="true"
-								id="youTubeId"
+								id="episodeYouTubeId"
 								inputmode="verbatim" 
 								maxlength="<?= $inputFields["episode"]["youTubeId"]["maxlength"] ?>" 
 								minlength="<?= $inputFields["episode"]["youTubeId"]["minlength"] ?>" 
-								name="youTubeId" 
+								name="episodeYouTubeId" 
 								pattern="<?= $inputFields["episode"]["youTubeId"]["pattern"] ?>" 
 								required 
 								title="YouTube ID" 
 								type="text">
 						</div>
 					</fieldset>
-					<input aria-required accept="audio/*" id="file" name="file" placeholder="Choose podcast file" required type="file">
+					<input name="MAX_FILE_SIZE" type="hidden" value="100000000">
+					<input aria-errormessage="errorMessageDiv" aria-required accept="audio/*" id="file" name="file" placeholder="Choose podcast file" required type="file">
 					<datalist id="commonBitRateValues"><?= arrayToOptions($commonBitRateValues) ?></datalist>
 					<datalist id="commonSampleRateValues"><?= arrayToOptions($commonSampleRateValues) ?></datalist>
 					<fieldset>
@@ -251,9 +286,10 @@
 						<div>
 							<label class="button col-span-2 justify-start" for="file" role="button" title="Choose podcast file">Choose podcast file</label>
 							<label for="fileOutput">Selected file: </label>
-							<output for="file" id="fileOutput" role="status"><?= $emptyFileMessage ?></output>
+							<output aria-live="polite" for="file" id="fileOutput" role="status"><?= $emptyFileMessage ?></output>
 							<label for="fileBitRate">Bit Rate (in <abbr title="kilobits per second">kbps</abbr>): </label>
 							<input 
+								aria-errormessage="errorMessageDiv"
 								aria-placeholder="in kilobits per second"
 								id="fileBitRate"
 								list="commonBitRateValues" 
@@ -267,6 +303,7 @@
 								type="number">
 							<label for="fileSamplingRate">Sample Rate (in <abbr title="kiloherz">kHz</abbr>): </label>
 							<input 
+								aria-errormessage="errorMessageDiv"
 								aria-placeholder="in kiloherz"
 								id="fileSamplingRate"
 								list="commonSampleRateValues" 
@@ -286,7 +323,7 @@
 							</fieldset>
 						</div>
 					</fieldset>
-					<div role="row">
+					<div>
 						<button class="button" role="button" title="Submit" type="submit">Submit</button>
 					</div>
 				</form>
@@ -302,8 +339,44 @@
 			https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms/Form_validation
 			*/
 			"use strict";
-			(function() {
+			(function manager() {
 				const elements = window.Object.create(window.Object.prototype);
+				// const input = window.Object.create(window.Object.prototype);
+				// const errorMessages = {
+				// 	max: "Value must be less than or equal to",
+				// 	maxlength: "Length must be less than or equal to",
+				// 	min: "Value must be greater than or equal to",
+				// 	minlength: "Length must be greater than or equal to",
+				// 	pattern: "Must match pattern"
+				// };
+
+				// class Map extends window.Map {
+				// 	every(callback, thisArg = undefined) {
+				// 		if (this == null)
+				// 			throw new TypeError("this is null or undefined");
+				// 		else if (typeof callback !== "function")
+				// 			throw new TypeError("callback must be a function");
+				// 		const map = window.Object(this);
+
+				// 		for (const [key, value] of map)
+				// 			if (!callback.call(thisArg, value, key, map))
+				// 				return false;
+				// 		return true;
+				// 	}
+
+				// 	some(callback, thisArg = undefined) {
+				// 		if (this == null)
+				// 			throw new TypeError("this is null or undefined");
+				// 		else if (typeof callback !== "function")
+				// 			throw new TypeError("callback must be a function");
+				// 		const map = window.Object(this);
+
+				// 		for (const [key, value] of map)
+				// 			if (callback.call(thisArg, value, key, map))
+				// 				return true;
+				// 		return false;
+				// 	}
+				// }
 
 				function createElement(name, attributes = {}, parent = undefined) {
 					const element = document.createElement(name);
@@ -322,6 +395,23 @@
 					elements.form = document.querySelector("form");
 					elements.file.addEventListener("change", fileOnChange, false);
 					elements.form.addEventListener("submit", formOnSubmit, false);
+					// input.elements = new window.Set();
+					// input.errors = new Map();
+					// input.fields = new Map(window.Object.entries(JSON.parse(document.getElementById("inputFields").textContent)));
+					// input.fields.forEach((fields, fieldType) => {
+					// 	const fieldMap = new Map(window.Object.entries(fields));
+					// 	fieldMap.forEach((field, fieldName) => {
+					// 		const element = document.getElementById(fieldType + fieldName.slice(0, 1).toUpperCase() + fieldName.slice(1));
+
+					// 		if (element !== null) {
+					// 			element.addEventListener("input", onInput, false);
+					// 			input.elements.add(element);
+					// 		}
+					// 		fieldMap[fieldName] = new Map(window.Object.entries(field));
+					// 	});
+					// 	input.fields[fieldType] = fieldMap;
+					// });
+					// console.log(input);
 					document.removeEventListener("DOMContentLoaded", documentOnLoad, false);
 				}
 
@@ -334,17 +424,24 @@
 					elements.fileOutput.textContent = event.target.files[0].name;
 					elements.currentFileUrl = window.URL.createObjectURL(event.target.files[0]);
 					elements.fileOutputAudio = createElement("audio", { controls: true, preload: "metadata", src: elements.currentFileUrl }, elements.fileOutput);
-					console.log(event.target.files);
 				}
 
 				function formOnSubmit(event) {
-					const form = new FormData(elements.form);
+					const form = new window.FormData(elements.form);
 					window.fetch("submit.php", { credentials: "include", method: "POST", body: form }).then((result) => result.text()).then(console.log).catch(console.error);
 
 					if (event.preventDefault)
 						event.preventDefault();
 					return false;
 				}
+
+				// function onInput(event) {
+				// 	if (!event.target.validity.valid) {
+						
+				// 	} else {
+				// 		input.errors.delete(event.target);
+				// 	}
+				// }
 
 				if (document.readyState === "loading")
 					document.addEventListener("DOMContentLoaded", documentOnLoad, false);

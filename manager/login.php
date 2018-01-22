@@ -46,9 +46,6 @@
 		<link async href="/index.css" rel="stylesheet" type="text/css">
 		<link async href="/podcast/%252Fmlp%252F.jpg" itemprop="thumbnailUrl" rel="icon" sizes="88x88" type="image/jpeg">
 		<title><?= $pageTitle ?></title>
-		<style type="text/css">
-			output { font-weight: 800; }
-		</style>
 	</head>
 	<body>
 		<main itemprop="mainContentOfPage">
@@ -56,7 +53,7 @@
 				<h1><?= $pageTitle ?></h1>
 			</header>
 			<section role="main">
-				<output role="alert">Please log in with the Google widget, once your access is verified you will be redirected to the /mlp/odcast manager application.</output>
+				<output class="bold" role="alert">Please log in with the Google widget, once your access is verified you will be redirected to the /mlp/odcast manager application.</output>
 			</section>
 		</main>
 		<script type="application/javascript">
