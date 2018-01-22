@@ -60,7 +60,6 @@ h3 {
 
 .warning {
   color: red;
-  text-align: center;
 }
 
 @media (max-width: 500px) {

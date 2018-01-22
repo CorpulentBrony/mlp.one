@@ -81,6 +81,16 @@
 		<style type="text/css">
 			@charset "utf-8";
 			/* this should probably be moved to a separate scss based file eventually */
+			output dl {
+				display: grid;
+				grid-template-columns: max-content auto;
+			}
+			output dt { grid-column-start: 1; }
+			output dt::after { content: ":\00a0"; }
+			output dd {
+				grid-column-start: 2;
+				margin-left: 0;
+			}
 			fieldset {
 				border: 1px solid var(--fg-color);
 				border-radius: 5px;
@@ -123,6 +133,7 @@
 				border: 1px ridge black;
 				border-radius: 5px;
 				color: inherit;
+				display: block;
 				font: inherit;
 				font-size: inherit;
 				padding: 5px 10px;
@@ -164,8 +175,9 @@
 				<div id="welcomeMessage">Welcome to the manager where you can upload and edit podcasts.  Required fields are marked by <dfn><abbr title="required">*</abbr></dfn>.</div>
 			</header>
 			<section role="main">
+				<output aria-live="polite" form="uploadForm" id="formSubmissionResult" role="status"></output>
 				<!-- for grid layout: https://css-tricks.com/snippets/css/complete-guide-grid/ -->
-				<form action="submit" aria-labelledby="welcomeMessage" autocomplete="on" enctype="multipart/form-data" method="post" name="episodeUpload" role="form">
+				<form action="submit" aria-labelledby="welcomeMessage" autocomplete="on" enctype="multipart/form-data" id="uploadForm" method="post" name="episodeUpload" role="form">
 					<div aria-live="polite" id="errorMessageDiv"></div>
 					<fieldset>
 						<legend>Episode</legend>
@@ -341,48 +353,15 @@
 			"use strict";
 			(function manager() {
 				const elements = window.Object.create(window.Object.prototype);
-				// const input = window.Object.create(window.Object.prototype);
-				// const errorMessages = {
-				// 	max: "Value must be less than or equal to",
-				// 	maxlength: "Length must be less than or equal to",
-				// 	min: "Value must be greater than or equal to",
-				// 	minlength: "Length must be greater than or equal to",
-				// 	pattern: "Must match pattern"
-				// };
 
-				// class Map extends window.Map {
-				// 	every(callback, thisArg = undefined) {
-				// 		if (this == null)
-				// 			throw new TypeError("this is null or undefined");
-				// 		else if (typeof callback !== "function")
-				// 			throw new TypeError("callback must be a function");
-				// 		const map = window.Object(this);
-
-				// 		for (const [key, value] of map)
-				// 			if (!callback.call(thisArg, value, key, map))
-				// 				return false;
-				// 		return true;
-				// 	}
-
-				// 	some(callback, thisArg = undefined) {
-				// 		if (this == null)
-				// 			throw new TypeError("this is null or undefined");
-				// 		else if (typeof callback !== "function")
-				// 			throw new TypeError("callback must be a function");
-				// 		const map = window.Object(this);
-
-				// 		for (const [key, value] of map)
-				// 			if (callback.call(thisArg, value, key, map))
-				// 				return true;
-				// 		return false;
-				// 	}
-				// }
-
-				function createElement(name, attributes = {}, parent = undefined) {
+				function createElement(name, attributes = {}, parent = undefined, text = undefined) {
 					const element = document.createElement(name);
 
 					for (const key in attributes)
 						element.setAttribute(key, attributes[key]);
+
+					if (text !== undefined)
+						element.textContent = text;
 
 					if (parent !== undefined)
 						parent.appendChild(element);
@@ -392,26 +371,10 @@
 				function documentOnLoad() {
 					elements.file = document.getElementById("file");
 					elements.fileOutput = document.getElementById("fileOutput");
-					elements.form = document.querySelector("form");
+					elements.form = document.getElementById("uploadForm");
+					elements.submissionResult = document.getElementById("formSubmissionResult");
 					elements.file.addEventListener("change", fileOnChange, false);
 					elements.form.addEventListener("submit", formOnSubmit, false);
-					// input.elements = new window.Set();
-					// input.errors = new Map();
-					// input.fields = new Map(window.Object.entries(JSON.parse(document.getElementById("inputFields").textContent)));
-					// input.fields.forEach((fields, fieldType) => {
-					// 	const fieldMap = new Map(window.Object.entries(fields));
-					// 	fieldMap.forEach((field, fieldName) => {
-					// 		const element = document.getElementById(fieldType + fieldName.slice(0, 1).toUpperCase() + fieldName.slice(1));
-
-					// 		if (element !== null) {
-					// 			element.addEventListener("input", onInput, false);
-					// 			input.elements.add(element);
-					// 		}
-					// 		fieldMap[fieldName] = new Map(window.Object.entries(field));
-					// 	});
-					// 	input.fields[fieldType] = fieldMap;
-					// });
-					// console.log(input);
 					document.removeEventListener("DOMContentLoaded", documentOnLoad, false);
 				}
 
@@ -428,20 +391,43 @@
 
 				function formOnSubmit(event) {
 					const form = new window.FormData(elements.form);
-					window.fetch("submit.php", { credentials: "include", method: "POST", body: form }).then((result) => result.text()).then(console.log).catch(console.error);
+					elements.submissionResult.textContent = "";
+					elements.submissionResult.classList.remove("warning");
+					window.fetch("submit.php", { credentials: "include", method: "POST", body: form }).then((response) => response.json()).then((result) => {
+						if (result.isSuccessful) {
+							elements.form.setAttribute("aria-hidden", true);
+							elements.submissionResult.textContent = "Episode submitted successfully.";
+							elements.submitAnother = createElement("button", { class: "button", role: "button", title: "Submit Another Episode", type: "button" }, elements.submissionResult, "Submit Another Episode");
+							elements.submitAnother.addEventListener("click", submitAnotherOnClick, false);
+						} else {
+							elements.submissionResult.classList.add("warning");
+
+							if (result.isSuccessful === false) {
+								const errorList = createElement("dl", {}, document.createDocumentFragment());
+
+								for (const errorField of window.Object.getOwnPropertyNames(result.errors)) {
+									createElement("dt", {}, errorList, errorField);
+									createElement("dd", {}, errorList, result.errors[errorField]);
+								}
+								elements.submissionResult.appendChild(errorList);
+							}
+							else
+								elements.submissionResult.textContent = "Submission was unsuccessful, cannot interpret response from server or server sent empty response.";
+						}
+						window.scrollTo(0, 0);
+					}).catch(console.error);
 
 					if (event.preventDefault)
 						event.preventDefault();
 					return false;
 				}
 
-				// function onInput(event) {
-				// 	if (!event.target.validity.valid) {
-						
-				// 	} else {
-				// 		input.errors.delete(event.target);
-				// 	}
-				// }
+				function submitAnotherOnClick(event) {
+					elements.submissionResult.textContent = "";
+					elements.form.reset();
+					elements.form.removeAttribute("aria-hidden");
+					elements.submitAnother.removeEventListener("click", submitAnotherOnClick, false);
+				}
 
 				if (document.readyState === "loading")
 					document.addEventListener("DOMContentLoaded", documentOnLoad, false);
