@@ -4,7 +4,7 @@
 	<xsl:output media-type="text/html" method="html" indent="yes" omit-xml-declaration="yes" />
 	<xsl:template match="/">
 		<xsl:for-each select="rss/channel/item">
-			<xsl:sort select="position()" data-type="number" order="descending" />
+			<xsl:sort select="itunes:episode" data-type="number" order="descending" />
 			<xsl:variable name="enclosureUrl">https://<xsl:value-of select="substring-after(enclosure/@url, 'http://')" /></xsl:variable>
 			<li>
 				<xsl:attribute name="value"><xsl:value-of select="itunes:episode" /></xsl:attribute>

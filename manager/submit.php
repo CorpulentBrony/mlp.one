@@ -12,7 +12,7 @@
 
 	const ACL = "public-read";
 	const BUCKET = "podcast.mlp.one";
-	const KEY = "files_test/";
+	const KEY = "files/";
 	const STORAGE_CLASS = "REDUCED_REDUNDANCY";
 
 	$pdo = new \PDO(...PDO_ARGS);
@@ -131,22 +131,23 @@
 			throw new OutputException(strval($errors));
 		$tempFile = new \SplFileInfo($_FILES["file"]["tmp_name"]);
 		
-		// check file with is_uploaded_file first
-		if (!is_uploaded_file(strval($tempFile)))
-			throw new OutputException(Errors::single("file", "does not appear to have been properly uploaded to server"));
 		// check file is proper mime type
 		$inputFieldsEpisode = $inputFields->get("episode");
 		$inputFieldsFile = $inputFields->get("file");
 		$mimeType = mime_content_type(strval($tempFile));
 
+		// check file with is_uploaded_file first
+		if (!is_uploaded_file(strval($tempFile)))
+			throw new OutputException(Errors::single("file", "selected file does not appear to have been properly uploaded to server"));
+
 		if (substr($mimeType, 0, 5) !== "audio")
-			throw new OutputException(Errors::single("file", "cannot be recognized as an audio file"));
+			throw new OutputException(Errors::single("file", "selected file cannot be recognized as an audio file"));
 		// check if ep already exists in database
 		$command = $pdo->prepare("select count(*) as NumEpisodes from Episodes where Number = ?;");
 		$command->execute([$inputFieldsEpisode->get("number")]);
 
 		if ($command->fetchAll(\PDO::FETCH_COLUMN, 0)[0] !== "0")
-			throw new OutputException(Errors::single("file", "has already been saved to server, please use the edit form to make changes"));
+			throw new OutputException(Errors::single("file", "episode {$inputFieldsEpisode->get("number")} has already been saved to server, please use the edit form to make changes"));
 		$fileName = "mlpodcast/" . str_pad(strval($inputFieldsEpisode->get("number")), 4, "0", STR_PAD_LEFT) . "." . pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
 		// save data about the file before moving and deleting it
 		$inputFieldsFile->put("episodeNumber", $inputFieldsEpisode->get("number"));

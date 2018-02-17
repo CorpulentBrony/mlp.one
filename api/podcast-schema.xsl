@@ -40,7 +40,7 @@
 			"typicalAgeRange": "16-",
 			"url": "<xsl:value-of select="link" />",
 			"episode": [<xsl:for-each select="item">
-					<xsl:sort select="position()" data-type="number" order="descending" />
+					<xsl:sort select="itunes:episode" data-type="number" order="descending" />
 					<xsl:variable name="enclosureUrl">https://<xsl:value-of select="substring-after(enclosure/@url, 'http://')" /></xsl:variable>
 					<xsl:variable name="episodeDescription">
 						<xsl:call-template name="InsertBreaks">

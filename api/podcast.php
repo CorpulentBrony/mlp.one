@@ -31,6 +31,8 @@
 
 	function generateItems(\XMLWriter $xml, array $objectList, array $tagsMap): \XMLWriter {
 		foreach ($objectList as $index => $object) {
+			if ($tagsMap[$index]->count() === 0)
+				continue;
 			$description = getDescription($tagsMap[$index]);
 			$filePathInfo = pathinfo($object["Key"]);
 			$fileUrl = URL_PREFIX . $filePathInfo["dirname"] . "/" . rawurlencode($filePathInfo["basename"]);
