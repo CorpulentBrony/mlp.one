@@ -330,13 +330,14 @@
 								type="number">
 							<fieldset aria-required="true" class="col-span-2" role="radiogroup">
 								<legend>Number of Channels</legend>
-								<label><input checked name="fileNumberChannels" role="radio" type="radio" value="1"> Mono</label>
-								<label><input name="fileNumberChannels" role="radio" type="radio" value="2"> Stereo</label>
+								<label><input name="fileNumberChannels" role="radio" type="radio" value="1"> Mono</label>
+								<label><input checked name="fileNumberChannels" role="radio" type="radio" value="2"> Stereo</label>
 							</fieldset>
 						</div>
 					</fieldset>
 					<div>
 						<button class="button" role="button" title="Submit" type="submit">Submit</button>
+						<progress aria-hidden="true" aria-valuemax="1" aria-valuemin="0" aria-valuenow="0" id="fileUploadProgress" role="progressbar" value="0">0%</progress>
 					</div>
 				</form>
 			</section>
@@ -371,6 +372,7 @@
 				function documentOnLoad() {
 					elements.file = document.getElementById("file");
 					elements.fileOutput = document.getElementById("fileOutput");
+					elements.fileUploadProgress = document.getElementById("fileUploadProgress");
 					elements.form = document.getElementById("uploadForm");
 					elements.submissionResult = document.getElementById("formSubmissionResult");
 					elements.file.addEventListener("change", fileOnChange, false);
@@ -390,11 +392,22 @@
 				}
 
 				function formOnSubmit(event) {
-					const form = new window.FormData(elements.form);
+					const fetch = new Promise((resolve, reject) => {
+						const xhr = new window.XMLHttpRequest();
+						xhr.open("POST", "submit.php", true);
+						xhr.responseType = "json";
+						xhr.withCredentials = true;
+						xhr.addEventListener("load", () => resolve(xhr.response), false);
+						xhr.addEventListener("error", reject, false);
+						xhr.upload.addEventListener("progress", uploadOnProgress, false);
+						xhr.send(new window.FormData(elements.form));
+						elements.fileUploadProgress.removeAttribute("aria-hidden");
+						elements.form.setAttribute("aria-busy", true);
+					});
 					elements.submissionResult.textContent = "";
 					elements.submissionResult.classList.remove("warning");
-					window.fetch("submit.php", { credentials: "include", method: "POST", body: form }).then((response) => response.json()).then((result) => {
-						if (result.isSuccessful) {
+					fetch.then((result) => {
+						if (result && result.isSuccessful) {
 							elements.form.setAttribute("aria-hidden", true);
 							elements.submissionResult.textContent = "Episode submitted successfully.";
 							elements.submitAnother = createElement("button", { class: "button", role: "button", title: "Submit Another Episode", type: "button" }, elements.submissionResult, "Submit Another Episode");
@@ -402,7 +415,7 @@
 						} else {
 							elements.submissionResult.classList.add("warning");
 
-							if (result.isSuccessful === false) {
+							if (result && result.isSuccessful === false) {
 								const errorList = createElement("dl", {}, document.createDocumentFragment());
 
 								for (const errorField of window.Object.getOwnPropertyNames(result.errors)) {
@@ -415,6 +428,9 @@
 								elements.submissionResult.textContent = "Submission was unsuccessful, cannot interpret response from server or server sent empty response.";
 						}
 						window.scrollTo(0, 0);
+						elements.form.removeAttribute("aria-busy");
+						elements.fileUploadProgress.setAttribute("aria-hidden", true);
+						uploadOnProgress({ loaded: 0, total: 1 });
 					}).catch(console.error);
 
 					if (event.preventDefault)
@@ -427,6 +443,15 @@
 					elements.form.reset();
 					elements.form.removeAttribute("aria-hidden");
 					elements.submitAnother.removeEventListener("click", submitAnotherOnClick, false);
+				}
+
+				function uploadOnProgress(event) {
+					const loaded = window.Number.parseFloat(event.loaded);
+					const total = window.Number.parseFloat(event.total);
+					const progress = (total === 0) ? 0 : loaded / total;
+					elements.fileUploadProgress.setAttribute("aria-valuenow", progress);
+					elements.fileUploadProgress.setAttribute("value", progress);
+					elements.fileUploadProgress.textContent = (progress * 100).toPrecision(3) + "%";
 				}
 
 				if (document.readyState === "loading")

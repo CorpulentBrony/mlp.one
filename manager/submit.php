@@ -16,6 +16,7 @@
 	const STORAGE_CLASS = "REDUCED_REDUNDANCY";
 
 	$pdo = new \PDO(...PDO_ARGS);
+	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 	class Errors implements \JsonSerializable {
 		private $errors = null; // \Ds\Map
@@ -156,7 +157,7 @@
 		$inputFieldsFile->put("size", $tempFile->getSize());
 		$inputFieldsFile->put("mimeType", $mimeType);
 		$inputFieldsFile->put("isDefault", true);
-		$inputFieldsFile->put("hash", hash_file("sha256", strval($tempFile), true));
+		$inputFieldsFile->put("hash", hash_file("sha1", strval($tempFile), true));
 		// move file using S3
 		$s3 = new \Aws\S3\S3Client(["region" => "us-east-1", "version" => "latest"]);
 		$s3->putObjectAsync(["ACL" => ACL, "Bucket" => BUCKET, "ContentType" => $mimeType, "Key" => KEY . $fileName, "SourceFile" => strval($tempFile), "StorageClass" => STORAGE_CLASS])
@@ -165,6 +166,7 @@
 			->wait();
 		// set metadata in database for episode
 		$inputFieldsEpisode->put("length", date_timestamp_set(new \DateTime(), $inputFieldsEpisode->get("length"))->format("H:i:s"));
+		$inputFieldsEpisode->put("keywords", json_encode(array_map(function (string $keyword): string { return trim($keyword); }, explode(",", $inputFieldsEpisode->get("keywords")))));
 		insertDb($pdo, "Episodes", $inputFieldsEpisode);
 		insertDb($pdo, "Files", $inputFieldsFile);
 		// return response
