@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet exclude-result-prefixes="itunes" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet exclude-result-prefixes="dcterms itunes" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<!-- https://www.w3.org/TR/2017/REC-xslt-30-20170608/ -->
 	<xsl:output media-type="text/html" method="html" indent="yes" omit-xml-declaration="yes" />
 	<xsl:template match="/">
@@ -19,12 +19,12 @@
 								<xsl:attribute name="href"><xsl:value-of select="link" /></xsl:attribute>
 								<data>
 									<xsl:attribute name="value"><xsl:value-of select="itunes:episode" /></xsl:attribute>
-									<xsl:value-of select="substring-after(title, ' - ')" />
+									<xsl:value-of select="title" />
 								</data>
 							</a>
 						</h3>
 							<a itemprop="significantLink" rel="enclosure" title="Download this episode" type="audio/mpeg">
-								<xsl:attribute name="download"><xsl:value-of select="substring-after(enclosure/@url, 'podcast.mlp.one/files/')" /></xsl:attribute>
+								<xsl:attribute name="download"><xsl:value-of select="dcterms:alternative" /></xsl:attribute>
 								<xsl:attribute name="href"><xsl:value-of select="$enclosureUrl" /></xsl:attribute>
 								<img alt="Download this episode" src="/image/download.png" type="image/png" />
 							</a>

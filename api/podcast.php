@@ -12,7 +12,7 @@
 	const CHANNEL_TITLE = "/mlp/odcast";
 	const CONTACT_NAME = "Corpulent Brony";
 	const EPISODE_GUID_PREFIX = "tag:mlp.one,2018:/mlp/odcast?episode=";
-	const KEY = "files/";
+	const KEYWORDS = ["/mlp/odcast", "mlpodcast", "mlp", "4chan", "pony", "horse", "podcast"];
 	const LICENSE = ["name" => "Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)", "url" => "https://creativecommons.org/licenses/by-nc/4.0/"];
 	const RSS_URL = "http://api.mlp.one/podcast";
 	const URL_PREFIX = "http://podcast.mlp.one/";
@@ -29,7 +29,7 @@
 
 	function output(string $output): void {
 		header("Content-Type: application/rss+xml");
-		header("link: <http://podcast.mlp.one>; rel=preconnect; pr=0.75");
+		header("link: <http://podcast.mlp.one>; rel=preconnect; pr=0.9");
 		echo $output;
 	}
 
@@ -118,7 +118,7 @@ sql;
 		}
 	}
 
-	class Episode extends DatabaseObject implements RssOutput {
+	class Episode extends DatabaseObject {
 		public $defaultFile;
 		public $description;
 		public $duration;
@@ -150,10 +150,9 @@ sql;
 
 		public function toRss(Rss $rss): void {
 			$episodeNumber = strval($this->number);
-			$episodeTitle = "Episode {$episodeNumber} - {$this->title}";
 			$youtubeUrl = "https://www.youtube.com/watch?v=" . rawurlencode($this->youTubeId);
 			$item = $rss->createElement("item");
-			$rss->createElement("title", [], $episodeTitle, $item);
+			$rss->createElement("title", [], $this->title, $item);
 			$rss->createElement("link", [], $youtubeUrl, $item);
 			$rss->createElement("description", [], $this->description, $item);
 			$this->defaultFile->toRss($rss, $item);
@@ -165,7 +164,8 @@ sql;
 
 			if (!is_null($this->note)) {
 				$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:content", "http://purl.org/rss/1.0/modules/content/");
-				$rss->createElement("content:encoded", [], $this->note, $item);
+				$contentEncoded = $rss->createElement("content:encoded", [], null, $item);
+				$contentEncoded->appendChild($rss->createCDATASection($this->note));
 			}
 			$rss->createElement("itunes:duration", [], implode(":", array_map(function (int $value): string { return sprintf("%02d", $value); }, [$this->duration->h, $this->duration->i, $this->duration->s])), $item);
 			$rss->createElement("itunes:episode", [], $episodeNumber, $item);
@@ -180,12 +180,12 @@ sql;
 
 			foreach ($this->files as $file)
 				$file->toRss($rss, $mediaGroup);
-			$rss->createElement("media:keywords", [], implode(", ", array_merge(["/mlp/odcast", "mlpodcast", "mlp", "4chan", "pony", "horse", "podcast"], $this->keywords)), $item);
-			$rss->createElement("media:title", ["type" => "plain"], $episodeTitle, $item);
+			$rss->createElement("media:keywords", [], implode(", ", array_merge(KEYWORDS, $this->keywords)), $item);
+			$rss->createElement("media:title", ["type" => "plain"], $this->title, $item);
 		}
 	}
 
-	class File extends DatabaseObject implements RssOutput {
+	class File extends DatabaseObject {
 		public $bitRate;
 		public $episode;
 		public $episodeNumber;
@@ -210,9 +210,10 @@ sql;
 
 		public function toRss(Rss $rss, \DOMElement $parent = null): void {
 			if ($parent instanceof \DOMElement) {
-				if ($parent->tagName === "item")
+				if ($parent->tagName === "item") {
 					$rss->createElement("enclosure", ["length" => $this->size, "type" => $this->mimeType, "url" => $this->url], null, $parent);
-				elseif ($parent->tagName === "media:group") {
+					$rss->createElement("dcterms:alternative", [], $this->name, $parent);
+				} elseif ($parent->tagName === "media:group") {
 					$attributes = [
 						"bitrate" => strval($this->bitRate), 
 						"channels" => strval($this->numberChannels), 
@@ -249,6 +250,7 @@ sql;
 			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:atom", "http://www.w3.org/2005/Atom");
 			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:cc", "http://creativecommons.org/ns#");
 			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:creativeCommons", "http://blogs.law.harvard.edu/tech/creativeCommonsRssModule");
+			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:dcterms", "http://purl.org/dc/terms/");
 			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:itunes", "http://www.itunes.com/dtds/podcast-1.0.dtd");
 			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:media", "http://search.yahoo.com/mrss/");
 			$this->channel = $this->createElement("channel", [], null, $rss);
@@ -264,6 +266,10 @@ sql;
 				$parent = $this->channel;
 			$parent->appendChild($element);
 			return $element;
+		}
+
+		public function setAttributeNS(string $namespaceUri, string $qualifiedName, string $value): void {
+			parent::getElementsByTagName("rss")[0]->setAttributeNS($namespaceUri, $qualifiedName, $value);
 		}
 	}
 

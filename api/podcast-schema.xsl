@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet exclude-result-prefixes="atom itunes" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet exclude-result-prefixes="atom creativeCommons dcterms itunes" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:creativeCommons="http://blogs.law.harvard.edu/tech/creativeCommonsRssModule" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<!-- https://www.w3.org/TR/2017/REC-xslt-30-20170608/ -->
 	<xsl:strip-space elements="*" />
 	<xsl:output media-type="application/ld+json" method="text" indent="no" omit-xml-declaration="yes" />
 	<xsl:template match="/rss/channel">
-		<xsl:variable name="createdDate"><xsl:call-template name="FormatDateTime"><xsl:with-param name="DateTime" select="item[1]/pubDate" /></xsl:call-template></xsl:variable>
+		<xsl:variable name="createdDate">2017-11-10T00:00:00+0000</xsl:variable>
 		<xsl:variable name="description"><xsl:call-template name="EscapeQuotes"><xsl:with-param name="text" select="description" /></xsl:call-template></xsl:variable>
 		<xsl:variable name="publishedDate"><xsl:call-template name="FormatDateTime"><xsl:with-param name="DateTime" select="pubDate" /></xsl:call-template></xsl:variable>
 		{
 			"@context": "https://schema.org",
-			"@id": "https://mlp.one/#/mlp/odcast",
+			"@id": "tag:mlp.one,2018:/mlp/odcast",
 			"@type": "RadioSeries",
 			"alternativeHeadline": "<xsl:value-of select="itunes:subtitle" />",
 			"author": { "@type": "Organization", "@id": "https://4chan.org/mlp/#" },
@@ -18,7 +18,6 @@
 			"dateModified": "<xsl:call-template name="FormatDateTime"><xsl:with-param name="DateTime" select="lastBuildDate" /></xsl:call-template>",
 			"datePublished": "<xsl:value-of select="$createdDate" />",
 			"description": "<xsl:value-of select="$description" />",
-			"discussionUrl": "<xsl:value-of select="link" />",
 			"genre": "podcast",
 			"headline": "<xsl:value-of select="title" />",
 			"image": "<xsl:value-of select="itunes:image/@href" />",
@@ -34,7 +33,6 @@
 				"target": "<xsl:value-of select="atom:link[@rel='self']/@href" />"
 			},
 			"productionCompany": { "@type": "Organization", "@id": "https://4chan.org/mlp/#" },
-			"sameAs": "<xsl:value-of select="link" />",
 			"startDate": "<xsl:value-of select="$createdDate" />",
 			"thumbnailUrl": "<xsl:value-of select="itunes:image/@href" />",
 			"typicalAgeRange": "16-",
@@ -54,35 +52,30 @@
 					<xsl:if test="position() != 1">,</xsl:if>
 					{
 						"@type": "RadioEpisode",
-						"@id": "https://mlp.one/#/mlp/odcast/episode/<xsl:value-of select="itunes:episode" />",
+						"@id": "<xsl:value-of select="guid" />",
 						"episodeNumber": <xsl:value-of select="itunes:episode" />,
 						"audio": {
 							"@type": "AudioObject",
 							"@id": "<xsl:value-of select="$enclosureUrl" />",
 							"accessMode": "auditory",
 							"accessModeSufficient": "auditory",
-							"author": { "@type": "Organization", "@id": "https://4chan.org/mlp/#" },
-							"contentRating": "Explicit",
 							"contentSize": "<xsl:value-of select="enclosure/@length" />",
 							"contentUrl": "<xsl:value-of select="$enclosureUrl" />",
-							"encodingFormat": "<xsl:value-of select="substring-after($fileName, '.')" />",
+							"encodingFormat": "<xsl:value-of select="substring-after(dcterms:alternative, '.')" />",
 							"fileFormat": "<xsl:value-of select="enclosure/@type" />",
-							"license": "https://creativecommons.org/licenses/by-nc/4.0/",
-							"name": "<xsl:value-of select="$fileName" />",
+							"name": "<xsl:value-of select="dcterms:alternative" />",
 							"uploadDate": "<xsl:value-of select="$filePublishedDate" />"
 						},
 						"contentRating": "Explicit",
 						"datePublished": "<xsl:value-of select="$filePublishedDate" />",
 						"description": "<xsl:value-of select="$episodeDescription" />",
 						"discussionUrl": "<xsl:value-of select="link" />",
-						"genre": "podcast",
-						"inLanguage": "en",
 						"isAccessibleForFree": true,
 						"isFamilyFriendly": false,
-						"license": "https://creativecommons.org/licenses/by-nc/4.0/",
+						"license": "<xsl:value-of select="../creativeCommons:license" />",
 						"name": "<xsl:call-template name="EscapeQuotes"><xsl:with-param name="text" select="title" /></xsl:call-template>",
-						"partOfSeason": { "@type": "RadioSeason", "seasonNumber": <xsl:value-of select="itunes:season" />, "partOfSeries": { "@type": "RadioSeries", "@id": "https://mlp.one/#/mlp/odcast" } },
-						"partOfSeries": { "@type": "RadioSeries", "@id": "https://mlp.one/#/mlp/odcast" },
+						"partOfSeason": { "@type": "RadioSeason", "seasonNumber": <xsl:value-of select="itunes:season" />, "partOfSeries": { "@type": "RadioSeries", "@id": "tag:mlp.one,2018:/mlp/odcast" } },
+						"partOfSeries": { "@type": "RadioSeries", "@id": "tag:mlp.one,2018:/mlp/odcast" },
 						"position": <xsl:value-of select="position()" />,
 						"potentialAction": {
 							"@type": "ConsumeAction",
