@@ -163,7 +163,6 @@ sql;
 			$rss->createElement("source", ["url" => RSS_URL], CHANNEL_TITLE, $item);
 
 			if (!is_null($this->note)) {
-				$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:content", "http://purl.org/rss/1.0/modules/content/");
 				$contentEncoded = $rss->createElement("content:encoded", [], null, $item);
 				$contentEncoded->appendChild($rss->createCDATASection($this->note));
 			}
@@ -180,6 +179,7 @@ sql;
 
 			foreach ($this->files as $file)
 				$file->toRss($rss, $mediaGroup);
+			$rss->createElement("media:player", ["url" => "https://www.youtube.com/embed/" . rawurlencode($this->youTubeId)], null, $rss->createElement("media:content", ["lang" => "en", "medium" => "video"], null, $mediaGroup));
 			$rss->createElement("media:keywords", [], implode(", ", array_merge(KEYWORDS, $this->keywords)), $item);
 			$rss->createElement("media:title", ["type" => "plain"], $this->title, $item);
 		}
@@ -249,6 +249,7 @@ sql;
 			$rss = $this->createElement("rss", ["version" => "2.0"], null, $this);
 			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:atom", "http://www.w3.org/2005/Atom");
 			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:cc", "http://creativecommons.org/ns#");
+			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:content", "http://purl.org/rss/1.0/modules/content/");
 			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:creativeCommons", "http://blogs.law.harvard.edu/tech/creativeCommonsRssModule");
 			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:dcterms", "http://purl.org/dc/terms/");
 			$rss->setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:itunes", "http://www.itunes.com/dtds/podcast-1.0.dtd");
@@ -266,10 +267,6 @@ sql;
 				$parent = $this->channel;
 			$parent->appendChild($element);
 			return $element;
-		}
-
-		public function setAttributeNS(string $namespaceUri, string $qualifiedName, string $value): void {
-			parent::getElementsByTagName("rss")[0]->setAttributeNS($namespaceUri, $qualifiedName, $value);
 		}
 	}
 

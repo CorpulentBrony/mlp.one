@@ -26,7 +26,7 @@
 		<link href="//www.youtube.com/user/4chanmlp" rel="author publisher" type="text/html">
 		<link href="//horse.best" rel="bestpony" type="text/html">
 		<link href="//creativecommons.org/licenses/by-nc-sa/4.0/" itemprop="license" rel="code-license content-license copyright license" type="text/html">
-		<link href="https://github.com/CorpulentBrony/mlp.one" rel="code-repository content-repository external source" type="text/html">
+		<link href="//github.com/CorpulentBrony/mlp.one" rel="code-repository content-repository external source" type="text/html">
 		<title><!--# echo var="siteTitle" --></title>
 		<link async href="/index.css" rel="stylesheet" type="text/css">
 		<link async href="/podcast/%252Fmlp%252F.jpg" itemprop="thumbnailUrl" rel="icon" sizes="88x88" type="image/jpeg">
@@ -35,7 +35,6 @@
 		<script type="application/ld+json"><!--# include file="index.Organization.jsonld" --></script>
 		<script type="application/ld+json"><!--# include file="index.WebPage.jsonld" --></script>
 		<script type="application/ld+json"><!--# include virtual="/api/podcast-schema.php" --></script>
-		<link async href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i|Roboto:900,900i" rel="stylesheet" type="text/css">
 		<style type="text/css">
 			@charset "utf-8";
 			html { max-width: 60em; }
@@ -63,8 +62,15 @@
 				width: 32px;
 			}
 			details[open] { padding-bottom: 1em; }
-			summary:hover { background: rgba(239, 79, 145, 0.2); }
+			summary:hover {
+				background: rgba(239, 79, 145, 0.2);
+				cursor: pointer;
+			}
 			h3 > a > data { font-style: italic; }
+			blockquote {
+				margin-bottom: 0;
+				margin-top: 0;
+			}
 			audio {
 				--media-controls-active-cursor: pointer;
 				--media-controls-panel-background: rgba(103, 56, 136, 0.4);
@@ -115,7 +121,7 @@
 				display: table-cell;
 				padding: 0 5px;
 			}
-			footer > nav > ul > li > a > img {
+			footer > nav > ul > li > a > img, details[open] > a > img {
 				--drop-shadow: drop-shadow(5px 3px 1ex var(--fg-color));
 				-moz-filter: var(--drop-shadow);
 				-webkit-filter: var(--drop-shadow);

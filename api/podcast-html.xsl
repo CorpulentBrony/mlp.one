@@ -15,20 +15,21 @@
 					</xsl:if>
 					<summary>
 						<h3>
-							<a itemprop="significantLink" rel="external replies" target="_blank" title="Watch this episode on YouTube">
-								<xsl:attribute name="href"><xsl:value-of select="link" /></xsl:attribute>
-								<data>
-									<xsl:attribute name="value"><xsl:value-of select="itunes:episode" /></xsl:attribute>
-									<xsl:value-of select="title" />
-								</data>
-							</a>
+							<data>
+								<xsl:attribute name="value"><xsl:value-of select="itunes:episode" /></xsl:attribute>
+								<xsl:value-of select="title" />
+							</data>
 						</h3>
-							<a itemprop="significantLink" rel="enclosure" title="Download this episode" type="audio/mpeg">
-								<xsl:attribute name="download"><xsl:value-of select="dcterms:alternative" /></xsl:attribute>
-								<xsl:attribute name="href"><xsl:value-of select="$enclosureUrl" /></xsl:attribute>
-								<img alt="Download this episode" src="/image/download.png" type="image/png" />
-							</a>
 					</summary>
+					<a itemprop="significantLink" rel="external replies" target="_blank" title="Watch this episode on YouTube">
+						<xsl:attribute name="href"><xsl:value-of select="link" /></xsl:attribute>
+						<img alt="Watch this episode on YouTube" height="32" src="/image/youtube.svg" type="image/svg+xml" />
+					</a>
+					<a itemprop="significantLink" rel="enclosure" title="Download this episode" type="audio/mpeg">
+						<xsl:attribute name="download"><xsl:value-of select="dcterms:alternative" /></xsl:attribute>
+						<xsl:attribute name="href">/podcast<xsl:value-of select="substring-after($enclosureUrl, 'podcast.mlp.one')" /></xsl:attribute>
+						<img alt="Download this episode" height="32" src="/image/download.png" type="image/png" />
+					</a>
 					<audio controls="true" itemprop="audio" type="audio/mpeg">
 						<xsl:attribute name="src"><xsl:value-of select="$enclosureUrl" /></xsl:attribute>
 						<xsl:choose>
