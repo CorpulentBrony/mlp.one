@@ -30,8 +30,7 @@
 		<title><!--# echo var="siteTitle" --></title>
 		<link async href="/index.css" rel="stylesheet" type="text/css">
 		<link async href="/podcast/%252Fmlp%252F.jpg" itemprop="thumbnailUrl" rel="icon" sizes="88x88" type="image/jpeg">
-		<!-- this is no longer needed since we can now seamlessly include this file, keeping this around for historical reasons -->
-		<!-- <script async src="/index.js" type="application/javascript"></script> -->
+		<script async src="/index.js" type="application/javascript"></script>
 		<script type="application/ld+json"><!--# include file="index.Organization.jsonld" --></script>
 		<script type="application/ld+json"><!--# include file="index.WebPage.jsonld" --></script>
 		<script type="application/ld+json"><!--# include virtual="/api/podcast-schema.php" --></script>
@@ -192,11 +191,5 @@
 				</nav>
 			</footer>
 		</main>
-		<script type="application/javascript">
-			document.querySelectorAll("ol > li > details").forEach((element) => element.addEventListener("toggle", (event) => element.querySelector("audio").preload = (element.open ? "metadata" : "none")));
-
-			if (window.Math.max(document.documentElement.clientWidth, window.innerWidth || 0) < 480)
-				document.querySelector("ol > li > details").open = false;
-		</script>
 	</body>
 </html>

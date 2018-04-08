@@ -131,42 +131,46 @@
 		if (!$errors->isEmpty())
 			throw new OutputException(strval($errors));
 		$tempFile = new \SplFileInfo($_FILES["file"]["tmp_name"]);
+		$tempFilePath = strval($tempFile);
 		
 		// check file is proper mime type
 		$inputFieldsEpisode = $inputFields->get("episode");
 		$inputFieldsFile = $inputFields->get("file");
-		$mimeType = mime_content_type(strval($tempFile));
+		$mimeType = "audio/mpeg"; //mime_content_type($tempFilePath);
 
 		// check file with is_uploaded_file first
-		if (!is_uploaded_file(strval($tempFile)))
+		if (!is_uploaded_file($tempFilePath))
 			throw new OutputException(Errors::single("file", "selected file does not appear to have been properly uploaded to server"));
 
 		if (substr($mimeType, 0, 5) !== "audio")
-			throw new OutputException(Errors::single("file", "selected file cannot be recognized as an audio file"));
+			throw new OutputException(Errors::single("file", "selected file cannot be recognized as an audio file, mime type is {$mimeType}"));
 		// check if ep already exists in database
 		$command = $pdo->prepare("select count(*) as NumEpisodes from Episodes where Number = ?;");
-		$command->execute([$inputFieldsEpisode->get("number")]);
+		$episodeNumber = $inputFieldsEpisode->get("number");
+		$command->execute([$episodeNumber]);
 
 		if ($command->fetchAll(\PDO::FETCH_COLUMN, 0)[0] !== "0")
-			throw new OutputException(Errors::single("file", "episode {$inputFieldsEpisode->get("number")} has already been saved to server, please use the edit form to make changes"));
-		$fileName = "mlpodcast/" . str_pad(strval($inputFieldsEpisode->get("number")), 4, "0", STR_PAD_LEFT) . "." . pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
+			throw new OutputException(Errors::single("file", "episode {$episodeNumber} has already been saved to server, please use the edit form to make changes"));
+		$fileName = "mlpodcast/" . str_pad(strval($episodeNumber), 4, "0", STR_PAD_LEFT) . "." . pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
 		// save data about the file before moving and deleting it
-		$inputFieldsFile->put("episodeNumber", $inputFieldsEpisode->get("number"));
+		$inputFieldsFile->put("episodeNumber", $episodeNumber);
 		$inputFieldsFile->put("name", $_FILES["file"]["name"]);
 		$inputFieldsFile->put("url", "http://podcast.mlp.one/files/{$fileName}");
 		$inputFieldsFile->put("size", $tempFile->getSize());
 		$inputFieldsFile->put("mimeType", $mimeType);
 		$inputFieldsFile->put("isDefault", true);
-		$inputFieldsFile->put("hash", hash_file("sha1", strval($tempFile), true));
+		$inputFieldsFile->put("hash", hash_file("sha1", $tempFilePath, true));
 		// move file using S3
 		$s3 = new \Aws\S3\S3Client(["region" => "us-east-1", "version" => "latest"]);
-		$s3->putObjectAsync(["ACL" => ACL, "Bucket" => BUCKET, "ContentType" => $mimeType, "Key" => KEY . $fileName, "SourceFile" => strval($tempFile), "StorageClass" => STORAGE_CLASS])
-			->then(function () use ($tempFile): void { unlink(strval($tempFile)); })
+		$s3->putObjectAsync(["ACL" => ACL, "Bucket" => BUCKET, "ContentType" => $mimeType, "Key" => KEY . $fileName, "SourceFile" => $tempFilePath, "StorageClass" => STORAGE_CLASS])
+			->then(function () use ($tempFilePath): void { unlink($tempFilePath); })
 			->otherwise(function ($err): void { throw new OutputException(Errors::single("file", "received following error when attempting to copy file to S3: " . var_export($err, true))); })
 			->wait();
 		// set metadata in database for episode
 		$inputFieldsEpisode->put("length", date_timestamp_set(new \DateTime(), $inputFieldsEpisode->get("length"))->format("H:i:s"));
-		$inputFieldsEpisode->put("keywords", json_encode(array_map(function (string $keyword): string { return trim($keyword); }, explode(",", $inputFieldsEpisode->get("keywords")))));
+
+		if (!empty($inputFieldsEpisode->get("keywords")))
+			$inputFieldsEpisode->put("keywords", json_encode(array_map(function (string $keyword): string { return trim($keyword); }, explode(",", $inputFieldsEpisode->get("keywords")))));
 		insertDb($pdo, "Episodes", $inputFieldsEpisode);
 		insertDb($pdo, "Files", $inputFieldsFile);
 		// return response

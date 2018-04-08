@@ -1,6 +1,8 @@
 {
     "require": {
         "aws/aws-sdk-php": "^3.41",
-        "google/apiclient": "^2.2"
+        "google/apiclient": "^2.2",
+        "php-ffmpeg/php-ffmpeg": "^0.11.1",
+        "athlon1600/youtube-downloader": "^1.0"
     }
 }

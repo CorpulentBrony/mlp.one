@@ -163,8 +163,9 @@ sql;
 			$rss->createElement("source", ["url" => RSS_URL], CHANNEL_TITLE, $item);
 
 			if (!is_null($this->note)) {
-				$contentEncoded = $rss->createElement("content:encoded", [], null, $item);
-				$contentEncoded->appendChild($rss->createCDATASection($this->note));
+				$rss->createCDATASection("content:encoded", [], $this->note, $item);
+				// $contentEncoded = $rss->createElement("content:encoded", [], null, $item);
+				// $contentEncoded->appendChild($rss->createCDATASection($this->note));
 			}
 			$rss->createElement("itunes:duration", [], implode(":", array_map(function (int $value): string { return sprintf("%02d", $value); }, [$this->duration->h, $this->duration->i, $this->duration->s])), $item);
 			$rss->createElement("itunes:episode", [], $episodeNumber, $item);
@@ -174,7 +175,14 @@ sql;
 			if (!is_null($this->subtitle))
 				$rss->createElement("itunes:subtitle", [], $this->subtitle, $item);
 			$rss->createElement("itunes:title", [], $this->title, $item);
-			$rss->createElement("media:description", ["type" => "plain"], $this->description, $item);
+
+			if (is_null($this->note))
+				$rss->createElement("media:description", ["type" => "plain"], $this->description, $item);
+			else {
+				$rss->createCDATASection("media:description", ["type" => "html"], $this->note, $item);
+				// $contentEncoded = $rss->createElement("media:description", ["type" => "html"], null, $item);
+				// $contentEncoded->appendChild($rss->createCDATASection($this->note));
+			}
 			$mediaGroup = $rss->createElement("media:group", [], null, $item);
 
 			foreach ($this->files as $file)
@@ -266,6 +274,12 @@ sql;
 			if (is_null($parent))
 				$parent = $this->channel;
 			$parent->appendChild($element);
+			return $element;
+		}
+
+		public function createCDATASection(string $name, array $attributes = [], string $text = null, \DOMNode $parent = null): \DOMElement {
+			$element = $this->createElement($name, $attributes, null, $parent);
+			$element->appendChild(parent::createCDATASection($text));
 			return $element;
 		}
 	}

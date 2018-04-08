@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet exclude-result-prefixes="dcterms itunes" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet exclude-result-prefixes="dcterms itunes media" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:media="http://search.yahoo.com/mrss/" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 	<!-- https://www.w3.org/TR/2017/REC-xslt-30-20170608/ -->
 	<xsl:output media-type="text/html" method="html" indent="yes" omit-xml-declaration="yes" />
 	<xsl:template match="/">
@@ -30,7 +30,8 @@
 						<xsl:attribute name="href">/podcast<xsl:value-of select="substring-after($enclosureUrl, 'podcast.mlp.one')" /></xsl:attribute>
 						<img alt="Download this episode" height="32" src="/image/download.png" type="image/png" />
 					</a>
-					<audio controls="true" itemprop="audio" type="audio/mpeg">
+					<audio controls="true" itemprop="audio" itemscope="true" itemtype="https://schema.org/AudioObject" type="audio/mpeg">
+						<xsl:attribute name="itemid"><xsl:value-of select="$enclosureUrl" /></xsl:attribute>
 						<xsl:attribute name="src"><xsl:value-of select="$enclosureUrl" /></xsl:attribute>
 						<xsl:choose>
 							<xsl:when test="position()=1">
@@ -41,7 +42,16 @@
 							</xsl:otherwise>
 						</xsl:choose>
 					</audio>
-					<blockquote><xsl:call-template name="InsertBreaks"><xsl:with-param name="text" select="description" /></xsl:call-template></blockquote>
+					<blockquote>
+						<xsl:choose>
+							<xsl:when test="media:description/@type='html'">
+								<xsl:value-of disable-output-escaping="yes" select="media:description" />
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:call-template name="InsertBreaks"><xsl:with-param name="text" select="media:description" /></xsl:call-template>
+							</xsl:otherwise>
+						</xsl:choose>
+					</blockquote>
 				</details>
 			</li>
 		</xsl:for-each>

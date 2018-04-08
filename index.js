@@ -1,31 +1,27 @@
 "use strict";
+(function index() {
+	const elements = window.Object.create(window.Object.prototype);
 
-// (function() {
-// 	function createEpisodeTable() {
-// 		const TABLE_ELEMENT = document.getElementById("table-episodes");
-// 		const TBODY_ELEMENT = document.getElementById("tbody-episodes");
-// 		const XML_FILE = "/api/podcast.php";
-// 		const XSL_ELEMENT = document.getElementById("podcast-xsl");
+	function audioOnPlay(event) {
+		elements.audio.forEach((element) => {
+			if (element !== event.target)
+				element.pause();
+		});
+	}
 
-// 		const PARSER = new window.DOMParser();
-// 		const processor = new window.XSLTProcessor();
+	function documentOnLoad() {
+		elements.audio = window.document.querySelectorAll("audio");
+		elements.details = window.document.querySelectorAll("ol > li > details");
+		elements.audio.forEach((element) => element.addEventListener("play", audioOnPlay, false));
+		elements.details.forEach((element) => element.addEventListener("toggle", (event) => element.querySelector("audio").preload = (element.open ? "metadata" : "none"), false));
 
-// 		function parseXml(string) { return PARSER.parseFromString(string, "application/xml"); }
+		if (window.Math.max(window.document.documentElement.clientWidth, window.innerWidth || 0) < 480)
+			elements.details[0].open = false;
+		window.document.removeEventListener("DOMContentLoaded", documentOnLoad, false);
+	}
 
-// 		const xsl = processor.importStylesheet(parseXml(XSL_ELEMENT.textContent));
-// 		const xml = window.fetch(XML_FILE)
-// 			.then((response) => response.text())
-// 			.then((xml) => {
-// 				const fragment = processor.transformToFragment(parseXml(xml), document);
-// 				TBODY_ELEMENT.replaceChild(fragment, TBODY_ELEMENT.firstChild);
-// 				TABLE_ELEMENT.removeAttribute("aria-hidden");
-// 			})
-// 			.catch(console.error);
-// 		document.removeEventListener("DOMContentLoaded", createEpisodeTable, false);
-// 	}
-
-// 	if (document.readyState === "loading")
-// 		document.addEventListener("DOMContentLoaded", createEpisodeTable, false);
-// 	else
-// 		createEpisodeTable();
-// })();
+	if (window.document.readyState === "loading")
+		window.document.addEventListener("DOMContentLoaded", documentOnLoad, false);
+	else
+		documentOnLoad();
+})();

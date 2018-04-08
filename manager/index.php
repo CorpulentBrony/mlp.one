@@ -24,7 +24,7 @@
 			"subtitle" => ["filter" => FILTER_SANITIZE_STRING, "maxlength" => 255, "name" => "Episode Subtitle"],
 			"description" => ["filter" => FILTER_SANITIZE_STRING, "maxlength" => 4000, "minlength" => 1, "name" => "Episode Description"],
 			"keywords" => ["filter" => FILTER_SANITIZE_STRING, "name" => "Episode Keywords"],
-			"note" => ["filter" => FILTER_SANITIZE_STRING, "maxlength" => 4000, "name" => "Episode Note"],
+			"note" => ["filter" => FILTER_UNSAFE_RAW, "maxlength" => 4000, "name" => "Episode Note"],
 			"publishDate" => [
 				"filter" => FILTER_SANITIZE_STRING, 
 				"max" => $currentDate, 
@@ -95,14 +95,6 @@
 				border: 1px solid var(--fg-color);
 				border-radius: 5px;
 			}
-/*			label { position: relative; }
-			label[data-message]:after {
-				bottom: -100%;
-				content: attr(data-message);
-				left: 110%;
-				position: absolute;
-				width: 270%;
-			}*/
 			input, textarea { transition: all 0.5s; }
 			input:invalid, textarea:invalid { box-shadow: 0 0 2px 1px var(--twi-hair-highlight-pink); }
 			input:focus, textarea:focus {
@@ -162,9 +154,9 @@
 			.justify-start { justify-self: start; }
 			section { padding-top: 10px; }
 		</style>
-		<style media="(max-width: 500px)" type="text/css">
+<!-- 		<style media="(max-width: 500px)" type="text/css">
 		/* stuff in here to re-layout the page maybe? */
-		</style>
+		</style> -->
 		<!-- <script id="inputFields" type="application/json"><?= json_encode($inputFields) ?></script> -->
 		<title><?= $pageTitle ?></title>
 	</head>
@@ -177,12 +169,33 @@
 			<section role="main">
 				<output aria-live="polite" form="uploadForm" id="formSubmissionResult" role="status"></output>
 				<!-- for grid layout: https://css-tricks.com/snippets/css/complete-guide-grid/ -->
+<!-- 				<form action="submit" aria-labelledby="welcomeMessage" autocomplete="on" id="youtubeForm" method="get" name="youtubeForm" role="form">
+					<fieldset>
+						<div>
+							<label for="youtubeUploadId">YouTube ID: <abbr title="required">*</abbr></label>
+							<input 
+								aria-required="true" 
+								id="youtubeUploadId" 
+								inputmode="verbatim" 
+								maxlength="<?= $inputFields["episode"]["youTubeId"]["maxlength"] ?>" 
+								minlength="<?= $inputFields["episode"]["youTubeId"]["minlength"] ?>" 
+								name="youtubeUploadId" 
+								pattern="<?= $inputFields["episode"]["youTubeId"]["pattern"] ?>" 
+								required 
+								title="YouTube ID" 
+								type="text">
+						</div>
+					</fieldset>
+					<div>
+						<button class="button" role="button" title="Submit" type="submit">Submit</button>
+					</div>
+				</form> -->
 				<form action="submit" aria-labelledby="welcomeMessage" autocomplete="on" enctype="multipart/form-data" id="uploadForm" method="post" name="episodeUpload" role="form">
 					<div aria-live="polite" id="errorMessageDiv"></div>
 					<fieldset>
 						<legend>Episode</legend>
 						<div>
-							<label data-message="testing something" for="episodeNumber">Number: <abbr title="required">*</abbr></label>
+							<label for="episodeNumber">Number: <abbr title="required">*</abbr></label>
 							<input 
 								aria-errormessage="errorMessageDiv"
 								aria-required="true"
@@ -416,7 +429,7 @@
 							elements.submissionResult.classList.add("warning");
 
 							if (result && result.isSuccessful === false) {
-								const errorList = createElement("dl", {}, document.createDocumentFragment());
+								const errorList = createElement("dl", {}, window.document.createDocumentFragment());
 
 								for (const errorField of window.Object.getOwnPropertyNames(result.errors)) {
 									createElement("dt", {}, errorList, errorField);
@@ -454,8 +467,8 @@
 					elements.fileUploadProgress.textContent = (progress * 100).toPrecision(3) + "%";
 				}
 
-				if (document.readyState === "loading")
-					document.addEventListener("DOMContentLoaded", documentOnLoad, false);
+				if (window.document.readyState === "loading")
+					window.document.addEventListener("DOMContentLoaded", documentOnLoad, false);
 				else
 					documentOnLoad();
 			})();
