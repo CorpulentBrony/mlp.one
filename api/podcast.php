@@ -15,21 +15,22 @@
 	const KEYWORDS = ["/mlp/odcast", "mlpodcast", "mlp", "4chan", "pony", "horse", "podcast"];
 	const LICENSE = ["name" => "Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)", "url" => "https://creativecommons.org/licenses/by-nc/4.0/"];
 	const RSS_URL = "http://api.mlp.one/podcast";
-	const URL_PREFIX = "http://podcast.mlp.one/";
 	const YOUTUBE_PLAYLIST_ID = "PLpXLx1a_owv0xfz2JH8TEHcCLGBE2kfaX";
 	const WEB_URL = "https://mlp.one";
 
-	const CHANNEL_IMAGE = URL_PREFIX . "mlpodcast.png";
-	const CHANNEL_IMAGE_LARGE = URL_PREFIX . "mlpodcast-large.jpg";
 	const CHANNEL_URL = "https://www.youtube.com/playlist?list=" . YOUTUBE_PLAYLIST_ID;
 	const CONTACT_EMAIL = "corpulent@brony.email (" . CONTACT_NAME . ")";
+	const URL_PREFIX = "http://" . BUCKET . "/";
+
+	const CHANNEL_IMAGE = URL_PREFIX . "mlpodcast.png";
+	const CHANNEL_IMAGE_LARGE = URL_PREFIX . "mlpodcast-large.jpg";
 	const RSS_ICON_URL = URL_PREFIX . "rss.png";
 
 	header("Content-Type: text/plain");
 
 	function output(string $output): void {
 		header("Content-Type: application/rss+xml");
-		header("link: <http://podcast.mlp.one>; rel=preconnect; pr=0.9");
+		header("link: <" . URL_PREFIX . ">; rel=preconnect; pr=0.9");
 		echo $output;
 	}
 
@@ -162,11 +163,8 @@ sql;
 			$rss->createElement("pubDate", [], $this->publishDate->format(\DateTime::RSS), $item);
 			$rss->createElement("source", ["url" => RSS_URL], CHANNEL_TITLE, $item);
 
-			if (!is_null($this->note)) {
+			if (!is_null($this->note))
 				$rss->createCDATASection("content:encoded", [], $this->note, $item);
-				// $contentEncoded = $rss->createElement("content:encoded", [], null, $item);
-				// $contentEncoded->appendChild($rss->createCDATASection($this->note));
-			}
 			$rss->createElement("itunes:duration", [], implode(":", array_map(function (int $value): string { return sprintf("%02d", $value); }, [$this->duration->h, $this->duration->i, $this->duration->s])), $item);
 			$rss->createElement("itunes:episode", [], $episodeNumber, $item);
 			$rss->createElement("itunes:explicit", [], "Yes", $item);
@@ -178,11 +176,8 @@ sql;
 
 			if (is_null($this->note))
 				$rss->createElement("media:description", ["type" => "plain"], $this->description, $item);
-			else {
+			else
 				$rss->createCDATASection("media:description", ["type" => "html"], $this->note, $item);
-				// $contentEncoded = $rss->createElement("media:description", ["type" => "html"], null, $item);
-				// $contentEncoded->appendChild($rss->createCDATASection($this->note));
-			}
 			$mediaGroup = $rss->createElement("media:group", [], null, $item);
 
 			foreach ($this->files as $file)
@@ -314,8 +309,8 @@ sql;
 	$rss->createElement("media:category", ["scheme" => "http://dmoztools.net", "label" => "Podcasts"], "Computers/Internet/On_the_Web/Podcasts");
 	$rss->createElement("media:rating", ["scheme" => "urn:simple"], "adult");
 	$rss->createElement("media:rights", ["status" => "userCreated"]);
-	$rss->createElement("media:thumbnail", ["height" => "720", "url" => CHANNEL_IMAGE, "width" => "1280"]);
 	$rss->createElement("media:thumbnail", ["height" => "1440", "url" => CHANNEL_IMAGE_LARGE, "width" => "1440"]);
+	$rss->createElement("media:thumbnail", ["height" => "720", "url" => CHANNEL_IMAGE, "width" => "1280"]);
 	$image = $rss->createElement("image");
 	$rss->createElement("height", [], "81", $image);
 	$rss->createElement("link", [], WEB_URL, $image);

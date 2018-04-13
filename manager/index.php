@@ -42,6 +42,7 @@
 		]
 	];
 	$requiredInputFields = ["episode" => ["number", "title", "description", "publishDate", "length", "youTubeId"], "file" => ["numberChannels"]];
+	$uploadProgressTitlePrefix = "File upload progress: ";
 	$_SESSION["input_fields"] = $inputFields;
 	$_SESSION["required_input_fields"] = $requiredInputFields;
 
@@ -169,27 +170,22 @@
 			<section role="main">
 				<output aria-live="polite" form="uploadForm" id="formSubmissionResult" role="status"></output>
 				<!-- for grid layout: https://css-tricks.com/snippets/css/complete-guide-grid/ -->
-<!-- 				<form action="submit" aria-labelledby="welcomeMessage" autocomplete="on" id="youtubeForm" method="get" name="youtubeForm" role="form">
+ 				<form action="submit" aria-labelledby="welcomeMessage" autocomplete="on" enctype="multipart/form-data" id="fileUploadForm" method="post" name="fileUploadForm" role="form">
+ 					<input name="MAX_FILE_SIZE" type="hidden" value="100000000">
+					<input aria-errormessage="errorMessageDiv" aria-required accept="audio/*" id="fileUploadInput" name="fileUploadInput" placeholder="Choose podcast file" required type="file">
 					<fieldset>
+						<legend>Upload Episode</legend>
 						<div>
-							<label for="youtubeUploadId">YouTube ID: <abbr title="required">*</abbr></label>
-							<input 
-								aria-required="true" 
-								id="youtubeUploadId" 
-								inputmode="verbatim" 
-								maxlength="<?= $inputFields["episode"]["youTubeId"]["maxlength"] ?>" 
-								minlength="<?= $inputFields["episode"]["youTubeId"]["minlength"] ?>" 
-								name="youtubeUploadId" 
-								pattern="<?= $inputFields["episode"]["youTubeId"]["pattern"] ?>" 
-								required 
-								title="YouTube ID" 
-								type="text">
+							<label class="button col-span-2 justify-start" for="fileUploadInput" role="button" title="Choose podcast file">Choose podcast file</label>
+							<label for="fileUploadOutput">Selected file: </label>
+							<output aria-live="polite" for="fileUploadInput" id="fileUploadOutput" role="status"><?= $emptyFileMessage ?></output>
 						</div>
 					</fieldset>
 					<div>
 						<button class="button" role="button" title="Submit" type="submit">Submit</button>
+						<progress aria-hidden="true" aria-valuemax="1" aria-valuemin="0" aria-valuenow="0" id="fileUploadProgress" role="progressbar" title="<?= $uploadProgressTitlePrefix ?>0%" value="0">0%</progress>
 					</div>
-				</form> -->
+				</form>
 				<form action="submit" aria-labelledby="welcomeMessage" autocomplete="on" enctype="multipart/form-data" id="uploadForm" method="post" name="episodeUpload" role="form">
 					<div aria-live="polite" id="errorMessageDiv"></div>
 					<fieldset>
@@ -350,7 +346,7 @@
 					</fieldset>
 					<div>
 						<button class="button" role="button" title="Submit" type="submit">Submit</button>
-						<progress aria-hidden="true" aria-valuemax="1" aria-valuemin="0" aria-valuenow="0" id="fileUploadProgress" role="progressbar" value="0">0%</progress>
+						<progress aria-hidden="true" aria-valuemax="1" aria-valuemin="0" aria-valuenow="0" id="fileUploadProgress" role="progressbar" title="<?= $uploadProgressTitlePrefix ?>0%" value="0">0%</progress>
 					</div>
 				</form>
 			</section>
@@ -369,7 +365,7 @@
 				const elements = window.Object.create(window.Object.prototype);
 
 				function createElement(name, attributes = {}, parent = undefined, text = undefined) {
-					const element = document.createElement(name);
+					const element = window.document.createElement(name);
 
 					for (const key in attributes)
 						element.setAttribute(key, attributes[key]);
@@ -383,14 +379,14 @@
 				}
 
 				function documentOnLoad() {
-					elements.file = document.getElementById("file");
-					elements.fileOutput = document.getElementById("fileOutput");
-					elements.fileUploadProgress = document.getElementById("fileUploadProgress");
-					elements.form = document.getElementById("uploadForm");
-					elements.submissionResult = document.getElementById("formSubmissionResult");
+					elements.file = window.document.getElementById("file");
+					elements.fileOutput = window.document.getElementById("fileOutput");
+					elements.fileUploadProgress = window.document.getElementById("fileUploadProgress");
+					elements.form = window.document.getElementById("uploadForm");
+					elements.submissionResult = window.document.getElementById("formSubmissionResult");
 					elements.file.addEventListener("change", fileOnChange, false);
 					elements.form.addEventListener("submit", formOnSubmit, false);
-					document.removeEventListener("DOMContentLoaded", documentOnLoad, false);
+					window.document.removeEventListener("DOMContentLoaded", documentOnLoad, false);
 				}
 
 				function fileOnChange(event) {
@@ -414,14 +410,15 @@
 						xhr.addEventListener("error", reject, false);
 						xhr.upload.addEventListener("progress", uploadOnProgress, false);
 						xhr.send(new window.FormData(elements.form));
-						elements.fileUploadProgress.removeAttribute("aria-hidden");
+						showElement(elements.fileUploadProgress);
 						elements.form.setAttribute("aria-busy", true);
 					});
 					elements.submissionResult.textContent = "";
 					elements.submissionResult.classList.remove("warning");
 					fetch.then((result) => {
 						if (result && result.isSuccessful) {
-							elements.form.setAttribute("aria-hidden", true);
+							hideElement(elements.form);
+							setProgress(elements.fileUploadProgress, 0);
 							elements.submissionResult.textContent = "Episode submitted successfully.";
 							elements.submitAnother = createElement("button", { class: "button", role: "button", title: "Submit Another Episode", type: "button" }, elements.submissionResult, "Submit Another Episode");
 							elements.submitAnother.addEventListener("click", submitAnotherOnClick, false);
@@ -442,7 +439,7 @@
 						}
 						window.scrollTo(0, 0);
 						elements.form.removeAttribute("aria-busy");
-						elements.fileUploadProgress.setAttribute("aria-hidden", true);
+						hideElement(elements.fileUploadProgress);
 						uploadOnProgress({ loaded: 0, total: 1 });
 					}).catch(console.error);
 
@@ -451,20 +448,34 @@
 					return false;
 				}
 
+				function hideElement(element) { element.setAttribute("aria-hidden", true); }
+				function showElement(element) { element.removeAttribute("aria-hidden"); }
+
+				function setProgress(progressElement, progress) {
+					progressElement.setAttribute("aria-valuenow", progress);
+					progressElement.setAttribute("value", progress);
+					const progressText = (progress * 100).toPrecision(3) + "%";
+					progressElement.setAttribute("title", `<?= $uploadProgressTitlePrefix ?>${progressText}`);
+					progressElement.textContent = progressText;
+				}
+
 				function submitAnotherOnClick(event) {
 					elements.submissionResult.textContent = "";
 					elements.form.reset();
-					elements.form.removeAttribute("aria-hidden");
+					showElement(elements.form);
 					elements.submitAnother.removeEventListener("click", submitAnotherOnClick, false);
 				}
 
 				function uploadOnProgress(event) {
 					const loaded = window.Number.parseFloat(event.loaded);
 					const total = window.Number.parseFloat(event.total);
-					const progress = (total === 0) ? 0 : loaded / total;
-					elements.fileUploadProgress.setAttribute("aria-valuenow", progress);
-					elements.fileUploadProgress.setAttribute("value", progress);
-					elements.fileUploadProgress.textContent = (progress * 100).toPrecision(3) + "%";
+					setProgress(elements.fileUploadProgress, (total === 0) ? 0 : loaded / total);
+					// const progress = (total === 0) ? 0 : loaded / total;
+					// elements.fileUploadProgress.setAttribute("aria-valuenow", progress);
+					// elements.fileUploadProgress.setAttribute("value", progress);
+					// const progressText = (progress * 100).toPrecision(3) + "%";
+					// elements.fileUploadProgress.setAttribute("title", `File upload progress: ${progressText}`);
+					// elements.fileUploadProgress.textContent = progressText;
 				}
 
 				if (window.document.readyState === "loading")

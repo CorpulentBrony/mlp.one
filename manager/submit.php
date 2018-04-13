@@ -130,19 +130,20 @@
 
 		if (!$errors->isEmpty())
 			throw new OutputException(strval($errors));
+		$fileExtension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
 		$tempFile = new \SplFileInfo($_FILES["file"]["tmp_name"]);
 		$tempFilePath = strval($tempFile);
 		
 		// check file is proper mime type
 		$inputFieldsEpisode = $inputFields->get("episode");
 		$inputFieldsFile = $inputFields->get("file");
-		$mimeType = "audio/mpeg"; //mime_content_type($tempFilePath);
+		$mimeType = mime_content_type($tempFilePath);
 
 		// check file with is_uploaded_file first
 		if (!is_uploaded_file($tempFilePath))
 			throw new OutputException(Errors::single("file", "selected file does not appear to have been properly uploaded to server"));
 
-		if (substr($mimeType, 0, 5) !== "audio")
+		if (substr($mimeType, 0, 5) !== "audio" && ($fileExtension != "mp3" || $mimetype !== "application/octet-stream"))
 			throw new OutputException(Errors::single("file", "selected file cannot be recognized as an audio file, mime type is {$mimeType}"));
 		// check if ep already exists in database
 		$command = $pdo->prepare("select count(*) as NumEpisodes from Episodes where Number = ?;");
@@ -151,11 +152,11 @@
 
 		if ($command->fetchAll(\PDO::FETCH_COLUMN, 0)[0] !== "0")
 			throw new OutputException(Errors::single("file", "episode {$episodeNumber} has already been saved to server, please use the edit form to make changes"));
-		$fileName = "mlpodcast/" . str_pad(strval($episodeNumber), 4, "0", STR_PAD_LEFT) . "." . pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
+		$fileName = "mlpodcast/" . str_pad(strval($episodeNumber), 4, "0", STR_PAD_LEFT) . "." . $fileExtension;
 		// save data about the file before moving and deleting it
 		$inputFieldsFile->put("episodeNumber", $episodeNumber);
 		$inputFieldsFile->put("name", $_FILES["file"]["name"]);
-		$inputFieldsFile->put("url", "http://podcast.mlp.one/files/{$fileName}");
+		$inputFieldsFile->put("url", "http://" . BUCKET . "/" . KEY . $fileName);
 		$inputFieldsFile->put("size", $tempFile->getSize());
 		$inputFieldsFile->put("mimeType", $mimeType);
 		$inputFieldsFile->put("isDefault", true);

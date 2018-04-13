@@ -8,7 +8,7 @@
 		"name": "Corpulent Brony",
 		"url": "https://plus.google.com/+CorpulentBrony"
 	},
-	"display": "browser",
+	"display": "minimal-ui",
 	"icons": [
 		{ "sizes": "1280x720", "src": "<!--# echo var='siteThumbnail' -->", "type": "image/png" }
 	],
