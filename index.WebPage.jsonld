@@ -50,9 +50,12 @@
 	"fileFormat": "text/html",
 	"genre": "podcast",
 	"isAccessibleForFree": true,
+	"license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
 	"material": "bits",
 	"publisher": { "@type": "Organization", "@id": "https://4chan.org/mlp/#" },
 	"sourceOrganization": { "@type": "Organization", "@id": "https://4chan.org/mlp/#" },
+	"thumbnailUrl": "https://mlp.one/podcast/%252Fmlp%252F.jpg",
 	"timeRequired": "P1H",
-	"typicalAgeRange": "16-"
+	"typicalAgeRange": "16-",
+	"url": "https://<!--# echo var='host' --><!--# echo var='request_uri' -->"
 }

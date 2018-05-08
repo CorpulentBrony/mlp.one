@@ -1,0 +1,11 @@
+@charset "utf-8";
+@import "colors";
+
+/* CSS variables (used in inline style) */
+:root {
+	--bg-primary-color: #{$bg-primary-color};
+	--bg-secondary-color: #{$bg-secondary-color};
+	--fg-color: #{$fg-color};
+	--fg-color-invert: #{$fg-color-invert};
+	--twi-hair-highlight-pink: #{$twi-hair-highlight-pink};
+}

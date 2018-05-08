@@ -7,3 +7,4 @@ api/vendor
 css/
 manager/client_secrets.json
 manager/secrets.php
+*.br

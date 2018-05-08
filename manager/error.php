@@ -10,32 +10,13 @@
 ?><!DOCTYPE html>
 <html itemid="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemscope itemtype="https://schema.org/WebPage" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
 	<head>
-		<meta charset="utf-8">
-		<link href="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemprop="url" rel="canonical self" type="text/html">
-		<link href="/manifest.jsonmanifest" rel="manifest" type="application/manifest+json">
-		<link href="/sitemap.xml" rel="sitemap" type="application/xml">
-		<meta content="/browserconfig.xml" name="msapplication-config">
-		<meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport">
+		<!--# include file="/common_header.html" -->
 		<meta content="<?= $pageTitle ?>" itemprop="headline name" name="title" property="og:title">
 		<meta content="<?= $pageDescription ?>" itemprop="description" name="description" property="og:description">
-		<meta content="<!--# echo var='siteImage' -->" itemprop="image" name="twitter:image" property="og:image">
-		<meta content="1280" property="og:image:width">
-		<meta content="720" property="og:image:height">
-		<meta content="image/png" property="og:image:type">
-		<meta content="website" property="og:type">
-		<meta content="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemprop="url" property="og:url">
-		<meta content="otaku12" property="fb:admins">
-		<meta content="summary" name="twitter:card">
-		<meta content="@CorpulentBrony" name="twitter:site">
 		<meta content="<?= $pageTitle ?>" name="twitter:title">
 		<meta content="<?= $pageDescription ?>" name="twitter:description">
-		<link href="//www.youtube.com/user/4chanmlp" rel="author publisher" type="text/html">
-		<link href="//horse.best" rel="bestpony" type="text/html">
-		<link href="//creativecommons.org/licenses/by-nc-sa/4.0/" itemprop="license" rel="code-license content-license copyright license" type="text/html">
-		<link href="https://github.com/CorpulentBrony/mlp.one" rel="code-repository content-repository external source" type="text/html">
 		<title><?= $pageTitle ?></title>
-		<link async href="/index.css" rel="stylesheet" type="text/css">
-		<link async href="/podcast/%252Fmlp%252F.jpg" itemprop="thumbnailUrl" rel="icon" sizes="88x88" type="image/jpeg">
+		<link href="/index.css" rel="stylesheet" type="text/css">
 		<title><?= $pageTitle ?></title>
 	</head>
 	<body>

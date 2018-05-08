@@ -54,34 +54,15 @@
 ?><!DOCTYPE html>
 <html itemid="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemscope itemtype="https://schema.org/WebPage" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
 	<head>
-		<meta charset="utf-8">
-		<link href="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemprop="url" rel="canonical self" type="text/html">
-		<link href="/manifest.jsonmanifest" rel="manifest" type="application/manifest+json">
-		<link href="/sitemap.xml" rel="sitemap" type="application/xml">
-		<meta content="/browserconfig.xml" name="msapplication-config">
-		<meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport">
+		<!--# include file="/common_header.html" -->
 		<meta content="<?= $pageTitle ?>" itemprop="headline name" name="title" property="og:title">
 		<meta content="<?= $pageDescription ?>" itemprop="description" name="description" property="og:description">
-		<meta content="<!--# echo var='siteImage' -->" itemprop="image" name="twitter:image" property="og:image">
-		<meta content="1280" property="og:image:width">
-		<meta content="720" property="og:image:height">
-		<meta content="image/png" property="og:image:type">
-		<meta content="website" property="og:type">
-		<meta content="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemprop="url" property="og:url">
-		<meta content="otaku12" property="fb:admins">
-		<meta content="summary" name="twitter:card">
-		<meta content="@CorpulentBrony" name="twitter:site">
 		<meta content="<?= $pageTitle ?>" name="twitter:title">
 		<meta content="<?= $pageDescription ?>" name="twitter:description">
-		<link href="//www.youtube.com/user/4chanmlp" rel="author publisher" type="text/html">
-		<link href="//horse.best" rel="bestpony" type="text/html">
-		<link href="//creativecommons.org/licenses/by-nc-sa/4.0/" itemprop="license" rel="code-license content-license copyright license" type="text/html">
-		<link href="https://github.com/CorpulentBrony/mlp.one" rel="code-repository content-repository external source" type="text/html">
-		<link async href="/index.css" rel="stylesheet" type="text/css">
-		<link async href="/podcast/%252Fmlp%252F.jpg" itemprop="thumbnailUrl" rel="icon" sizes="88x88" type="image/jpeg">
+		<link href="/index.css" rel="stylesheet" type="text/css">
 		<style type="text/css">
 			@charset "utf-8";
-			/* this should probably be moved to a separate scss based file eventually */
+			<!--# include file="/css/vars.css" -->
 			output dl {
 				display: grid;
 				grid-template-columns: max-content auto;
@@ -158,7 +139,6 @@
 <!-- 		<style media="(max-width: 500px)" type="text/css">
 		/* stuff in here to re-layout the page maybe? */
 		</style> -->
-		<!-- <script id="inputFields" type="application/json"><?= json_encode($inputFields) ?></script> -->
 		<title><?= $pageTitle ?></title>
 	</head>
 	<body>
@@ -183,7 +163,6 @@
 					</fieldset>
 					<div>
 						<button class="button" role="button" title="Submit" type="submit">Submit</button>
-						<progress aria-hidden="true" aria-valuemax="1" aria-valuemin="0" aria-valuenow="0" id="fileUploadProgress" role="progressbar" title="<?= $uploadProgressTitlePrefix ?>0%" value="0">0%</progress>
 					</div>
 				</form>
 				<form action="submit" aria-labelledby="welcomeMessage" autocomplete="on" enctype="multipart/form-data" id="uploadForm" method="post" name="episodeUpload" role="form">
@@ -283,7 +262,7 @@
 								role="textbox"
 								title="Episode Duration (in seconds)" 
 								type="number">
-							<label for="youTubeId">YouTube ID: <abbr title="required">*</abbr></label>
+							<label for="episodeYouTubeId">YouTube ID: <abbr title="required">*</abbr></label>
 							<input 
 								aria-errormessage="errorMessageDiv"
 								aria-required="true"
@@ -351,7 +330,7 @@
 				</form>
 			</section>
 		</main>
-		<script type="application/javascript">
+		<script>
 			// for uploading files, look here: https://developer.mozilla.org/en-US/docs/Web/API/File/Using_files_from_web_applications
 			// fetch api: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
 			// using fetch api (search for POST): https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
@@ -382,10 +361,15 @@
 					elements.file = window.document.getElementById("file");
 					elements.fileOutput = window.document.getElementById("fileOutput");
 					elements.fileUploadProgress = window.document.getElementById("fileUploadProgress");
+					elements.fileUploadForm = window.document.getElementById("fileUploadForm");
+					elements.fileUploadInput = window.document.getElementById("fileUploadInput");
+					elements.fileUploadOutput = window.document.getElementById("fileUploadOutput");
 					elements.form = window.document.getElementById("uploadForm");
 					elements.submissionResult = window.document.getElementById("formSubmissionResult");
 					elements.file.addEventListener("change", fileOnChange, false);
 					elements.form.addEventListener("submit", formOnSubmit, false);
+					elements.fileUploadForm.addEventListener("submit", fileUploadFormOnSubmit, false);
+					elements.fileUploadInput.addEventListener("change", fileUploadInputOnChange, false);
 					window.document.removeEventListener("DOMContentLoaded", documentOnLoad, false);
 				}
 
@@ -400,8 +384,48 @@
 					elements.fileOutputAudio = createElement("audio", { controls: true, preload: "metadata", src: elements.currentFileUrl }, elements.fileOutput);
 				}
 
+				function fileUploadFormOnSubmit(event) {
+					const fetch = new window.Promise((resolve, reject) => {
+						const xhr = new window.XMLHttpRequest();
+						xhr.open("POST", "submit_file.php", true);
+						xhr.responseType = "json";
+						xhr.withCredentials = true;
+						xhr.addEventListener("load", () => resolve(xhr.response), false);
+						xhr.addEventListener("error", reject, false);
+						xhr.upload.addEventListener("progress", uploadOnProgress, false);
+						xhr.send(new window.FormData(elements.fileUploadForm));
+						showElement(elements.fileUploadProgress);
+						elements.fileUploadForm.setAttribute("aria-busy", true);
+						console.log(xhr);
+					});
+					elements.submissionResult.textContent = "";
+					elements.submissionResult.classList.remove("warning");
+					fetch.then((result) => {
+						if (result && result.isSuccessful) {
+							setProgress(elements.fileUploadProgress, 0);
+							elements.submissionResult.textContent = "File uploaded successfully.";
+							console.log(result);
+						}
+					}).catch(console.error);
+
+					if (event.preventDefault)
+						event.preventDefault();
+					return false;
+				}
+
+				function fileUploadInputOnChange(event) {
+					if (event.target.files.length === 0) {
+						elements.fileUploadOutput.textContent = "<?= $emptyFileMessage ?>";
+						window.URL.revokeObjectURL(elements.currentFileUrl);
+						return;
+					}
+					elements.fileUploadOutput.textContent = event.target.files[0].name;
+					elements.currentFileUrl = window.URL.createObjectURL(event.target.files[0]);
+					elements.fileOutputAudio = createElement("audio", { controls: true, preload: "metadata", src: elements.currentFileUrl }, elements.fileUploadOutput);
+				}
+
 				function formOnSubmit(event) {
-					const fetch = new Promise((resolve, reject) => {
+					const fetch = new window.Promise((resolve, reject) => {
 						const xhr = new window.XMLHttpRequest();
 						xhr.open("POST", "submit.php", true);
 						xhr.responseType = "json";

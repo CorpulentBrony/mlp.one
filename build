@@ -1,4 +1,4 @@
 #!/bin/bash
 
 ## use --style compressed if you want
-find "scss/" -maxdepth 1 -name "*.scss" -type f -exec sh -c 'scss --style expanded --default-encoding UTF-8 "{}" css/$(basename "{}" ".scss").css' \;
+find "scss/" -maxdepth 1 -name "[a-z]*.scss" -type f -exec sh -c 'scss --style compressed --default-encoding UTF-8 "{}" css/$(basename "{}" ".scss").css' \;

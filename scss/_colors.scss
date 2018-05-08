@@ -1,0 +1,25 @@
+// define best pony's colors, for use later
+/* colors from https://kefkafloyd.deviantart.com/art/Twilight-Sparkle-Color-Guide-2-0-UPDATED-199520929 */
+$twi-body-fill: #d19fe3;
+$twi-body-fill-shadow: #b689c8; // very slightly darker, almost unnoticeable
+$twi-body-stroke: #a76bc2;
+$twi-eye-gradient-dark: #22093f; // black purple
+$twi-eye-gradient-light: #672f8b;
+$twi-eye-gradient-mid: #532976;
+$twi-eye-highlight-dark: #9561a8;
+$twi-eye-highlight-light: #c9aad0;
+$twi-hair-highlight-pink: #ed438a; // same color as cutie mark
+$twi-hair-highlight-purple: #662d8a;
+$twi-hair-primary: #263773;
+$twi-hair-stroke: #131f46; // black blue
+$twi-mouth: #a8005b; // almost red
+$twi-teeth-stroke: #b9e0f7; // light blue
+$twi-tongue: #f47735; // orange
+
+// define styling variables
+$bg-primary-color: $twi-body-fill;
+$bg-secondary-color: $twi-body-stroke;
+$fg-color: $twi-hair-primary;
+
+// define variables based on previously defined variables
+$fg-color-invert: invert($fg-color);

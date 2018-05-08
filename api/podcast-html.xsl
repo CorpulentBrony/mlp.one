@@ -8,7 +8,7 @@
 			<xsl:variable name="enclosureUrl">https://<xsl:value-of select="substring-after(enclosure/@url, 'http://')" /></xsl:variable>
 			<li value="{itunes:episode}">
 				<h3 role="heading">Episode&#160;<xsl:value-of select="itunes:episode" />:</h3>
-				<details>
+				<details id="episode-{itunes:episode}" name="episode-{itunes:episode}">
 					<xsl:if test="position()=1">
 						<xsl:attribute name="open"><xsl:text>true</xsl:text></xsl:attribute>
 					</xsl:if>
@@ -18,12 +18,12 @@
 						</h3>
 					</summary>
 					<a href="{link}" itemprop="significantLink" rel="external noopener replies" target="_blank" title="Watch this episode on YouTube">
-						<img alt="Watch this episode on YouTube" height="32" src="/image/youtube.svg" type="image/svg+xml" />
+						<img alt="Watch this episode on YouTube" src="/image/youtube.svg" type="image/svg+xml" />
 					</a>
 					<a download="{dcterms:alternative}" href="/podcast{substring-after($enclosureUrl, 'podcast.mlp.one')}" itemprop="significantLink" rel="enclosure" title="Download this episode" type="audio/mpeg">
-						<img alt="Download this episode" height="32" src="/image/download.png" type="image/png" />
+						<img alt="Download this episode" src="/image/download.svg" type="image/svg+xml" />
 					</a>
-					<audio controls="true" itemid="{$enclosureUrl}" itemprop="audio" itemscope="true" itemtype="https://schema.org/AudioObject" src="{$enclosureUrl}" type="audio/mpeg">
+					<audio controls="true" itemid="{$enclosureUrl}" itemprop="audio" itemscope="true" itemtype="http://schema.org/AudioObject" src="{$enclosureUrl}" type="audio/mpeg">
 						<xsl:choose>
 							<xsl:when test="position()=1">
 								<xsl:attribute name="preload"><xsl:text>metadata</xsl:text></xsl:attribute>

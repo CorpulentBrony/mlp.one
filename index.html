@@ -1,53 +1,40 @@
 <!DOCTYPE html>
-<html itemid="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemscope itemtype="https://schema.org/WebPage" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
+<html itemid="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemscope itemtype="http://schema.org/WebPage" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
 	<head>
-		<meta charset="utf-8">
-		<link href="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemprop="url" rel="canonical self" type="text/html">
-		<link href="/manifest.jsonmanifest" rel="manifest" type="application/manifest+json">
-		<link href="/sitemap.xml" rel="sitemap" type="application/xml">
+		<!--# include file="common_header.html" -->
 		<link href="http://api.mlp.one/podcast" rel="alternate" title="/mlp/odcast" type="application/rss+xml">
-		<meta content="#363b74" name="theme-color">
-		<meta content="/browserconfig.xml" name="msapplication-config">
-		<meta content="width=device-width, initial-scale=1, maximum-scale=5" name="viewport">
 		<meta content="<!--# echo var='siteTitle' -->" itemprop="headline name" name="title" property="og:title">
 		<meta content="<!--# echo var='siteDescription' -->" itemprop="description" name="description" property="og:description">
 		<meta content="<!--# echo var='siteKeywords' -->" itemprop="keywords" name="keywords">
-		<meta content="<!--# echo var='siteImage' -->" itemprop="image" name="twitter:image" property="og:image">
-		<meta content="1280" property="og:image:width">
-		<meta content="720" property="og:image:height">
-		<meta content="image/png" property="og:image:type">
-		<meta content="website" property="og:type">
-		<meta content="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemprop="url" property="og:url">
-		<meta content="otaku12" property="fb:admins">
-		<meta content="summary" name="twitter:card">
-		<meta content="@CorpulentBrony" name="twitter:site">
 		<meta content="<!--# echo var='siteTitle' -->" name="twitter:title">
 		<meta content="<!--# echo var='siteDescription' -->" name="twitter:description">
 		<meta content="dHG36go54Xk_JAAP9rulwG5SRO6FN2LYagwq3Fs0fvw" name="google-site-verification">
-		<link href="//www.youtube.com/user/4chanmlp" rel="author publisher" type="text/html">
-		<link href="//horse.best" rel="bestpony" type="text/html">
-		<link href="//creativecommons.org/licenses/by-nc-sa/4.0/" itemprop="license" rel="code-license content-license copyright license" type="text/html">
-		<link href="//github.com/CorpulentBrony/mlp.one" rel="code-repository content-repository external source" type="text/html">
 		<title><!--# echo var="siteTitle" --></title>
-		<link async href="/index.css" rel="stylesheet" type="text/css">
-		<link async href="/podcast/%252Fmlp%252F.jpg" itemprop="thumbnailUrl" rel="icon" sizes="88x88" type="image/jpeg">
-		<script async src="/index.js" type="application/javascript"></script>
-		<script type="application/ld+json"><!--# include file="index.Organization.jsonld" --></script>
-		<script type="application/ld+json"><!--# include file="index.WebPage.jsonld" --></script>
-		<script type="application/ld+json"><!--# include virtual="/api/podcast-schema.php" --></script>
+		<script async src="/index.js"></script>
+		<!--# include virtual="/api/podcast-schema.php" -->
+		<noscript id="deferred-styles"><link href="/index.css" rel="stylesheet" type="text/css"></noscript>
 		<style type="text/css">
 			@charset "utf-8";
-			html { max-width: 60em; }
+			<!--# include file="css/vars.css" -->
+			html {
+				background-color: #d19fe3;
+				max-width: 75em;
+			}
+			header > div {
+				margin: auto;
+				width: 50%;
+			}
 			img[itemprop=primaryImageOfPage] {
-				height: 35vh;
+				max-height: 50vh;
+				max-width: 100%;
 				object-fit: contain;
 				object-position: left;
-				width: 100vw;
 			}
+			section > div + div { margin-top: 1em; }
 			main > nav > ol {
 				display: table;
 				list-style-type: none;
-				padding-left: 0;
+				margin: 0 0.5em;
 			}
 			main > nav > ol > li { display: table-row; }
 			main > nav > ol > li > h3 {
@@ -56,8 +43,9 @@
 			}
 			main > nav > ol > li > h3, main > nav > ol > li > details { display: table-cell; }
 			main > nav > ol > li > details > summary > h3 { display: inline; }
-			details > summary > a > img {
+			details > a > img {
 				height: 32px;
+				margin-right: 1em;
 				vertical-align: middle;
 				width: 32px;
 			}
@@ -142,14 +130,50 @@
 			</header>
 			<section>
 				<h2 role="heading">Listen Live</h2>
-				Every <time datetime="<!--# include file="next_podcast_date.txt" -->">Friday night around 10pm EST</time> we try to stream the podcast recording.  So, you know, 
-				<span itemprop="potentialAction" itemscope itemtype="https://schema.org/SubscribeAction">
-					<span content="PotentialActionStatus" itemprop="actionStatus"></span>
-					subscribe to our <a href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg" itemprop="target" rel="external noopener" target="_blank">YouTube channel</a>
-				</span> if you want to be notified, or just come check out the channel around that time if you're bored and have nothing better to do on a Friday night.  I know that's basically everyone reading this right now.  Don't kid yourself.
+				<div>
+					<span itemscope itemtype="http://schema.org/BroadcastEvent">
+						<link href="http://schema.org/EventScheduled" itemprop="eventStatus">
+						<span content="en" itemprop="inLanguage"></span>
+						<data itemprop="isAccessibleForFree" value="true"></data>
+						<data itemprop="isLiveBroadcast" value="true"></data>
+						<span itemprop="location" itemscope itemtype="http://schema.org/Place">
+							<span content="https://www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg/live" itemprop="name"></span>
+						</span>
+						<span content="/mlp/odcast Weekly Live Stream" itemprop="name"></span>
+						<data itemprop="startDate" value="<!--# include file="next_podcast_date.txt" -->"></data>
+						<link href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg/live" itemprop="url">
+						<span itemprop="description">Every <time datetime="<!--# include file="next_podcast_date.txt" -->">Friday night around 10pm EST</time> we try to stream the podcast recording.</span>
+					</span>
+					So, you know,  
+					<span itemprop="potentialAction" itemscope itemtype="http://schema.org/SubscribeAction">
+						<span content="PotentialActionStatus" itemprop="actionStatus"></span>
+						<span content="Subscribe to our YouTube channel" itemprop="name"></span>
+						<span itemprop="target" itemscope itemtype="http://schema.org/EntryPoint">
+							<link href="http://schema.org/DesktopWebPlatform" itemprop="actionPlatform">
+							<link href="http://schema.org/MobileWebPlatform" itemprop="actionPlatform">
+							<span content="en" itemprop="inLanguage"></span>
+							<a href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg?sub_confirmation=1" itemprop="urlTemplate" rel="external noopener" target="_blank">subscribe to our YouTube channel</a> 
+						</span>
+						<link href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg?sub_confirmation=1" itemprop="url">
+					</span> if you want to be notified, or just come check out the channel around that time if you're bored and have nothing better to do on a Friday night.  I know that's basically everyone reading this right now.  Don't kid yourself.
+				</div>
+				<div>
+					We also have a <a href="//discord.gg" rel="external noopener" target="_blank">Discord</a> server that you can 
+					<span itemprop="potentialAction" itemscope itemtype="http://schema.org/JoinAction">
+						<span content="PotentialActionStatus" itemprop="actionStatus"></span>
+						<span content="Join our Discord server" itemprop="name"></span>
+						<span itemprop="target" itemscope itemtype="http://schema.org/EntryPoint">
+							<link href="http://schema.org/DesktopWebPlatform" itemprop="actionPlatform">
+							<link href="http://schema.org/MobileWebPlatform" itemprop="actionPlatform">
+							<span content="en" itemprop="inLanguage"></span>
+							<a href="http://discord.mlp.one" itemprop="urlTemplate" target="_blank">join right here</a> 
+						</span>
+						<link href="http://discord.mlp.one" itemprop="url">
+					</span> if you're bored and want to /soc/ialize with us or if you want to become one of the many anons on the podcast.
+				</div>
 			</section>
 			<nav>
-				<h2 role="heading">Episodes</h2>
+				<h2 id="season-1" name="season-1" role="heading">Episodes</h2>
 				<ol>
 					<!--# include virtual="/api/podcast-html.php" -->
 				</ol>

@@ -139,11 +139,14 @@
 		$inputFieldsFile = $inputFields->get("file");
 		$mimeType = mime_content_type($tempFilePath);
 
+		if ($mimeType === "application/octet-stream" && $fileExtension == "mp3")
+			$mimeType = "audio/mpeg";
+
 		// check file with is_uploaded_file first
 		if (!is_uploaded_file($tempFilePath))
 			throw new OutputException(Errors::single("file", "selected file does not appear to have been properly uploaded to server"));
 
-		if (substr($mimeType, 0, 5) !== "audio" && ($fileExtension != "mp3" || $mimetype !== "application/octet-stream"))
+		if (substr($mimeType, 0, 5) !== "audio")
 			throw new OutputException(Errors::single("file", "selected file cannot be recognized as an audio file, mime type is {$mimeType}"));
 		// check if ep already exists in database
 		$command = $pdo->prepare("select count(*) as NumEpisodes from Episodes where Number = ?;");
