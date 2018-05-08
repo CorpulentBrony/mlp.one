@@ -14,8 +14,8 @@
 sql;
 		public $episodes;
 
-		public static function fetch(bool $doAttachFiles = true): DatabaseResult {
-			$episodes = parent::fetch();
+		public static function fetch(array $searchParameters = [], bool $doAttachFiles = true): DatabaseResult {
+			$episodes = parent::fetch($searchParameters);
 
 			if ($doAttachFiles)
 				$episodes->attachFiles(Files::fetch());
@@ -32,7 +32,7 @@ sql;
 		public function attachFiles(Files $files): void {
 			foreach ($files->files as $file) {
 				$file = $file->finalize();
-				$episode = $this->episodes->get($file->episodeNumber);
+				$episode = $this->get($file->episodeNumber);
 				$file->episode = $episode;
 				$episode->files->add($file);
 
@@ -43,6 +43,9 @@ sql;
 			foreach ($this->episodes as $episode)
 				$episode->files->sort(function (File $a, File $b): int { return $a->isDefault ? -1 : strcmp($a->name, $b->name); });
 		}
+
+		public function first(): Episode { return $this->episodes->first()->value; }
+		public function get(int $number): Episode { return $this->episodes->get($number); }
 
 		public function getLastPublishDate(): \DateTime {
 			$lastPublishDate = new \DateTime();

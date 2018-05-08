@@ -2,7 +2,7 @@
 	require_once "../manager/header.php";
 	require_once "include/Episodes.class.php";
 	ini_set("zlib.output_compression", 0);
-	// ini_set("display_errors", 0);
+	ini_set("display_errors", 0);
 	// apcu_delete("podcast_hash");
 	
 	const BUCKET = "podcast.mlp.one";

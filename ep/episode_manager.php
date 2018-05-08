@@ -4,8 +4,8 @@
 	ini_set("display_errors", 1);
 	header("Content-Type: text/plain");
 
-	require_once "../manager/secrets.php";
 	require_once "../api/vendor/autoload.php";
+	require_once "include/Episodes.class.php";
 
 	session_start();
 
@@ -13,7 +13,7 @@
 
 	class UnexpectedDirectoryException extends \UnexpectedValueException {}
 
-	class EpisodeAccessType extends \SplEnum {
+	class RequestType extends \SplEnum {
 		const __default = self::HTML;
 		const UNKNOWN = 0;
 		const HTML = 1;
@@ -34,11 +34,12 @@
 		}
 	}
 
-	class Episode {
+	class Request {
 		private const DEFAULT_EXTENSION = "html";
 		private const EXPECTED_DIRECTORY = "/ep";
 
 		public $accessType = null;
+		public $episode = null;
 		public $number = 0;
 		private $pathinfo = null;
 
@@ -53,14 +54,18 @@
 				throw new UnexpectedDirectoryException("Expected directory to be `" . self::EXPECTED_DIRECTORY . "`.  Received: `{$_SERVER["REQUEST_URI"]}`");
 			else if (!is_numeric($this->number))
 				throw new \UnexpectedValueException("Expected a numeric episode number.  Received: {$this->number}");
-			$this->accessType = EpisodeAccessType::fromExtension($this->accessType);
+			$this->accessType = RequestType::fromExtension($this->accessType);
 			$this->number = intval($this->number);
 			return $this;
 		}
+
+		public function load(): \Mlp\Episode {
+			return $this->episode = \Mlp\Ep\Episodes::fetch([$this->number])->first();
+		}
 	}
 
-	$episode = new Episode($_SERVER["REQUEST_URI"]);
-	$episode->checkIntegrity();
+	$episode = new Request($_SERVER["REQUEST_URI"]);
+	$episode->checkIntegrity()->load();
 	var_dump($episode);
 	/*
 		/ep/n - returns information page about an ep, with description, embedded video, and embedded audio.  also an "edit" button if permissions allow.  if ep does not exist, then load create new ep screen if permissions allow

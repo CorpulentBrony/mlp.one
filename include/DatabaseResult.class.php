@@ -5,14 +5,14 @@
 	abstract class DatabaseResult {
 		private static $pdo;
 
-		public static function fetch(): DatabaseResult {
+		public static function fetch(array $searchParameters = []): DatabaseResult {
 			$pdo = null;
 
 			if (is_null(self::$pdo))
 				self::$pdo = new \PDO(...PDO_ARGS);
 			$pdo = self::$pdo;
 			$command = $pdo->prepare(static::SQL);
-			$command->execute();
+			$command->execute($searchParameters);
 			return new static($command->fetchAll(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, static::COLLECTION_OF_CLASS));
 		}
 	}

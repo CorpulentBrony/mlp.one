@@ -10,8 +10,8 @@
 	class Episodes extends \Mlp\Episodes implements RssOutput {
 		const COLLECTION_OF_CLASS = "\Mlp\Api\Episode";
 
-		public static function fetch(bool $doAttachFiles = true): \Mlp\DatabaseResult {
-			$episodes = parent::fetch(false);
+		public static function fetch(array $searchParameters = [], bool $doAttachFiles = true): \Mlp\DatabaseResult {
+			$episodes = parent::fetch([], false);
 			$episodes->attachFiles(Files::fetch());
 			return $episodes;
 		}

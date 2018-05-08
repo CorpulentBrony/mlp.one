@@ -1,33 +1,10 @@
 <?php
 	namespace Mlp\Api;
 	require_once "../include/File.class.php";
-	require_once "../include/DatabaseObject.class.php";
 	require_once "Rss.class.php";
 	require_once "RssOutput.interface.php";
 
 	class File extends \Mlp\File implements RssOutput {
-		public $bitRate;
-		public $episode;
-		public $episodeNumber;
-		public $hash;
-		public $isDefault;
-		public $mimeType;
-		public $name;
-		public $numberChannels;
-		public $samplingRate;
-		public $size;
-		public $url;
-
-		public function finalize(): \Mlp\DatabaseObject {
-			$this->bitRate = intval($this->bitRate);
-			$this->episodeNumber = intval($this->episodeNumber);
-			$this->isDefault = $this->isDefault === "1";
-			$this->numberChannels = intval($this->numberChannels);
-			$this->samplingRate = floatval($this->samplingRate);
-			$this->size = intval($this->size);
-			return $this;
-		}
-
 		public function toRss(Rss $rss, \DOMElement $parent = null): void {
 			if ($parent instanceof \DOMElement) {
 				if ($parent->tagName === "item") {
