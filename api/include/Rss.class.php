@@ -2,6 +2,7 @@
 	namespace Mlp\Api;
 	
 	class Rss extends \DOMDocument {
+		public const URL = "http://api.mlp.one/podcast";
 		private $channel;
 
 		public function __construct() {

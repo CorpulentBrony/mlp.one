@@ -12,7 +12,7 @@
 			from Episodes
 			order by Number desc;
 sql;
-		public $episodes;
+		public $episodes = null; // \Ds\Map
 
 		public static function fetch(array $searchParameters = [], bool $doAttachFiles = true): DatabaseResult {
 			$episodes = parent::fetch($searchParameters);
@@ -44,8 +44,16 @@ sql;
 				$episode->files->sort(function (File $a, File $b): int { return $a->isDefault ? -1 : strcmp($a->name, $b->name); });
 		}
 
-		public function first(): Episode { return $this->episodes->first()->value; }
-		public function get(int $number): Episode { return $this->episodes->get($number); }
+		public function first(): Episode {
+			if (!$this->episodes->isEmpty())
+				return $this->episodes->first()->value;
+			$collectionOfClass = self::COLLECTION_OF_CLASS;
+			return new $collectionOfClass();
+		}
+
+		public function get(int $number): Episode {
+			return $this->episodes->get($number);
+		}
 
 		public function getLastPublishDate(): \DateTime {
 			$lastPublishDate = new \DateTime();

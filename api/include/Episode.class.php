@@ -6,23 +6,22 @@
 
 	class Episode extends \Mlp\Episode implements RssOutput {
 		public function toRss(Rss $rss): void {
-			$episodeNumber = strval($this->number);
 			$youtubeUrl = "https://www.youtube.com/watch?v=" . rawurlencode($this->youTubeId);
 			$item = $rss->createElement("item");
 			$rss->createElement("title", [], $this->title, $item);
 			$rss->createElement("link", [], $youtubeUrl, $item);
 			$rss->createElement("description", [], $this->description, $item);
 			$this->defaultFile->toRss($rss, $item);
-			$rss->createElement("guid", ["isPermaLink" => "false"], is_null($this->guidOverride) ? EPISODE_GUID_PREFIX . $episodeNumber : $this->guidOverride, $item);
+			$rss->createElement("guid", ["isPermaLink" => "false"], parent::getGuid(), $item);
 			$rss->createElement("comments", [], $youtubeUrl, $item);
 			$rss->createElement("atom:link", ["href" => $youtubeUrl, "rel" => "replies", "type" => "text/html"], null, $item);
 			$rss->createElement("pubDate", [], $this->publishDate->format(\DateTime::RSS), $item);
-			$rss->createElement("source", ["url" => RSS_URL], CHANNEL_TITLE, $item);
+			$rss->createElement("source", ["url" => Rss::URL], '<!--# echo var="siteTitle" -->', $item);
 
 			if (!is_null($this->note))
 				$rss->createCDATASection("content:encoded", [], $this->note, $item);
 			$rss->createElement("itunes:duration", [], implode(":", array_map(function (int $value): string { return sprintf("%02d", $value); }, [$this->duration->h, $this->duration->i, $this->duration->s])), $item);
-			$rss->createElement("itunes:episode", [], $episodeNumber, $item);
+			$rss->createElement("itunes:episode", [], strval($this->number), $item);
 			$rss->createElement("itunes:explicit", [], "Yes", $item);
 			$rss->createElement("itunes:season", [], "1", $item);
 
@@ -39,7 +38,8 @@
 			foreach ($this->files as $file)
 				$file->toRss($rss, $mediaGroup);
 			$rss->createElement("media:player", ["url" => "https://www.youtube.com/embed/" . rawurlencode($this->youTubeId)], null, $rss->createElement("media:content", ["lang" => "en", "medium" => "video"], null, $mediaGroup));
-			$rss->createElement("media:keywords", [], implode(", ", array_merge(KEYWORDS, $this->keywords)), $item);
+			$rss->createElement("media:keywords", [], implode(", ", $this->keywords), $item);
+			$rss->createElement("media:thumbnail", ["url" => parent::getYouTubeThumbnail()]);
 			$rss->createElement("media:title", ["type" => "plain"], $this->title, $item);
 		}
 	}

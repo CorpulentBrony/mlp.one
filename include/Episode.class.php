@@ -3,6 +3,8 @@
 	require_once "DatabaseObject.class.php";
 
 	class Episode extends DatabaseObject {
+		private const EPISODE_GUID_PREFIX = "tag:mlp.one,2018:/mlp/odcast?episode=";
+
 		public $defaultFile;
 		public $description;
 		public $duration;
@@ -31,5 +33,8 @@
 			$this->publishDate = new \DateTime($this->publishDate);
 			return $this;
 		}
+
+		public function getGuid(): string { return is_null($this->guidOverride) ? self::EPISODE_GUID_PREFIX . strval($this->number) : $this->guidOverride; }
+		public function getYouTubeThumbnail(): string { return "https://img.youtube.com/vi/" . rawurlencode($this->youTubeId) . "/maxresdefault.jpg"; }
 	}
 ?>
