@@ -101,7 +101,7 @@
 								"name": "<xsl:value-of select="$episodeName" />",
 								"partOfSeason": { "@id": "<xsl:value-of select="$seasonTag" />", "@type": "RadioSeason" },
 								"partOfSeries": { "@id": "<xsl:value-of select="$seriesTag" />", "@type": "RadioSeries" },
-								"position": <xsl:value-of select="position()" />,
+								"position": <xsl:value-of select="itunes:episode" />,
 								"potentialAction": [{
 									"@type": "ConsumeAction",
 									"actionStatus": "PotentialActionStatus",
@@ -111,7 +111,7 @@
 										"availabilityStarts": "<xsl:value-of select="$filePublishedDate" />",
 										"category": "free"
 									},
-									"name": "Listen to <xsl:value-of select="title" />: <xsl:value-of select="$episodeName" />",
+									"name": "Listen to <xsl:value-of select="source" />: <xsl:value-of select="$episodeName" />",
 									"target": {
 										"@type": "EntryPoint",
 										"actionPlatform": [
@@ -129,7 +129,7 @@
 										"availabilityStarts": "<xsl:value-of select="$filePublishedDate" />",
 										"category": "free"
 									},
-									"name": "Watch <xsl:value-of select="title" />: <xsl:value-of select="$episodeName" />",
+									"name": "Watch <xsl:value-of select="source" />: <xsl:value-of select="$episodeName" />",
 									"target": {
 										"@type": "EntryPoint",
 										"actionPlatform": [
@@ -150,7 +150,6 @@
 									"embedUrl": "<xsl:value-of select="(media:group[1]/media:content[@medium='video'])[1]/media:player/@url" />",
 									"name": "<xsl:value-of select="$episodeName" />",
 									"thumbnailUrl": "<xsl:value-of select="$thumbnailUrl" />",
-									"uploadDate": "<xsl:value-of select="$filePublishedDate" />",
 									"url": "<xsl:value-of select="link" />"
 								}
 							}

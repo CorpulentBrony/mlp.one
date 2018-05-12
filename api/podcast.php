@@ -8,9 +8,9 @@
 	const BUCKET = "podcast.mlp.one";
 	const CHANNEL_SUMMARY = "Some anons from /mlp/ get together to discuss the show, fandom, and for general bants.  Please be patient, we have autism.";
 	const CHANNEL_SUBTITLE = "Pure Autism";
-	const CHANNEL_TITLE = '<!--# echo var="siteTitle" -->';
+	const CHANNEL_TITLE = "/mlp/odcast";
 	const CONTACT_NAME = "Corpulent Brony";
-	const KEYWORDS = ["/mlp/odcast", "mlpodcast", "mlp", "4chan", "pony", "horse", "podcast"];
+	const KEYWORDS = [CHANNEL_TITLE, "mlpodcast", "mlp", "4chan", "pony", "horse", "podcast"];
 	const LICENSE = ["name" => "Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)", "url" => "https://creativecommons.org/licenses/by-nc/4.0/"];
 	const YOUTUBE_PLAYLIST_ID = "PLpXLx1a_owv0xfz2JH8TEHcCLGBE2kfaX";
 	const WEB_URL = "https://mlp.one";

@@ -3,18 +3,20 @@
 	require_once "DatabaseObject.class.php";
 
 	class Episode extends DatabaseObject {
-		private const EPISODE_GUID_PREFIX = "tag:mlp.one,2018:/mlp/odcast?episode=";
+		public const GUID_BASE = "tag:mlp.one,2018:/mlp/odcast";
+		public const GUID_PREFIX = self::GUID_BASE . "?episode=";
+		private const MANAGER_URL_PREFIX = "https://mlp.one/ep/";
 
-		public $defaultFile;
+		public $defaultFile; // File
 		public $description;
-		public $duration;
-		public $keywords;
-		public $files;
+		public $duration; // \DateInterval
+		public $keywords; // array<File>
+		public $files; // \Ds\Set
 		public $guidOverride;
 		public $length;
 		public $note;
 		public $number;
-		public $publishDate;
+		public $publishDate; // \DateTime
 		public $subtitle;
 		public $title;
 		public $youTubeId;
@@ -34,7 +36,10 @@
 			return $this;
 		}
 
-		public function getGuid(): string { return is_null($this->guidOverride) ? self::EPISODE_GUID_PREFIX . strval($this->number) : $this->guidOverride; }
+		public function getEpisodeManagerUrl(): string { return self::MANAGER_URL_PREFIX . "/" . strval($this->number); }
+		public function getGuid(): string { return is_null($this->guidOverride) ? self::GUID_PREFIX . strval($this->number) : $this->guidOverride; }
+		public function getYouTubeEmbedUrl(): string { return "https://www.youtube.com/embed/" . rawurlencode($this->youTubeId); }
 		public function getYouTubeThumbnail(): string { return "https://img.youtube.com/vi/" . rawurlencode($this->youTubeId) . "/maxresdefault.jpg"; }
+		public function getYouTubeUrl(): string { return "https://www.youtube.com/watch?v=" . rawurlencode($this->youTubeId); }
 	}
 ?>

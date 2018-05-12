@@ -1,38 +1,27 @@
 <?php
+	namespace Mlp\Ep;
 	const DATE_DISPLAY_FORMAT = "l, F j<\s\u\p>S</\s\u\p>, Y";
 	$description = str_replace("\n", " ", $this->episode->description);
-	$episodeFullTitle = '<!--# echo var="siteTitle" --> #' . strval($this->episode->number) . " - {$this->episode->title}";
+	$episodeFullTitle = "{$_SERVER["SITE_TITLE"]} #" . strval($this->episode->number) . " - {$this->episode->title}";
+	http_response_code(200);
 	header("Content-Type: text/html");
 ?><!DOCTYPE html>
 <html itemid="<?= $this->episode->getGuid() ?>" itemscope itemtype="http://schema.org/WebPage" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
 	<head>
-		<meta charset="utf-8">
-		<link href="https://<!--# echo var='host' --><?= $this->requestPath ?>" rel="canonical self" type="text/html">
-		<link href="/manifest.jsonmanifest" rel="manifest" type="application/manifest+json">
-		<link href="/sitemap.xml" rel="sitemap" type="application/xml">
-		<link href="http://api.mlp.one/podcast" rel="alternate" title="/mlp/odcast" type="application/rss+xml">
-		<meta content="#363b74" name="theme-color">
-		<meta content="/browserconfig.xml" name="msapplication-config">
-		<meta content="width=device-width, initial-scale=1, maximum-scale=5" name="viewport">
+		<!--# include file="/common_header_base.html" -->
+		<link href="<?= $this->getRequestUrl() ?>" rel="canonical self" type="text/html">
 		<meta content="<?= $this->episode->getYouTubeThumbnail() ?>" itemprop="image" name="twitter:image" property="og:image">
 		<meta content="1280" property="og:image:width">
 		<meta content="720" property="og:image:height">
 		<meta content="image/png" property="og:image:type">
 		<meta content="website" property="og:type">
-		<meta content="https://<!--# echo var='host' --><?= $this->requestPath ?>" itemprop="url" property="og:url">
-		<meta content="otaku12" property="fb:admins">
-		<meta content="summary" name="twitter:card">
-		<meta content="@CorpulentBrony" name="twitter:site">
+		<meta content="https://<?= $this->getRequestUrl() ?>" itemprop="url" property="og:url">
 		<meta content="<?= $episodeFullTitle ?>" itemprop="headline name" name="title" property="og:title">
 		<meta content="<?= $description ?>" itemprop="description" name="description" property="og:description">
 		<meta content="<?= implode(",", $this->episode->keywords) ?>" itemprop="keywords" name="keywords">
 		<meta content="<?= $episodeFullTitle ?>" name="twitter:title">
 		<meta content="<?= $description ?>" name="twitter:description">
-		<link href="//www.youtube.com/user/4chanmlp" rel="author publisher" type="text/html">
-		<link href="//horse.best" rel="bestpony" type="text/html">
-		<link href="//creativecommons.org/licenses/by-nc-sa/4.0/" rel="code-license content-license copyright license" type="text/html">
-		<link href="//github.com/CorpulentBrony/mlp.one" rel="code-repository content-repository external source" type="text/html">
-		<link href="/podcast/%252Fmlp%252F.jpg" rel="icon" sizes="88x88" type="image/jpeg">
+		<script type="application/ld+json"><?php require "jsonld.php"; ?></script>
 		<title><?= $episodeFullTitle ?></title>
 		<link href="/index.css" rel="stylesheet" type="text/css">
 		<style type="text/css">
@@ -71,14 +60,14 @@
 				</header>
 				<section class="yt-container">
 					<div class="yt-video-container">
-						<iframe allow="autoplay; encrypted-media" allowfullscreen src="//www.youtube.com/embed/<?= $this->episode->youTubeId ?>"></iframe>
+						<iframe allow="encrypted-media" allowfullscreen src="<?= $this->episode->getYouTubeEmbedUrl() ?>"></iframe>
 					</div>
 				</section>
 				<section>
-					<?= str_replace("<a href=", "<a rel=\"noopener\" target=\"_blank\" href=", $this->episode->note) ?>
+					<?= is_null($this->episode->note) ? $this->episode->description : str_ireplace("<a href=", "<a rel=\"noopener\" target=\"_blank\" href=", $this->episode->note) ?>
 				</section>
 				<section>
-					Download <a href="<?= basename($this->requestPath, ".html") ?>.mp3">the audio here</a>.
+					Download <a href="<?= $this->getRequestUrl(RequestType::MP3) ?>">the audio here</a>.
 				</section>
 			</article>
 		</main>

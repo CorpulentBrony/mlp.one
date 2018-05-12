@@ -6,7 +6,7 @@
 
 	class Episode extends \Mlp\Episode implements RssOutput {
 		public function toRss(Rss $rss): void {
-			$youtubeUrl = "https://www.youtube.com/watch?v=" . rawurlencode($this->youTubeId);
+			$youtubeUrl = parent::getYouTubeUrl();
 			$item = $rss->createElement("item");
 			$rss->createElement("title", [], $this->title, $item);
 			$rss->createElement("link", [], $youtubeUrl, $item);
@@ -16,7 +16,7 @@
 			$rss->createElement("comments", [], $youtubeUrl, $item);
 			$rss->createElement("atom:link", ["href" => $youtubeUrl, "rel" => "replies", "type" => "text/html"], null, $item);
 			$rss->createElement("pubDate", [], $this->publishDate->format(\DateTime::RSS), $item);
-			$rss->createElement("source", ["url" => Rss::URL], '<!--# echo var="siteTitle" -->', $item);
+			$rss->createElement("source", ["url" => Rss::URL], $_SERVER["SITE_TITLE"], $item);
 
 			if (!is_null($this->note))
 				$rss->createCDATASection("content:encoded", [], $this->note, $item);
@@ -37,7 +37,7 @@
 
 			foreach ($this->files as $file)
 				$file->toRss($rss, $mediaGroup);
-			$rss->createElement("media:player", ["url" => "https://www.youtube.com/embed/" . rawurlencode($this->youTubeId)], null, $rss->createElement("media:content", ["lang" => "en", "medium" => "video"], null, $mediaGroup));
+			$rss->createElement("media:player", ["url" => $this->getYouTubeEmbedUrl()], null, $rss->createElement("media:content", ["lang" => "en", "medium" => "video"], null, $mediaGroup));
 			$rss->createElement("media:keywords", [], implode(", ", $this->keywords), $item);
 			$rss->createElement("media:thumbnail", ["url" => parent::getYouTubeThumbnail()]);
 			$rss->createElement("media:title", ["type" => "plain"], $this->title, $item);

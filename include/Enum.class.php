@@ -44,5 +44,11 @@
 				return $values;
 			}, new \Ds\Map());
 		}
+
+		public static function isValid(int $needle): bool {
+			if (is_null(self::$values) && !is_null(self::$keys))
+				return self::$keys->hasValue($needle);
+			return self::$values->hasKey($needle);
+		}
 	}
 ?>
