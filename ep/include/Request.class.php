@@ -7,18 +7,32 @@
 	class Request {
 		private const DEFAULT_EXTENSION = RequestType::HTML;
 		private const EXPECTED_DIRECTORY = "/ep";
+		public const TYPES = [
+			RequestType::HTML => ["extension" => "html", "mimeType" => "text/html", "outputHandler" => "output/html.php"],
+			RequestType::MP3 => ["extension" => "mp3", "mimeType" => "audio/mpeg", "outputHandler" => "output/mp3.php"],
+			RequestType::JSONLD => ["extension" => "jsonld", "mimeType" => "application/ld+json", "outputHandler" => "output/jsonld.php"],
+			RequestType::JSON => ["extension" => "json", "mimeType" => "application/json", "outputHandler" => "output/json.php"],
+			RequestType::XML => ["extension" => "xml", "mimeType" => "application/xml", "outputHandler" => "output/xml.php"],
+			RequestType::TXT => ["extension" => "txt", "mimeType" => "text/plain", "outputHandler" => "output/txt.php"],
+			RequestType::JPG => ["extension" => "jpg", "mimeType" => "image/jpeg", "outputHandler" => "output/jpg.php"],
+			RequestType::TORRENT => ["extension" => "torrent", "mimeType" => "application/x-bittorrent", "outputHandler" => "output/torrent.php"]
+		];
+
+		public static $types = self::TYPES; // array
 
 		public $type = RequestType::UNKNOWN;
 		public $episode = null; // \Mlp\Episode
+		public $mimeType = "";
 		public $number = 0;
 		private $isIntegrityChecked = false;
+		private $outputHandler = "";
 		private $pathinfo = null;
 		private $requestPath = "";
 		private $requestPathAgnostic = "";
 		private $urlPrefix = "";
 
 		public function __construct(string $requestPath) {
-			$this->requestPath = $requestPath;
+			$this->requestPath = parse_url($requestPath)["path"];
 			$this->pathinfo = pathinfo($this->requestPath);
 			$this->type = $this->pathinfo["extension"] ?? self::DEFAULT_EXTENSION;
 			$this->number = $this->pathinfo["filename"];
@@ -27,12 +41,14 @@
 
 		public function checkIntegrity(): self {
 			if ($this->isIntegrityChecked)
-				return this;
+				return $this;
 			else if ($this->pathinfo["dirname"] !== self::EXPECTED_DIRECTORY)
 				throw new \Mlp\UnexpectedDirectoryException("Expected directory to be `" . self::EXPECTED_DIRECTORY . "`.  Received: `{$this->requestPath}`");
 			else if (!is_numeric($this->number))
 				throw new \UnexpectedValueException("Expected a numeric episode number.  Received: {$this->number}");
 			$this->type = RequestType::fromExtension($this->type);
+			$this->mimeType = self::TYPES[$this->type]["mimeType"];
+			$this->outputHandler = self::TYPES[$this->type]["outputHandler"];
 			$number = intval($this->number);
 			$this->requestPathAgnostic = "{$this->pathinfo["dirname"]}/" . strval($number);
 			$this->requestPath = "{$this->requestPathAgnostic}." . strtolower(RequestType($this->type));
@@ -43,58 +59,46 @@
 
 		private function getCacheKey(): string { return \Mlp\Episode::GUID_PREFIX . strval($this->number); }
 
-		public function getAllRequestUrls(): array {
-			return RequestType::getKeys()->reduce(function(array $result, string $key, int $type): array {
-				$result[strtolower($key)] = $this->getRequestUrl($type);
-				return $result;
-			}, []);
+		public function getAllRequestTypes(): array {
+			array_walk(self::$types, function(array $typeDescriptor, int $type): void { $this->getRequestUrl($type); });
+			return self::$types;
 		}
 
+		public function getAllRequestUrls(): array {
+			return array_column($this->getAllRequestTypes(), "url", "extension");
+			// return RequestType::getKeys()->reduce(function(array $result, string $key, int $type): array {
+			// 	$result[strtolower($key)] = $this->getRequestUrl($type);
+			// 	return $result;
+			// }, []);
+		}
+
+		public function getNextEpisodeNumber() { return ($this->number >= $this->episode->lastEpisodeNumber) ? null : $this->number + 1; }
+		public function getPreviousEpisodeNumber() { return ($this->number <= 1) ? null : $this->number - 1; }
+
 		public function getRequestUrl(int $type = RequestType::UNKNOWN): string {
-			if ($type === RequestType::UNKNOWN || $type === $this->type)
-				return $this->urlPrefix . $this->requestPath;
-			return $this->urlPrefix . (RequestType::isValid($type) ? "{$this->requestPathAgnostic}." . strtolower(RequestType($type)) : $this->requestPath);
+			if ($type === RequestType::UNKNOWN)
+				$type = $this->type;
+
+			if (array_key_exists("url", self::$types[$type]))
+				return self::$types[$type]["url"];
+			elseif ($type === $this->type)
+				return self::$types[$type]["url"] = $this->urlPrefix . $this->requestPath;
+			return self::$types[$type]["url"] = $this->urlPrefix . (RequestType::isValid($type) ? "{$this->requestPathAgnostic}." . strtolower(RequestType($type)) : $this->requestPath);
 		}
 
 		public function loadEpisode(): self {
 			if (!$this->isIntegrityChecked)
 				$this->checkIntegrity();
-			$this->episode = apcu_entry($this->getCacheKey(), function(string $key): \Mlp\Episode { return Episodes::fetch([$this->number])->first(); });
+			$this->episode = apcu_entry($this->getCacheKey(), function(string $key): \Mlp\Episode { return Episodes::fetch([$this->number])->first(); }, 60);
 			return $this;
 		}
 
 		public function output(): void {
 			if (is_null($this->episode->number))
 				$this->outputError(true);
-
-			switch ($this->type) {
-				case RequestType::HTML: 
-					require "output/html.php";
-					break;
-				case RequestType::MP3:
-					require "output/mp3.php";
-					break;
-				case RequestType::JSONLD:
-					require "output/jsonld.php";
-					break;
-				case RequestType::JSON:
-					require "output/json.php";
-					break;
-				case RequestType::XML:
-					require "output/xml.php";
-					break;
-				case RequestType::TXT:
-					require "output/txt.php";
-					break;
-				case RequestType::PNG:
-					require "output/png.php";
-					break;
-				case RequestType::TORRENT:
-					require "output/torrent.php";
-					break;
-				default:
-					$this->outputError();
-			}
+			else if (!array_key_exists($this->type, self::TYPES))
+				$this->outputError();
+			require $this->outputHandler;
 		}
 
 		private function outputError(bool $deleteFromCache = false): void {

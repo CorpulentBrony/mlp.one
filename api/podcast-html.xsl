@@ -7,7 +7,7 @@
 			<xsl:sort select="itunes:episode" data-type="number" order="descending" />
 			<xsl:variable name="enclosureUrl">https://<xsl:value-of select="substring-after(enclosure/@url, 'http://')" /></xsl:variable>
 			<li value="{itunes:episode}">
-				<h3 role="heading">Episode&#160;<xsl:value-of select="itunes:episode" />:</h3>
+				<h3 role="heading"><a href="/ep/{itunes:episode}">Episode&#160;<xsl:value-of select="itunes:episode" /></a>:</h3>
 				<details id="episode-{itunes:episode}" name="episode-{itunes:episode}">
 					<xsl:if test="position()=1">
 						<xsl:attribute name="open"><xsl:text>true</xsl:text></xsl:attribute>

@@ -11,7 +11,7 @@
 		public const JSON = 4;
 		public const XML = 5;
 		public const TXT = 6;
-		public const PNG = 7;
+		public const JPG = 7;
 		public const TORRENT = 8;
 
 		public static function fromExtension($extension): int {

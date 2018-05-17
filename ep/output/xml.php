@@ -29,51 +29,9 @@
 
 	$youTubeThumbnail = $this->episode->getYouTubeThumbnail();
 	http_response_code(200);
-	header("Content-Type: application/xml");
+	header("Content-Type: {$this->mimeType}");
 ?><?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mlp:podcast [
-<!ELEMENT mlp:podcast (mlp:content-rating,mlp:description,mlp:keywords?,mlp:number-of-seasons,mlp:start-date,mlp:thumbnail,mlp:title,mlp:episode)>
-<!ELEMENT mlp:content-rating (#PCDATA)>
-<!ELEMENT mlp:description (#PCDATA)>
-<!ELEMENT mlp:keywords (#PCDATA)>
-<!ELEMENT mlp:number-of-seasons (#PCDATA)>
-<!ELEMENT mlp:start-date (#PCDATA)>
-<!ELEMENT mlp:thumbnail EMPTY>
-<!ELEMENT mlp:title (#PCDATA)>
-<!ELEMENT mlp:episode (mlp:default-file,mlp:description+,mlp:duration,mlp:duration-seconds,mlp:files,mlp:keywords?,mlp:publish-date,mlp:subtitle?,mlp:thumbnail,mlp:title,mlp:youtube-embed,mlp:youtube)>
-<!ELEMENT mlp:default-file (mlp:file)>
-<!ELEMENT mlp:file (mlp:bit-rate,mlp:hash,mlp:name,mlp:number-channels,mlp:sampling-rate,mlp:size)>
-<!ELEMENT mlp:bit-rate (#PCDATA)>
-<!ELEMENT mlp:hash (#PCDATA)>
-<!ELEMENT mlp:name (#PCDATA)>
-<!ELEMENT mlp:number-channels (#PCDATA)>
-<!ELEMENT mlp:sampling-rate (#PCDATA)>
-<!ELEMENT mlp:size (#PCDATA)>
-<!ELEMENT mlp:duration (#PCDATA)>
-<!ELEMENT mlp:duration-seconds (#PCDATA)>
-<!ELEMENT mlp:files (mlp:file+)>
-<!ELEMENT mlp:publish-date (#PCDATA)>
-<!ELEMENT mlp:subtitle (#PCDATA)>
-<!ELEMENT mlp:youtube-embed EMPTY>
-<!ELEMENT mlp:youtube EMPTY>
-<!ATTLIST mlp:podcast href CDATA #REQUIRED>
-<!ATTLIST mlp:podcast id CDATA #REQUIRED>
-<!ATTLIST mlp:podcast lang NMTOKEN "en">
-<!ATTLIST mlp:podcast xmlns:mlp CDATA #FIXED "http://api.mlp.one/namespace-1.0">
-<!ATTLIST mlp:episode href CDATA #REQUIRED>
-<!ATTLIST mlp:episode id CDATA #REQUIRED>
-<!ATTLIST mlp:episode number NMTOKEN #REQUIRED>
-<!ATTLIST mlp:file href CDATA #REQUIRED>
-<!ATTLIST mlp:file is-default (false|true) "false">
-<!ATTLIST mlp:file type CDATA "audio/mpeg">
-<!ATTLIST mlp:hash algo NMTOKEN #FIXED "sha-1">
-<!ATTLIST mlp:hash encoding (base64|hex) "base64">
-<!ATTLIST mlp:description type CDATA "text/plain">
-<!ATTLIST mlp:thumbnail href CDATA #REQUIRED>
-<!ATTLIST mlp:youtube-embed href CDATA #REQUIRED>
-<!ATTLIST mlp:youtube href CDATA #REQUIRED>
-<!ATTLIST mlp:youtube id ID #REQUIRED>
-]>
+<!DOCTYPE mlp:podcast SYSTEM "http://api.mlp.one/namespace-1.0/mlp.dtd">
 <mlp:podcast href="https://<?= $_SERVER["HTTP_HOST"] ?>" id="<?= $this->episode->getGuid() ?>" lang="en" xmlns:mlp="http://api.mlp.one/namespace-1.0">
 	<mlp:content-rating>Explicit</mlp:content-rating>
 	<mlp:description><?= xml($_SERVER["SITE_DESCRIPTION"]) ?></mlp:description>
@@ -92,8 +50,13 @@
 		<mlp:duration-seconds><?= $this->episode->length ?></mlp:duration-seconds>
 		<mlp:files><?= $this->episode->files->reduce(function(string $files, \Mlp\File $file): string { return $files . filterFile($file); }, "") ?></mlp:files>
 		<mlp:keywords><?= xml(implode(", ", $this->episode->keywords)) ?></mlp:keywords>
+		<mlp:links>
+			<?= array_reduce($this->getAllRequestTypes(), function(string $links, array $typeDescriptor): string { return "{$links}<mlp:link href=\"{$typeDescriptor["url"]}\" type=\"{$typeDescriptor["mimeType"]}\" />"; }, "") ?>
+		</mlp:links>
 		<mlp:publish-date><?= $this->episode->publishDate->format("Y-m-d") ?></mlp:publish-date>
-		<mlp:subtitle><?= xml($this->episode->subtitle) ?></mlp:subtitle>
+		<?php if (!is_null($this->episode->subtitle)): ?>
+			<mlp:subtitle><?= xml($this->episode->subtitle) ?></mlp:subtitle>
+		<?php endif; ?>
 		<mlp:thumbnail href="<?= $youTubeThumbnail?>" />
 		<mlp:title><?= xml($this->episode->title) ?></mlp:title>
 		<mlp:youtube-embed href="<?= $this->episode->getYouTubeEmbedUrl() ?>" />

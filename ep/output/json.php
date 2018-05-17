@@ -66,6 +66,6 @@
 		]]
 	];
 	http_response_code(200);
-	header("Content-Type: application/json");
-	echo json_encode($response, JSON_UNESCAPED_SLASHES);
+	header("Content-Type: {$this->mimeType}");
+	echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 ?>

@@ -8,3 +8,6 @@ css/
 manager/client_secrets.json
 manager/secrets.php
 *.br
+fontawesome*
+material-components-web
+material-design-icons

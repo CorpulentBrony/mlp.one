@@ -59,45 +59,6 @@
 				margin-bottom: 0;
 				margin-top: 0;
 			}
-			audio {
-				--media-controls-active-cursor: pointer;
-				--media-controls-panel-background: rgba(103, 56, 136, 0.4);
-				--media-controls-panel-border: 1px solid;
-				--media-controls-panel-border-radius: 5px;
-				display: block;
-				padding: 5px 0;
-				width: 100%;
-			}
-			/* trying to combine these selectors (mixing -webkit with -moz) will cause webkit to ignore them */
-			audio::-webkit-media-controls-panel {
-				background: var(--media-controls-panel-background);
-				border: var(--media-controls-panel-border);
-				border-radius: var(--media-controls-panel-border-radius);
-			}
-			audio::-moz-media-controls-panel {
-				background: var(--media-controls-panel-background);
-				border: var(--media-controls-panel-border);
-				border-radius: var(--media-controls-panel-border-radius);
-			}
-			audio::media-controls-panel {
-				background: var(--media-controls-panel-background);
-				border: var(--media-controls-panel-border);
-				border-radius: var(--media-controls-panel-border-radius);
-			}
-			audio::-internal-media-controls-download-button { cursor: var(--media-controls-active-cursor); }
-			audio::-moz-media-controls-download-button, 
-				audio::-moz-media-controls-mute-button, 
-				audio::-moz-media-controls-play-button, 
-				audio::-moz-media-controls-timeline, 
-				audio::-moz-media-controls-volume-slider 
-				{ cursor: var(--media-controls-active-cursor); }
-			audio::-webkit-media-controls-download-button, 
-				audio::-webkit-media-controls-mute-button, 
-				audio::-webkit-media-controls-play-button, 
-				audio::-webkit-media-controls-timeline, 
-				audio::-webkit-media-controls-volume-slider 
-				{ cursor: var(--media-controls-active-cursor); }
-			audio::media-controls-download-button, audio::media-controls-mute-button, audio::media-controls-play-button, audio::media-controls-timeline, audio::media-controls-volume-slider { cursor: var(--media-controls-active-cursor); }
 			footer { display: table; }
 			footer > h2 { display: table-caption; }
 			footer > nav { display: table-row-group; }

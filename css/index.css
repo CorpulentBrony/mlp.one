@@ -1,2 +1,169 @@
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:400,400i,800|Roboto:900,900i");:root{--bg-primary-color:#d19fe3;--bg-secondary-color:#a76bc2;--fg-color:#263773;--fg-color-invert:#d9c88c;--twi-hair-highlight-pink:#ed438a}html{font-family:"Open Sans", sans-serif;font-weight:400}h1,h2,h3,h4,h5,h6{font-family:Roboto, sans-serif;font-weight:900}html{color:#263773;background-attachment:fixed;background-color:#d19fe3;background-image:linear-gradient(135deg, #d19fe3 50%, #a76bc2);background-size:100vw 100vh;margin:0;overflow-x:hidden;padding:0;text-rendering:optimizeLegibility}h1,h2{text-shadow:5px 3px 1ex #263773}h1{font-size:3rem}h2{font-size:2rem}h3{font-size:1.3rem}*[aria-hidden="true"]{max-height:0;visibility:hidden}.bold,.warning{font-weight:800}.warning{color:red}@media (max-width: 500px){h1{font-size:2rem}h2{font-size:1.5rem}h3{font-size:1rem}}
+/* colors from https://kefkafloyd.deviantart.com/art/Twilight-Sparkle-Color-Guide-2-0-UPDATED-199520929 */
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:400,400i,800|Roboto:300,400,500,900,900i");
+/* CSS variables (used in inline style) */
+:root {
+  --bg-primary-color: #d19fe3;
+  --bg-secondary-color: #a76bc2;
+  --fg-color: #263773;
+  --fg-color-invert: #d9c88c;
+  --twi-hair-highlight-pink: #ed438a;
+}
+
+html {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Roboto, sans-serif;
+  font-weight: 900;
+}
+
+html {
+  color: #263773;
+  background-attachment: fixed;
+  background-color: #d19fe3;
+  background-image: linear-gradient(135deg, #d19fe3 50%, #a76bc2);
+  background-size: 100vw 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+}
+
+h1, h2 {
+  text-shadow: 5px 3px 1ex #263773;
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.3rem;
+}
+
+main {
+  margin: 0 1em;
+}
+
+audio {
+  display: block;
+  padding: 5px 0;
+  width: 100%;
+}
+
+/* trying to combine these selectors (mixing -webkit with -moz) will cause webkit to ignore them */
+audio::-webkit-media-controls-panel {
+  background: rgba(83, 41, 118, 0.4);
+  border: 1px solid;
+  border-radius: 5px;
+}
+
+audio::-moz-media-controls-panel {
+  background: rgba(83, 41, 118, 0.4);
+  border: 1px solid;
+  border-radius: 5px;
+}
+
+audio::media-controls-panel {
+  background: rgba(83, 41, 118, 0.4);
+  border: 1px solid;
+  border-radius: 5px;
+}
+
+audio::-internal-media-controls-download-button {
+  cursor: pointer;
+}
+
+audio::-moz-media-controls-download-button, audio::-moz-media-controls-mute-button, audio::-moz-media-controls-play-button, audio::-moz-media-controls-timeline, audio::-moz-media-controls-volume-slider {
+  cursor: pointer;
+}
+
+audio::-webkit-media-controls-download-button, audio::-webkit-media-controls-mute-button, audio::-webkit-media-controls-play-button, audio::-webkit-media-controls-timeline, audio::-webkit-media-controls-volume-slider {
+  cursor: pointer;
+}
+
+audio::media-controls-download-button, audio::media-controls-mute-button, audio::media-controls-play-button, audio::media-controls-timeline, audio::media-controls-volume-slider {
+  cursor: pointer;
+}
+
+*[aria-hidden="true"] {
+  max-height: 0;
+  visibility: hidden;
+}
+
+.bold, .warning {
+  font-weight: 800;
+}
+
+.button {
+  background: #ed438a;
+  border: 1px ridge black;
+  border-radius: 5px;
+  color: inherit;
+  display: block;
+  font: inherit;
+  font-size: inherit;
+  padding: 5px 10px;
+  position: relative;
+  -webkit-touch-callout: none;
+  transition: all 0.5s;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.button:before {
+  background: #000;
+  bottom: 0;
+  content: "";
+  left: 0;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: all 0.5s;
+}
+
+.button:active, .button:hover {
+  color: #d9c88c;
+}
+
+.button:hover:before {
+  opacity: 0.2;
+}
+
+.button:active:before {
+  opacity: 0.6;
+}
+
+.warning {
+  color: red;
+}
+
+@media (max-width: 767px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+  }
+}
+
 /*# sourceMappingURL=index.css.map */

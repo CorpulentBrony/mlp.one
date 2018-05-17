@@ -1,0 +1,33 @@
+@charset "utf-8";
+@import "colors";
+
+$media-controls-active-cursor: pointer;
+
+@mixin audio-media-controls($prefix) {
+	audio::#{$prefix}media-controls-download-button, audio::#{$prefix}media-controls-mute-button, audio::#{$prefix}media-controls-play-button, audio::#{$prefix}media-controls-timeline, audio::#{$prefix}media-controls-volume-slider {
+		cursor: $media-controls-active-cursor;
+	}
+}
+
+@mixin audio-media-controls-panel($prefix) {
+	audio::#{$prefix}media-controls-panel {
+		background: adjust-color($twi-eye-gradient-mid, $alpha: -0.6);
+		border: 1px solid;
+		border-color: $twi-hair-primary;
+		border-radius: 5px;
+	}
+}
+
+audio {
+	display: block;
+	width: 100%;
+
+	&::-internal-media-controls-download-button { cursor: $media-controls-active-cursor; }
+}
+/* trying to combine these selectors (mixing -webkit with -moz) will cause webkit to ignore them */
+@include audio-media-controls-panel("-webkit-");
+@include audio-media-controls-panel("-moz-");
+@include audio-media-controls-panel("");
+@include audio-media-controls("-moz-");
+@include audio-media-controls("-webkit-");
+@include audio-media-controls("");

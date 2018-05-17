@@ -2,7 +2,7 @@
 	namespace Mlp\Ep;
 
 	http_response_code(200);
-	header("Content-Type: text/plain");
+	header("Content-Type: {$this->mimeType}");
 ?>Episode <?= $this->episode->number ?> of <?= $_SERVER["SITE_TITLE"] ?>
 
 Title: <?= $this->episode->title ?><?php if (!is_null($this->episode->subtitle)): ?>
@@ -11,7 +11,8 @@ Subtitle: <?= $this->episode->subtitle ?><?php endif; ?>
 
 Published: <?= $this->episode->publishDate->format("l, F j") . str_replace(["d", "h", "n", "r", "s", "t"], ["ᵈ", "ʰ", "ⁿ", "ʳ", "ˢ", "ᵗ"], $this->episode->publishDate->format("S")) . $this->episode->publishDate->format(", Y") ?>
 
-Length: <?= $this->episode->length ?> seconds (<?= $this->episode->duration->format("%h hour(s), %i minute(s), %s second(s)") ?>)
+Length: <?= $this->episode->getDurationFormatted() ?>
+
 
 Description
 -----------

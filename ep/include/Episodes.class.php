@@ -6,7 +6,8 @@
 
 	class Episodes extends \Mlp\Episodes {
 		const SQL = <<<sql
-			select Number as number, Title as title, Subtitle as subtitle, Description as description, Keywords as keywords, Note as note, PublishDate as publishDate, Length as length, YouTubeId as youTubeId, GuidOverride as guidOverride
+			select Number as number, Title as title, Subtitle as subtitle, Description as description, Keywords as keywords, Note as note, PublishDate as publishDate, Length as length, YouTubeId as youTubeId, 
+				GuidOverride as guidOverride, (select max(Number) from Episodes) as lastEpisodeNumber
 			from Episodes
 			where Number = ?;
 sql;

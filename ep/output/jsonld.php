@@ -86,7 +86,7 @@
 
 	if (!in_array("Content-type: text/html;charset=UTF-8", headers_list())) {
 		http_response_code(200);
-		header("Content-Type: application/ld+json");
+		header("Content-Type: {$this->mimeType}");
 	}
-	echo json_encode($response, JSON_UNESCAPED_SLASHES);
+	echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 ?>
