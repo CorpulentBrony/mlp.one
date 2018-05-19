@@ -9,36 +9,69 @@ $mdc-theme-secondary: $twi-hair-highlight-purple;
 $mdc-theme-on-surface: $twi-hair-primary;
 $mdc-theme-on-primary: $twi-hair-highlight-pink;
 $mdc-theme-on-secondary: $twi-eye-highlight-light;
+$typography-default-coloring: (color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54)), fill: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54)));
+$mdc-typography-styles-body2: $typography-default-coloring;
+$mdc-typography-styles-caption: $typography-default-coloring;
+$mdc-typography-styles-subtitle2: $typography-default-coloring;
 
 @import "@material/button/mdc-button";
 @import "@material/card/mdc-card";
-@import "@material/chips/mdc-chips";
+// @import "@material/chips/mdc-chips";
 @import "@material/drawer/mdc-drawer";
+@import "@material/elevation/mdc-elevation";
 @import "@material/list/mdc-list";
+@import "@material/menu/mdc-menu";
 @import "@material/theme/mdc-theme";
 @import "@material/top-app-bar/mdc-top-app-bar";
 @import "@material/typography/mdc-typography";
 @import "audio";
 
+$background-width: 70vw;
+$card-item-elevation: 4;
 $main-padding: $mdc-top-app-bar-row-height / 4;
+$main-width: 50vw;
 
 :root {
-	--main-width: 40vw;
+	--background-position-x: right;
+	--main-width: $main-width;
 	--mdc-theme-text-primary-on-background: $mdc-theme-primary;
 	--mdc-theme-text-icon-on-background: $mdc-theme-primary;
+	--mdc-theme-text-secondary-on-background: $mdc-theme-secondary;
 
 	@media only screen and (max-width: 1024px) {
+		--background-position-x: center;
 		--main-width: 95vw;//calc(95vw - #{2 * $main-padding});
 	}
 }
 
+%card-item-elevated { @include mdc-elevation($card-item-elevation); }
 %full-width { width: var(--main-width); }
 
-*[aria-hidden=true] { padding: 0 !important; }
-// article, main { width: var(--main-width); }
+// *[aria-hidden=true] { padding: 0 !important; }
 body {
+	// @media only screen and (min-width: 1024px) {
+		
+	// }
+	&.webp-support { background-image: url(/image/mlpodcast_couch/1920w.webp); }
+	&.webp-no-support { background-image: url(/image/mlpodcast_couch/1920w.png); }
+	background: {
+		attachment: fixed;
+		position: { x: var(--background-position-x); y: bottom; }
+		repeat: no-repeat;
+		size: 70vw;
+	}
 	margin: 0;
+	min-height: calc(100vh - 64px);
 
+	&:before {
+		background: inherit;
+		content: "";
+		filter: drop-shadow(8px 8px 4px rgba(0, 0, 0, 0.55));
+		height: calc(100vh - 64px);
+		position: absolute;
+		width: 100vw;
+		z-index: -1;
+	}
 	&.mdc-drawer-scroll-lock { position: fixed; }
 }
 footer nav ul {
@@ -62,44 +95,37 @@ main {
 
 	article.mdc-card {
 		@extend %full-width;
+		opacity: 0.97;
+		padding: 0.4rem;
 
+		&:before {
+			backdrop-filter: blur(10px);
+			filter: blur(20px);
+		}
 		audio {
-			padding: 0.1rem 1rem 0;
-			width: calc(var(--article-width) - 2rem);
+			padding-top: 0.4rem;
+			width: 100%;
+
+			&::-webkit-media-controls { @include mdc-elevation($card-item-elevation - 1); }
+			&::-moz-media-controls { @include mdc-elevation($card-item-elevation - 1); }
+			&::media-controls { @include mdc-elevation($card-item-elevation - 1); }
 		}
 		header {
 			padding: 1rem;
 
 			aside.mdc-typography--caption { font-size: 0.66rem; }
 			h1 { margin: 0; }
-			h2 {
-				color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54));
-				margin: 0;
-			}
 		}
-		section.mdc-card__media { background-image: var(--image-url); }
+		section.mdc-card__media {
+			@extend %card-item-elevated;
+			background-image: var(--image-url);
+		}
 		section.mdc-typography--body2 {
 			color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54));
 			padding: 0 1rem 8px 1rem;
 		}
 	}
 }
-// ul.horizontal-icon-list {
-// 	list-style: none;
-// 	margin-bottom: 0.5em;
-// 	overflow: hidden;
-// 	padding: 0;
-// 	text-align: center;
-
-// 	li {
-// 		display: inline-block;
-
-// 		a {
-// 			display: inline-flex;
-// 			vertical-align: text-top;
-// 		}
-// 	}
-// }
 
 .mdc-button {
 	@include mdc-button-icon-color($mdc-theme-on-primary);
@@ -113,17 +139,29 @@ main {
 .mdc-card {
 	&__action-icons, &__action--icon:not(:disabled) { fill: var(--mdc-theme-text-icon-on-background, rgba(0, 0, 0, 0.38)); }
 }
-.mdc-chip {
-	@include mdc-chip-fill-color-accessible($mdc-theme-primary);
+// .mdc-chip {
+// 	@include mdc-chip-fill-color-accessible($mdc-theme-primary);
 
-	&-chip-set { justify-content: center; }
-	&__text { font-size: smaller; }
+// 	&-chip-set { justify-content: center; }
+// 	&__text { font-size: smaller; }
+// }
+.mdc-drawer__drawer {
+	padding-bottom: $mdc-top-app-bar-row-height;
 }
-.mdc-drawer {
-	&__drawer { padding-bottom: $mdc-top-app-bar-row-height; }
-	&__content.mdc-list { padding: 0; }
+.mdc-list {
+	padding: 0;
+
+	&-group__subheader {
+		margin: 0;
+
+		a { width: 100%; }
+	}
+	&-item a {
+		color: inherit;
+		text-decoration: none;
+		width: 100%;
+	}
 }
-.mdc-list-item a {
-	color: inherit;
-	text-decoration: none;
+.mdc-menu {
+	.mdc-list { @extend .mdc-list; }
 }

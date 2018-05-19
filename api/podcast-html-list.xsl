@@ -5,7 +5,7 @@
 	<xsl:template match="/">
 		<xsl:for-each select="rss/channel/item">
 			<xsl:sort select="itunes:episode" data-type="number" order="ascending" />
-			<li class="mdc-list-item" value="{itunes:episode}">
+			<li class="mdc-list-item" role="menuitem" value="{itunes:episode}">
 				<a class="mdc-list-item__text" href="/ep/{itunes:episode}">
 					/mlp/odcast #<xsl:value-of select="itunes:episode" />
 					<span class="mdc-list-item__secondary-text"><xsl:value-of select="title" /></span>

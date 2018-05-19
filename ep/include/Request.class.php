@@ -59,9 +59,9 @@
 
 		private function getCacheKey(): string { return \Mlp\Episode::GUID_PREFIX . strval($this->number); }
 
-		public function getAllRequestTypes(): array {
+		public function getAllRequestTypes(array $excludedTypes = null): array {
 			array_walk(self::$types, function(array $typeDescriptor, int $type): void { $this->getRequestUrl($type); });
-			return self::$types;
+			return (is_null($excludedTypes)) ? self::$types : array_diff_key(self::$types, array_flip($excludedTypes));
 		}
 
 		public function getAllRequestUrls(): array {
