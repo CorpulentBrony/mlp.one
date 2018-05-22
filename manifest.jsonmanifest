@@ -3,14 +3,17 @@
 	"short_name": "<!--# echo var='host' -->",
 	"description": "<!--# echo var='siteDescription' -->",
 	"author": "/mlp/",
-	"background_color": "#a99dd7",
+	"background_color": "#b689c8",
 	"developer": {
 		"name": "Corpulent Brony",
 		"url": "https://plus.google.com/+CorpulentBrony"
 	},
-	"display": "minimal-ui",
+	"display": "standalone",
 	"icons": [
-		{ "sizes": "1280x720", "src": "<!--# echo var='siteThumbnail' -->", "type": "image/png" }
+		{ "sizes": "192x192", "src": "/image/mlpodcast_couch/square-192w.webp", "type": "image/webp" },
+		{ "sizes": "192x192", "src": "/image/mlpodcast_couch/square-192w.png", "type": "image/png" },
+		{ "sizes": "512x512", "src": "/image/mlpodcast_couch/square-512w.webp", "type": "image/webp" },
+		{ "sizes": "512x512", "src": "/image/mlpodcast_couch/square-512w.png", "type": "image/png" }
 	],
 	"orientation": "any",
 	"related_applications": [{
@@ -19,5 +22,5 @@
 	}],
 	"scope": "/",
 	"start_url": "/",
-	"theme_color": "#363b74"
+	"theme_color": "#263773"
 }

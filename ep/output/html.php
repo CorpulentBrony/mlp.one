@@ -4,7 +4,8 @@
 	const DATE_DISPLAY_FORMAT = "l, F j<\s\u\p>S</\s\u\p>, Y";
 	$description = str_replace("\n", " ", $this->episode->description);
 	$thisEpisodeNumber = strval($this->episode->number);
-	$episodeFullTitle = "{$_SERVER["SITE_TITLE"]} #" . $thisEpisodeNumber . " - {$this->episode->title}";
+	// $episodeFullTitle = "{$_SERVER["SITE_TITLE"]} #" . $thisEpisodeNumber . " - {$this->episode->title}";
+	$episodeFullTitle = "{$this->episode->title} - {$_SERVER["SITE_TITLE"]}";
 	$fileUrl = str_ireplace("http://", "https://", $this->episode->defaultFile->url);
 	$nextEpisodeNumber = $this->getNextEpisodeNumber();
 	$previousEpisodeNumber = $this->getPreviousEpisodeNumber();
@@ -39,7 +40,6 @@
 		<script type="application/ld+json"><?php require "jsonld.php"; ?></script>
 		<title><?= $episodeFullTitle ?></title>
 		<link href="/css/output.css" rel="stylesheet" type="text/css">
-		<!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css"> -->
 		<script async defer id="mlp-material-components-web-script" src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
 		<script async defer src="/js/output.js"></script>
 		<style type="text/css">
@@ -50,36 +50,64 @@
 			@media only screen and (max-width: 768px) {
 				:root { --title-prefix-text: "#"; }
 			}
-/*			.yt-video-container {
-				height: 0;
-				overflow: hidden;
-				padding-bottom: 56.25%;
-				position: relative;
+
+			html::selection { background: var(--mdc-theme-secondary); }
+			html::-moz-selection { background: var(--mdc-theme-secondary); }
+
+			.mlp-audio-player {
+				align-items: center;
+				align-self: center;
+				background-color: var(--mdc-theme-secondary);
+				color: var(--mdc-theme-on-secondary);
+				display: flex;
+				fill: var(--mdc-theme-on-secondary);
+				flex-direction: row;
+				height: 36px;
+				margin: 0 -5px;
+				padding: 0 5px;
+				width: calc(100% - 10px);
 			}
-			.yt-video-container iframe {
-				height: 100%;
-				left: 0;
-				position: absolute;
-				top: 0;
-				width: 100%;
-			}*/
+			.mlp-audio-player > * { margin: 0 5px; }
+			.mlp-audio-player .mdc-fab {
+				height: 24px;
+				width: 24px;
+			}
+			.mlp-audio-player--time {
+				/* @include disable-user-select; */
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				user-select: none;
+			}
+			.mlp-audio-player--time.mdc-typography--caption { color: var(--mdc-theme-on-secondary); }
+			.mlp-audio-player--track-slider-container, .mlp-audio-player--volume-slider-container {
+				flex-grow: 1;
+				flex-shrink: 1;
+			}
+			.mlp-audio-player--volume-slider-container {
+				max-width: 10%;
+			}
 		</style>
 	</head>
 	<body class="mdc-typography">
+		<picture>
+			<source data-pagespeed-no-transform sizes="(min-width: 1024px) 70vw, 100vw" srcset="/image/mlpodcast_couch/3840w.webp 3840w, /image/mlpodcast_couch/2880w.webp 2880w, /image/mlpodcast_couch/1920w.webp 1920w, /image/mlpodcast_couch/1280w.webp 1280w, /image/mlpodcast_couch/960w.webp 960w" type="image/webp">
+			<img alt="" data-pagespeed-no-transform id="mlp-img-bg" role="presentation" sizes="(min-width: 1024px) 70vw, 100vw" src="/image/mlpodcast_couch/960w.png" srcset="/image/mlpodcast_couch/3840w.png 3840w, /image/mlpodcast_couch/2880w.png 2880w, /image/mlpodcast_couch/1920w.png 1920w, /image/mlpodcast_couch/1280w.png 1280w" type="image/png">
+		</picture>
 		<header class="mdc-top-app-bar">
 			<div class="mdc-top-app-bar__row">
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
 					<button aria-haspopup="menu" class="mdc-top-app-bar__navigation-icon">
-						<img alt="Show menu" aria-label="Show the episode menu" data-is-svg src="/material-design-icons/navigation/svg/production/ic_menu_24px.svg" title="Show menu" type="image/svg+xml">
+						<img alt="Show menu" aria-label="Show the episode menu" data-is-svg data-pagespeed-no-transform src="/material-design-icons/navigation/svg/production/ic_menu_24px.svg" srcset="/material-design-icons/navigation/svg/production/ic_menu_48px.svg 2x, /material-design-icons/navigation/svg/production/ic_menu_36px.svg 1.5x" title="Show menu" type="image/svg+xml">
 					</button>
 					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>"><?= $thisEpisodeNumber ?> - <?= $this->episode->title ?></data>
 				</section>
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
 					<a class="mdc-top-app-bar__action-item" href="<?= $this->episode->getYouTubeUrl() ?>" rel="external noopener" target="_blank" type="text/html">
-						<img alt="Watch on YouTube" aria-label="Watch this episode on YouTube" data-is-svg height="24" src="/fontawesome-free-5.0.13/advanced-options/raw-svg/brands/youtube.svg" title="Watch on YouTube" type="image/svg+xml" width="24">
+						<img alt="Watch on YouTube" aria-label="Watch this episode on YouTube" data-is-svg data-pagespeed-no-transform height="24" src="/fontawesome-free-5.0.13/advanced-options/raw-svg/brands/youtube.svg" title="Watch on YouTube" type="image/svg+xml" width="24">
 					</a>
 					<a class="mdc-top-app-bar__action-item" href="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg">
-						<img alt="Download MP3" aria-label="Download this episode in MP3 format" data-is-svg src="/material-design-icons/file/svg/production/ic_file_download_24px.svg" title="Download MP3" type="image/svg+xml">
+						<img alt="Download MP3" aria-label="Download this episode in MP3 format" data-is-svg data-pagespeed-no-transform src="/material-design-icons/file/svg/production/ic_file_download_24px.svg" srcset="/material-design-icons/file/svg/production/ic_file_download_48px.svg 2x" title="Download MP3" type="image/svg+xml">
 					</a>
 				</section>
 			</div>
@@ -93,24 +121,55 @@
 				</ul>
 			</nav>
 		</aside>
-		<!--
-				<section aria-hidden="true" aria-label="Embedded YouTube video of this episode" class="yt-container" role="complementary">
-
-					<div aria-hidden="true" class="yt-video-container">
-						< !- - <iframe allow="encrypted-media" allowfullscreen src="<?= $this->episode->getYouTubeEmbedUrl() ?>"></iframe> - - >
-					</div>
-				</section>
-	-->
 		<main>
 			<article class="mdc-card">
 				<!-- <section class="mdc-card__media mdc-card__media--16-9"></section> -->
-				<audio aria-label="Embedded control to listen to a stream of this episode" controls itemprop="audio" itemscope="true" itemtype="http://schema.org/AudioObject" src="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg" preload="metadata"></audio>
+				<audio aria-label="Embedded control to listen to a stream of this episode" controls id="mlp-audio-element" itemprop="audio" itemscope="true" itemtype="http://schema.org/AudioObject" src="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg" preload="metadata"></audio>
+				<aside class="mlp-audio-player" data-audio-src="<?= $thisEpisodeNumber ?>.mp3" data-audio-type="audio/mpeg">
+					<button aria-label="Play button" class="mdc-fab mlp-audio-player--play-pause-button" disabled>
+						<img alt="Play" class="mdc-fab__icon" data-is-svg data-other-state-src-name="pause" data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_play_arrow_24px.svg" srcset="/material-design-icons/av/svg/production/ic_play_arrow_48px.svg 2x" title="Play" type="image/svg+xml">
+					</button>
+					<span class="mdc-typography--caption mlp-audio-player--time">
+						<time aria-label="Time elapsed" class="mlp-audio-player--time-elapsed">0:00</time>
+						<span class="mlp-audio-player--time-separator">&nbsp;/&nbsp;</span>
+						<time aria-label="Total length" class="mlp-audio-player--time-duration"></time>
+					</span>
+					<div class="mlp-audio-player--track-slider-container">
+						<div aria-disabled="true" aria-label="Audio track progress" aria-valuemax="" aria-valuemin="0" aria-valuenow="0" class="mdc-slider mlp-audio-player--track-slider" role="slider" tabindex="0">
+							<div class="mdc-slider__track-container">
+								<div class="mdc-slider__track"></div>
+							</div>
+							<div class="mdc-slider__thumb-container">
+								<svg class="mdc-slider__thumb" height="21" viewBox="0 0 21 21" width="21">
+									<circle cx="10.5" cy="10.5" r="7.875"></circle>
+								</svg>
+								<div class="mdc-slider__focus-ring"></div>
+							</div>
+						</div>
+					</div>
+					<button aria-label="Mute button" class="mdc-fab mlp-audio-player--mute-button" disabled>
+						<img alt="Mute" class="mdc-fab__icon" data-is-svg data-other-state-src-name="volume_off" data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_volume_up_24px.svg" srcset="/material-design-icons/av/svg/production/ic_volume_up_48px.svg 2x" title="Mute" type="image/svg+xml">
+					</button>
+					<div class="mlp-audio-player--volume-slider-container">
+						<div aria-disabled="true" aria-label="Volume selector" aria-valuemax="1" aria-valuemin="0" aria-valuenow="1" class="mdc-slider mlp-audio-player--volume-slider" role="slider" tabindex="0">
+							<div class="mdc-slider__track-container">
+								<div class="mdc-slider__track"></div>
+							</div>
+							<div class="mdc-slider__thumb-container">
+								<svg class="mdc-slider__thumb" height="21" viewBox="0 0 21 21" width="21">
+									<circle cx="10.5" cy="10.5" r="7.875"></circle>
+								</svg>
+								<div class="mdc-slider__focus-ring"></div>
+							</div>
+						</div>
+					</div>
+				</aside>
 				<header>
 					<h1 class="mdc-typography--headline6"><?= $this->episode->title ?></h1>
 					<aside class="mdc-typography--caption">
 						<time aria-label="Date this episode was published" datetime="<?= $this->episode->publishDate->format("Y-m-d") ?>" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
 						<span title="Episode Duration">
-							<img alt="Duration" aria-label="The following time is the duration of this episode" data-is-svg height="12" src="/material-design-icons/device/svg/production/ic_access_time_24px.svg" type="image/svg+xml" width="12">
+							<img alt="Duration" aria-label="The following time is the duration of this episode" data-is-svg data-pagespeed-no-transform height="12" src="/material-design-icons/device/svg/production/ic_access_time_24px.svg" srcset="/material-design-icons/device/svg/production/ic_access_time_48px.svg 2x" type="image/svg+xml" width="12">
 							<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>"><?= $this->episode->getDurationFormatted() ?></time>
 						</span>
 					</aside>
@@ -120,23 +179,32 @@
 				</section>
 				<footer class="mdc-card__actions">
 					<nav class="mdc-card__action-buttons">
-						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg">Download</a>
 						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $this->episode->getYouTubeUrl() ?>" rel="external noopener" target="_blank" type="text/html">Watch</a>
+						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg">Download</a>
 					</nav>
 					<nav class="mdc-card__action-icons">
-						<?php if (!is_null($previousEpisodeNumber)): ?>
+						<?php if (is_null($previousEpisodeNumber)): ?>
+							<button class="mdc-button mdc-button--dense mdc-button__icon mdc-card__action mdc-card__action--icon" disabled>
+								<img alt="&lt;" aria-label="Go to previous episode" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_previous_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_previous_48px.svg 2x" title="Previous episode" type="image/svg+xml">
+							</button>
+						<?php else: ?>
 							<a class="mdc-button mdc-button--dense mdc-button__icon mdc-card__action mdc-card__action--icon" href="<?= strval($previousEpisodeNumber) ?>" rel="prev">
-								<img alt="&lt;" aria-label="Go to previous episode" data-is-svg src="/material-design-icons/image/svg/production/ic_navigate_before_24px.svg" title="Previous episode" type="image/svg+xml">
+								<img alt="&lt;" aria-label="Go to previous episode" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_previous_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_previous_48px.svg 2x" title="Previous episode" type="image/svg+xml">
 							</a>
 						<?php endif; ?>
-						<?php if (!is_null($nextEpisodeNumber)): ?>
+
+						<?php if (is_null($nextEpisodeNumber)): ?>
+							<button class="mdc-button mdc-button--dense mdc-button__icon mdc-card__action mdc-card__action--icon" disabled>
+								<img alt="&lt;" aria-label="Go to previous episode" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_next_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_next_48px.svg 2x" title="Previous episode" type="image/svg+xml">
+							</button>
+						<?php else: ?>
 							<a class="mdc-button mdc-button--dense mdc-button__icon mdc-card__action mdc-card__action--icon" href="<?= strval($nextEpisodeNumber) ?>" rel="next">
-								<img alt="&gt;" aria-label="Go to next episode" data-is-svg src="/material-design-icons/image/svg/production/ic_navigate_next_24px.svg" title="Next episode" type="image/svg+xml">
+								<img alt="&lt;" aria-label="Go to previous episode" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_next_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_next_48px.svg 2x" title="Previous episode" type="image/svg+xml">
 							</a>
 						<?php endif; ?>
 						<aside class="mdc-menu-anchor">
 							<span aria-controls="mlp-menu" aria-haspopup="menu" class="mdc-button mdc-button--dense mdc-button__icon mdc-card__action mdc-card__action--icon" id="mlp-btn-more-formats" role="button" tabindex="0">
-								<img alt="More Formats" aria-label="View episode in more formats" data-is-svg src="/material-design-icons/navigation/svg/production/ic_more_vert_24px.svg" title="More formats" type="image/svg+xml">
+								<img alt="More Formats" aria-label="View episode in more formats" data-is-svg data-pagespeed-no-transform src="/material-design-icons/navigation/svg/production/ic_more_vert_24px.svg" srcset="/material-design-icons/navigation/svg/production/ic_more_vert_48px.svg 2x, /material-design-icons/navigation/svg/production/ic_more_vert_36px.svg 1.5x" title="More formats" type="image/svg+xml">
 							</span>
 							<section aria-hidden="true" class="mdc-menu" id="mlp-menu" role="menu">
 								<ul class="mdc-menu__items mdc-list">
