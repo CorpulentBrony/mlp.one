@@ -54,7 +54,7 @@ const MLP = (function MLP() {
 	function javaStringHash(string) { return window.Array.prototype.reduce.call(window.String(string), (hash, character) => (hash << 5) - hash + character.charCodeAt(0) | 0, 0); }
 
 	function loadSvg(replacesElement, src = undefined) {
-		if (typeof src === "undefined" && replacesElement instanceof window.HTMLImageElement)
+		if (typeof src === "undefined" && "currentSrc" in replacesElement)
 			src = replacesElement.currentSrc;
 		const [width, height] = (replacesElement instanceof window.SVGElement) ? [replacesElement.width.baseVal.value, replacesElement.height.baseVal.value] : [replacesElement.clientWidth, replacesElement.clientHeight];
 		const cacheKey = window.String(javaStringHash(`${src}|${width}|${height}`));
@@ -101,220 +101,6 @@ const MLP = (function MLP() {
 	}
 
 	return {
-		AudioPlayer: (function AudioPlayerClosure() {
-			const DATE_ZERO = new window.Date(0);
-			const MUTE_BUTTON = window.Symbol("muteButton");
-			const PLAY_PAUSE_BUTTON = window.Symbol("playPauseButton");
-			const TIME_DURATION = window.Symbol("timeDuration");
-			const TIME_ELAPSED = window.Symbol("timeElapsed");
-			const TRACK_SLIDER = window.Symbol("trackSlider");
-			const VOLUME_SLIDER = window.Symbol("volumeSlider");
-			const CLASS_TO_COMPONENT = new window.Map([
-				[".mlp-audio-player--mute-button", [MUTE_BUTTON, "InteractiveButtonComponent"]], 
-				[".mlp-audio-player--play-pause-button", [PLAY_PAUSE_BUTTON, "PlayPauseButton"]],
-				[".mlp-audio-player--time-duration", [TIME_DURATION, "Component"]],
-				[".mlp-audio-player--time-elapsed", [TIME_ELAPSED, "Component"]],
-				[".mlp-audio-player--track-slider", [TRACK_SLIDER, "InteractiveSliderComponent"]],
-				[".mlp-audio-player--volume-slider", [VOLUME_SLIDER, "InteractiveSliderComponent"]]
-			]);
-			const _currentTime = new window.WeakMap(); // window.Date
-			const _disabled = new window.WeakMap(); // bool
-			const _duration = new window.WeakMap(); // window.Date
-			const _element = new window.WeakMap(); // window.Element
-			const _loaded = new window.WeakMap(); // bool
-			const _muted = new window.WeakMap(); // bool
-			const _playing = new window.WeakMap(); // bool
-			const _volume = new window.WeakMap(); // double
-
-			class Component extends window.EventTarget {
-				constructor(element) {
-					super();
-					this.element = element;
-				}
-				get displayValue() { return this.element.textContent; }
-				set displayValue(displayValue) { this.element.textContent = window.String(displayValue); }
-			}
-
-			class ComponentCollection {
-				constructor(audioPlayerElement) {
-					_disabled.set(this, true);
-					CLASS_TO_COMPONENT.forEach(([propertySymbol, classReference], className) => this[propertySymbol] = new ComponentClasses[classReference](audioPlayerElement.querySelector(className)));
-					this.symbols = window.Object.getOwnPropertySymbols(this);
-				}
-				get isDisabled() { return _disabled.get(this); }
-				set isDisabled(isDisabled) {
-					_disabled.set(this, window.Boolean(isDisabled));
-					this.symbols.forEach((symbol) => {
-						if ("isDisabled" in this[symbol])
-							this[symbol].isDisabled = this.isDisabled;
-					});
-				}
-			}
-
-			class InteractiveComponent extends Component {
-				constructor(element) {
-					super(element);
-					_disabled.set(this, true);
-				}
-				get isDisabled() { return _disabled.get(this); }
-				set isDisabled(isDisabled) {
-					_disabled.set(this, window.Boolean(isDisabled));
-					this.element.setAttribute("aria-disabled", this.isDisabled);
-				}
-			}
-
-			class InteractiveButtonComponent extends InteractiveComponent {
-				constructor(element) {
-					super(element);
-					this.element.addEventListener("click", this.buttonOnClick.bind(this), false);
-				}
-				get isDisabled() { return super.isDisabled; }
-				set isDisabled(isDisabled) {
-					super.isDisabled = isDisabled;
-
-					if (super.isDisabled)
-						this.element.setAttribute("disabled", true);
-					else
-						this.element.removeAttribute("disabled");
-				}
-				buttonOnClick() {
-					if (this.dispatchEvent(new window.Event("click")) === true) {
-						const child = this.element.firstElementChild;
-						const currentStateSrcName = /[^ic\/_][a-z_]+(?=_[0-9]{2}px.svg$)/.exec(child.dataset.svgSrc)[0];
-						const otherStateSrcName = child.dataset.otherStateSrcName;
-						child.dataset.otherStateSrcName = currentStateSrcName;
-						loadSvg(child, child.dataset.svgSrc.replace(currentStateSrcName, otherStateSrcName));
-						return true;
-					}
-					return false;
-				}
-			}
-
-			class InteractiveSliderComponent extends InteractiveComponent {
-				constructor(element) {
-					super(element);
-					this.mdcSlider = undefined;
-					this.element.addEventListener("change", this.sliderOnChange.bind(this), false);
-				}
-				get isDisabled() { return super.isDisabled; }
-				get value() { return this.mdcSlider.value; }
-				set isDisabled(isDisabled) {
-					super.isDisabled = isDisabled;
-					this.mdcSlider.disabled = super.isDisabled;
-				}
-				set value(value) { this.mdcSlider.value = value; }
-				sliderOnChange() { return false; }
-			}
-
-			class PlayPauseButton extends InteractiveButtonComponent {
-				constructor(element) {
-					super(element);
-					_playing.set(this, false);
-				}
-				get isPaused() { return !_playing.get(this); }
-				get isPlaying() { return _playing.get(this); }
-				set isPlaying(isPlaying) {
-					isPlaying = window.Boolean(isPlaying);
-
-					if (this.isPlaying === isPlaying)
-						return;
-					_playing.set(this, isPlaying);
-				}
-				set isPaused(isPaused) { this.isPlaying = !window.Boolean(isPaused); }
-				buttonOnClick() {
-					if (super.buttonOnClick())
-						this.isPlaying = !this.isPlaying;
-				}
-			}
-
-			const ComponentClasses = { Component, InteractiveButtonComponent, InteractiveSliderComponent, PlayPauseButton };
-
-			return class AudioPlayer {
-				static formatTime(date) {
-					const [hours, minutes, seconds] = [date.getHours() - DATE_ZERO.getHours(), date.getMinutes() - DATE_ZERO.getMinutes(), date.getSeconds() - DATE_ZERO.getSeconds()];
-					return (hours > 0) ? `${hours.toString()}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}` : `${minutes.toString()}:${seconds.toString().padStart(2, "0")}`;
-				}
-				constructor(element, mdcScriptElement) {
-					_currentTime.set(this, new window.Date(0));
-					_disabled.set(this, true);
-					_duration.set(this, undefined);
-					_loaded.set(this, false);
-					_muted.set(this, false);
-					_playing.set(this, false);
-					_volume.set(this, 1);
-					this.components = undefined; // ComponentCollection
-					this.element = element;
-					this.audio = new window.Audio();
-					this.audio.setAttribute("preload", "metadata");
-					this.audio.setAttribute("type", this.element.dataset.audioType);
-					this.audio.addEventListener("canplay", this.audioOnCanPlay.bind(this), false);
-					this.audio.addEventListener("durationchange", this.audioOnDurationChange.bind(this), false);
-					this.audio.addEventListener("ended", this.audioOnEnded.bind(this), false);
-					this.audio.addEventListener("error", this.audioOnError.bind(this), false);
-					this.audio.addEventListener("progress", this.audioOnProgress.bind(this), false);
-					this.audio.addEventListener("timeupdate", this.audioOnTimeUpdate.bind(this), false);
-					this.trackSlider = this.components[TRACK_SLIDER].mdcSlider = new window.mdc.slider.MDCSlider(this.components[TRACK_SLIDER].element);
-					this.volumeSlider = this.components[VOLUME_SLIDER].mdcSlider = new window.mdc.slider.MDCSlider(this.components[VOLUME_SLIDER].element);
-					this.audio.setAttribute("src", this.element.dataset.audioSrc);
-				}
-				get currentTime() { return _currentTime.get(this); }
-				get duration() { return _duration.get(this); }
-				get element() { return _element.get(this); }
-				get isDisabled() { return _disabled.get(this); }
-				get isLoaded() { return _loaded.get(this); }
-				set currentTime(currentTime) {
-					_currentTime.set(this, new window.Date(window.Number(currentTime) * 1000));
-					this.components[TIME_ELAPSED].displayValue = AudioPlayer.formatTime(this.currentTime);
-					this.components[TRACK_SLIDER].value = window.Number(this.currentTime) / 1000;
-				}
-				set duration(duration) {
-					_duration.set(this, new window.Date(window.Number(duration) * 1000));
-					this.components[TIME_DURATION].displayValue = AudioPlayer.formatTime(this.duration);
-					this.components[TRACK_SLIDER].element.setAttribute("aria-valuemax", duration);
-					this.trackSlider.max = window.Number(this.duration) / 1000;
-					this.trackSlider.layout();
-				}
-				set element(element) {
-					_element.set(this, element);
-					this.components = new ComponentCollection(this.element);
-					this.components[PLAY_PAUSE_BUTTON].addEventListener("click", this.playPauseButtonOnClick.bind(this), false);
-				}
-				set isDisabled(isDisabled) {
-					_disabled.set(this, window.Boolean(isDisabled));
-					this.components.isDisabled = isDisabled;
-				}
-				// for audio events, see also https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
-				audioOnCanPlay() { // Sent when enough data is available that the media can be played, at least for a couple of frames.
-					console.log("audio can play", this);
-					_loaded.set(this, true);
-					this.isDisabled = false;
-				}
-				audioOnDurationChange() { // The metadata has loaded or changed, indicating a change in duration of the media. 
-					console.log("audio element duration is known!", this);
-					this.duration = this.audio.duration;
-				}
-				audioOnEnded() { // Sent when playback completes.
-					console.log("audio ended", this);
-				}
-				audioOnError() { // Sent when an error occurs.  The element's error attribute contains more information.
-					console.log("audio error!", this);
-					this.isDisabled = true;
-				}
-				audioOnProgress(event) { //	Sent periodically to inform interested parties of progress downloading the media. 
-					console.log("audio progress", event, this);
-				}
-				audioOnTimeUpdate() { //The time indicated by the element's currentTime attribute has changed.
-					console.log("audio time update", this);
-					this.currentTime = this.audio.currentTime;
-				}
-				playPauseButtonOnClick() {
-					if (this.components[PLAY_PAUSE_BUTTON].isPlaying)
-						this.audio.pause();
-					else
-						this.audio.play();
-				}
-			}
-		})(),
 		Drawer: class Drawer extends MenuComponentHandler {
 			constructor({ currentElement, topAppBar, triggerElementId, triggerElementSelector }) {
 				super({
@@ -374,7 +160,6 @@ const MLP = (function MLP() {
 })();
 (async function index() {
 	const MLPIndex = window.Object.create(window.Object.prototype);
-	MLPIndex.audioPlayer = undefined; // MLP.AudioPlayer
 	MLPIndex.drawer = undefined; // MLP.Drawer
 	MLPIndex.episodeNumber = JSON.parse(document.querySelector("script[type=\"application/ld+json\"]").innerText).episodeNumber;
 	MLPIndex.materialComponentsWebScript = undefined; // window.HTMLScriptElement
@@ -419,7 +204,6 @@ const MLP = (function MLP() {
 		])).catch(console.error);
 		await MLP.isMdcLoaded;
 		materialComponentsWebScriptOnLoad();
-		MLPIndex.audioPlayer = new MLP.AudioPlayer(document.querySelector(".mlp-audio-player"), MLPIndex.materialComponentsWebScript);
 		window.document.removeEventListener("DOMContentLoaded", documentOnLoad, false)
 	}
 
@@ -434,7 +218,7 @@ const MLP = (function MLP() {
 
 	// should used IndexedDB instead? https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
 	function iconOnLoad({ currentTarget: icon }) {
-		if (icon.currentSrc === "https://www.gstatic.com/psa/static/1.gif")
+		if (icon.currentSrc === "" || icon.currentSrc === "https://www.gstatic.com/psa/static/1.gif")
 			return;
 		MLP.loadSvg(icon);
 		icon.removeEventListener("load", iconOnLoad, false);
@@ -452,10 +236,9 @@ const MLP = (function MLP() {
 
 	function triggerIconLoad() {
 		window.document.querySelectorAll("img[data-is-svg]").forEach((icon) => {
-			if (icon.complete)
-				async(() => iconOnLoad({ currentTarget: icon })).catch(console.error);
-			else
-				icon.addEventListener("load", iconOnLoad, false);
+			if (icon.complete && icon.currentSrc !== "" && icon.currentSrc !== "https://www.gstatic.com/psa/static/1.gif")
+				iconOnLoad({ currentTarget: icon });
+			icon.addEventListener("load", iconOnLoad, false);
 		});
 	}
 

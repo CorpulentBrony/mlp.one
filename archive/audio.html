@@ -1,0 +1,531 @@
+<!-- this isn't a full HTML file but does contain the base code that I wrote for the AudioPlayer thing I was doing and gave up in favor of the HTMl5 player -->
+<style type="text/css">
+.mlp-audio-player {
+	align-items: center;
+	align-self: center;
+	background-color: var(--mdc-theme-secondary);
+	color: var(--mdc-theme-on-secondary);
+	display: flex;
+	fill: var(--mdc-theme-on-secondary);
+	flex-direction: row;
+	height: 36px;
+	margin: 0 -5px;
+	padding: 0 5px;
+	position: relative;
+	width: calc(100% - 10px);
+}
+.mlp-audio-player[aria-disabled=true]:before {
+	background-color: rgba(255, 255, 255, 0.3);
+	-webkit-backdrop-filter: grayscale(0.5) blur(1px);
+	backdrop-filter: grayscale(0.5) blur(1px);
+	content: "";
+	height: 100%;
+	position: absolute;
+	right: 0;
+	width: 100%;
+	z-index: 100;
+}
+.mlp-audio-player > * { margin: 0 5px; }
+.mlp-audio-player .mdc-fab {
+	height: 24px;
+	width: 24px;
+}
+.mlp-audio-player--time {
+	/* @include disable-user-select; */
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+}
+.mlp-audio-player--time.mdc-typography--caption { color: var(--mdc-theme-on-secondary); }
+.mlp-audio-player--track-slider-container, .mlp-audio-player--volume-slider-container {
+	flex-grow: 1;
+	flex-shrink: 1;
+}
+.mlp-audio-player--volume-slider-container {
+	max-width: 10%;
+}
+</style>
+<style type="text/scss">
+.mlp-audio-player {
+	&--track-slider, &--volume-slider { @include mdc-slider-color-accessible($mdc-theme-on-secondary); }
+}
+</style>
+<aside aria-disabled="true" aria-label="Audio player for this episode" class="mlp-audio-player" data-audio-src="<?= $thisEpisodeNumber ?>.mp3" data-audio-type="audio/mpeg" id="audio-player" role="region">
+	<button aria-controls="audio-player time-elapsed track-slider" aria-label="Play button" class="mdc-fab mlp-audio-player--play-pause-button" data-other-state-title="Pause" disabled title="Play">
+		<img alt="Play" class="mdc-fab__icon" data-is-svg data-other-state-src-name="pause" data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_play_arrow_24px.svg" srcset="/material-design-icons/av/svg/production/ic_play_arrow_48px.svg 2x" title="Play" type="image/svg+xml">
+	</button>
+	<span class="mdc-typography--caption mlp-audio-player--time">
+		<time aria-label="Time elapsed" class="mlp-audio-player--time-elapsed" id="time-elapsed" role="status" title="Time Elapsed">0:00</time>
+		<span class="mlp-audio-player--time-separator">&nbsp;/&nbsp;</span>
+		<time aria-label="Total length" class="mlp-audio-player--time-duration" title="Total Length"></time>
+	</span>
+	<div class="mlp-audio-player--track-slider-container">
+		<div aria-controls="audio-player time-elapsed" aria-disabled="true" aria-label="Audio track progress" aria-valuemax="" aria-valuemin="0" aria-valuenow="0" aria-valuetext="0 seconds" class="mdc-slider mlp-audio-player--track-slider" id="track-slider" role="slider status" tabindex="0" title="Track Progress">
+			<div class="mdc-slider__track-container">
+				<div class="mdc-slider__track"></div>
+			</div>
+			<div class="mdc-slider__thumb-container">
+				<svg class="mdc-slider__thumb" height="21" viewBox="0 0 21 21" width="21">
+					<circle cx="10.5" cy="10.5" r="7.875"></circle>
+				</svg>
+				<div class="mdc-slider__focus-ring"></div>
+			</div>
+		</div>
+	</div>
+	<button aria-controls="audio-player volume-slider" aria-label="Mute button" class="mdc-fab mlp-audio-player--mute-button" data-other-state-title="Unmute" disabled title="Mute">
+		<img alt="Mute" class="mdc-fab__icon" data-is-svg data-other-state-src-name="volume_off" data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_volume_up_24px.svg" srcset="/material-design-icons/av/svg/production/ic_volume_up_48px.svg 2x" title="Mute" type="image/svg+xml">
+	</button>
+	<div class="mlp-audio-player--volume-slider-container">
+		<div aria-controls="audio-player" aria-disabled="true" aria-label="Volume selector" aria-valuemax="1" aria-valuemin="0" aria-valuenow="1" class="mdc-slider mlp-audio-player--volume-slider" id="volume-slider" role="slider" tabindex="0" title="Volume">
+			<div class="mdc-slider__track-container">
+				<div class="mdc-slider__track"></div>
+			</div>
+			<div class="mdc-slider__thumb-container">
+				<svg class="mdc-slider__thumb" height="21" viewBox="0 0 21 21" width="21">
+					<circle cx="10.5" cy="10.5" r="7.875"></circle>
+				</svg>
+				<div class="mdc-slider__focus-ring"></div>
+			</div>
+		</div>
+	</div>
+</aside>
+<script>
+"use strict";
+const MLP = (function MLP() {
+	function copyAttributes(fromElement, toElement, attributes = []) {
+		attributes.forEach((attribute) => {
+			const attributeIsString = typeof attribute === "string";
+			const fromElementAttribute = attributeIsString ? fromElement.getAttribute(attribute) : fromElement.getAttribute(attribute[0]);
+
+			if (fromElementAttribute !== null)
+				toElement.setAttribute(attributeIsString ? attribute : attribute[1], fromElementAttribute);
+		});
+	}
+
+	function createElement(name, attributes = {}, parent = undefined, text = undefined) {
+		const element = window.document.createElement(name);
+		setAttributes(element, attributes);
+
+		if (text !== undefined)
+			element.textContent = text;
+
+		if (parent !== undefined)
+			parent.appendChild(element);
+		return element;
+	}
+
+	function javaStringHash(string) { return window.Array.prototype.reduce.call(window.String(string), (hash, character) => (hash << 5) - hash + character.charCodeAt(0) | 0, 0); }
+
+	function loadSvg(replacesElement, src = undefined) {
+		if (typeof src === "undefined" && replacesElement instanceof window.HTMLImageElement)
+			src = replacesElement.currentSrc;
+		const [width, height] = (replacesElement instanceof window.SVGElement) ? [replacesElement.width.baseVal.value, replacesElement.height.baseVal.value] : [replacesElement.clientWidth, replacesElement.clientHeight];
+		const cacheKey = window.String(javaStringHash(`${src}|${width}|${height}`));
+		let svgCached = undefined; // string
+
+		try { svgCached = window.localStorage.getItem(cacheKey); } catch (err) { console.error(err); }
+
+		if (svgCached) {
+			const svg = parseSvgText(svgCached)
+			replacesElement.parentNode.replaceChild(svg, replacesElement);
+			return window.Promise.resolve(svg);
+		} else {
+			notifyPreload("fetch", src, "image/svg+xml");
+			return window.fetch(src).then((response) => response.text()).then((svgText) => {
+				const serializer = new window.XMLSerializer();
+				const svg = parseSvgText(svgText);
+				copyAttributes(replacesElement, svg, ["aria-label", "class", "title"]);
+				setAttributes(svg, { height, width });
+
+				for (const attribute in replacesElement.dataset)
+					svg.dataset[attribute] = replacesElement.dataset[attribute];
+				svg.dataset.svgSrc = src;
+
+				try { window.localStorage.setItem(cacheKey, serializer.serializeToString(svg)); } catch (err) { console.error(err); }
+				replacesElement.parentNode.replaceChild(svg, replacesElement);
+			}).catch(console.error);
+		}
+	}
+
+	function notifyPreload(as, href, type) { createElement("link", { as, href, type }, window.document.head); }
+
+	function parseSvgText(svgText) {
+		const parser = new window.DOMParser();
+		const svg = parser.parseFromString(svgText, "image/svg+xml").documentElement;
+
+		if (svg.tagName != "svg")
+			throw new window.Error(`Loaded document is not formatted as an SVG.  Received: ${svgText}`);
+		return svg;
+	}
+
+	function setAttributes(element, attributes = {}) {
+		for (const key in attributes)
+			element.setAttribute(key, attributes[key]);
+	}
+
+	return {
+		AudioPlayer: (function AudioPlayerClosure() {
+			const DATE_ZERO = new window.Date(0);
+			const INITIAL_VOLUME = 1;
+			const MUTE_BUTTON = window.Symbol("muteButton");
+			const PLAY_PAUSE_BUTTON = window.Symbol("playPauseButton");
+			const TIME_DURATION = window.Symbol("timeDuration");
+			const TIME_ELAPSED = window.Symbol("timeElapsed");
+			const TRACK_SLIDER = window.Symbol("trackSlider");
+			const VOLUME_SLIDER = window.Symbol("volumeSlider");
+			const CLASS_TO_COMPONENT = new window.Map([
+				[".mlp-audio-player--mute-button", [MUTE_BUTTON, "MuteButton"]], 
+				[".mlp-audio-player--play-pause-button", [PLAY_PAUSE_BUTTON, "PlayPauseButton"]],
+				[".mlp-audio-player--time-duration", [TIME_DURATION, "Component"]],
+				[".mlp-audio-player--time-elapsed", [TIME_ELAPSED, "Component"]],
+				[".mlp-audio-player--track-slider", [TRACK_SLIDER, "TrackSlider"]],
+				[".mlp-audio-player--volume-slider", [VOLUME_SLIDER, "VolumeSlider"]]
+			]);
+			const _busy = new window.WeakMap(); // bool
+			const _currentTime = new window.WeakMap(); // window.Date
+			const _disabled = new window.WeakMap(); // bool
+			const _duration = new window.WeakMap(); // window.Date
+			const _element = new window.WeakMap(); // window.Element
+			const _loaded = new window.WeakMap(); // bool
+			const _muted = new window.WeakMap(); // bool
+			const _playing = new window.WeakMap(); // bool
+			const _volume = new window.WeakMap(); // double
+
+			EventTarget = window.EventTarget;
+
+			try { new EventTarget(); } catch (err) {
+				EventTarget = class EventTarget {
+					constructor() { this.listeners = window.Object.create(window.Object.prototype); }
+					addEventListener(type, callback, options) {
+						if (!(type in this.listeners))
+							this.listeners[type] = [];
+						this.listeners[type].push(callback);
+					}
+					dispatchEvent(event) {
+						if (!(event.type in this.listeners))
+							return true;
+						this.listeners[event.type].slice().forEach((listener) => listener.call(this, event));
+						return !event.defaultPrevented;
+					}
+					removeEventListener(type, callback, options) {
+						if (!(type in this.listeners))
+							return;
+						const stack = this.listeners[type];
+
+						for (let i = 0; i < stack.length; i++)
+							if (stack[i] === callback) {
+								stack.splice(i, 1);
+								return;
+							}
+					}
+				}
+			}
+
+			class Component extends EventTarget {
+				constructor(element) {
+					super();
+					this.element = element;
+					_busy.set(this, false);
+				}
+				get displayValue() { return this.element.textContent; }
+				get isBusy() { return _busy.get(this); }
+				set displayValue(displayValue) { this.element.textContent = window.String(displayValue); }
+				set isBusy(isBusy) {
+					_busy.set(this, window.Boolean(isBusy));
+					this.element.setAttribute("aria-busy", this.isBusy);
+				}
+			}
+
+			class ComponentCollection {
+				constructor(audioPlayerElement) {
+					_disabled.set(this, true);
+					CLASS_TO_COMPONENT.forEach(([propertySymbol, classReference], className) => this[propertySymbol] = new ComponentClasses[classReference](audioPlayerElement.querySelector(className)));
+					this.symbols = window.Object.getOwnPropertySymbols(this);
+				}
+				get isDisabled() { return _disabled.get(this); }
+				set isDisabled(isDisabled) {
+					_disabled.set(this, window.Boolean(isDisabled));
+					this.symbols.forEach((symbol) => {
+						if ("isDisabled" in this[symbol])
+							this[symbol].isDisabled = this.isDisabled;
+					});
+				}
+			}
+
+			class InteractiveComponent extends Component {
+				constructor(element) {
+					super(element);
+					_disabled.set(this, true);
+				}
+				get isDisabled() { return _disabled.get(this); }
+				set isDisabled(isDisabled) {
+					_disabled.set(this, window.Boolean(isDisabled));
+					this.element.setAttribute("aria-disabled", this.isDisabled);
+				}
+			}
+
+			class InteractiveButtonComponent extends InteractiveComponent {
+				constructor(element) {
+					super(element);
+					this.element.addEventListener("click", this.buttonOnClick.bind(this), false);
+				}
+				get isDisabled() { return super.isDisabled; }
+				set isDisabled(isDisabled) {
+					super.isDisabled = isDisabled;
+
+					if (super.isDisabled)
+						this.element.setAttribute("disabled", true);
+					else
+						this.element.removeAttribute("disabled");
+				}
+				buttonOnClick() {
+					if (this.dispatchEvent(new window.Event("click")) === true) {
+						const child = this.element.firstElementChild;
+						const currentStateSrcName = /[^ic\/_][a-z_]+(?=_[0-9]{2}px.svg$)/.exec(child.dataset.svgSrc)[0];
+						const otherStateSrcName = child.dataset.otherStateSrcName;
+						[this.element.title, this.element.dataset.otherStateTitle] = [this.element.dataset.otherStateTitle, this.element.title];
+						child.dataset.otherStateSrcName = currentStateSrcName;
+						loadSvg(child, child.dataset.svgSrc.replace(currentStateSrcName, otherStateSrcName));
+						return true;
+					}
+					return false;
+				}
+			}
+
+			class InteractiveSliderComponent extends InteractiveComponent {
+				constructor(element) {
+					super(element);
+					this.mdcSlider = new window.mdc.slider.MDCSlider(this.element);
+					this.mdcSlider.listen("MDCSlider:change", this.sliderOnChange.bind(this));
+					this.mdcSlider.listen("MDCSlider:input", this.sliderOnInput.bind(this));
+				}
+				get isDisabled() { return super.isDisabled; }
+				get value() { return this.mdcSlider.value; }
+				set isDisabled(isDisabled) {
+					super.isDisabled = isDisabled;
+					this.mdcSlider.disabled = super.isDisabled;
+				}
+				set value(value) { this.mdcSlider.value = value; }
+				sliderOnChange() { 
+					if (this.dispatchEvent(new window.Event("change")) === true)
+						return true;
+					return false; }
+				sliderOnInput() {
+					if (this.dispatchEvent(new window.Event("input")) === true)
+						return true;
+					return false;
+				}
+			}
+
+			class MuteButton extends InteractiveButtonComponent {
+				constructor(element) {
+					super(element);
+					_muted.set(this, false);
+				}
+				get isMuted() { return _muted.get(this); }
+				set isMuted(isMuted) {
+					isMuted = window.Boolean(isMuted);
+
+					if (this.isMuted === isMuted)
+						return;
+					_muted.set(this, isMuted);
+				}
+				buttonOnClick() {
+					if (super.buttonOnClick())
+						this.isMuted = !this.isMuted;
+				}
+			}
+
+			class PlayPauseButton extends InteractiveButtonComponent {
+				constructor(element) {
+					super(element);
+					_playing.set(this, false);
+				}
+				get isPlaying() { return _playing.get(this); }
+				set isPlaying(isPlaying) {
+					isPlaying = window.Boolean(isPlaying);
+
+					if (this.isPlaying === isPlaying)
+						return;
+					_playing.set(this, isPlaying);
+				}
+				buttonOnClick() {
+					if (super.buttonOnClick())
+						this.isPlaying = !this.isPlaying;
+				}
+			}
+
+			class TrackSlider extends InteractiveSliderComponent {
+				get duration() { return this.mdcSlider.max; }
+				get value() { return super.value; }
+				set duration(duration) {
+					this.mdcSlider.max = window.Number(duration);
+					this.element.setAttribute("aria-valuemax", this.duration);
+					this.mdcSlider.layout();
+				}
+				set value(value) {
+					super.value = value;
+					this.element.setAttribute("aria-valuetext", formatTime(this.value, true));
+				}
+			}
+
+			class VolumeSlider extends InteractiveSliderComponent {
+				get value() { return super.value; }
+				set value(value) {
+					super.value = value;
+					this.element.setAttribute("aria-valuetext", `${window.String(this.value * 100)}%`);
+				}
+			}
+
+			const ComponentClasses = { Component, MuteButton, PlayPauseButton, TrackSlider, VolumeSlider };
+
+			function formatTime(time, useLongFormat = false) {
+				if (!(time instanceof window.Date))
+					time = new window.Date(window.Number(time) * 1000);
+				time = [time.getHours() - DATE_ZERO.getHours(), time.getMinutes() - DATE_ZERO.getMinutes(), time.getSeconds() - DATE_ZERO.getSeconds()];
+
+				if (useLongFormat) {
+					time = ["hour", "minute", "second"].map((name, index) => pluralize(time[index], name)).filter((value) => value.length > 0);
+					return (time.length === 0) ? "0 seconds" : time.join(", ");
+				}
+				return time.slice(-window.Math.sign(time[0]) + 1).reduce((result, value) => `${result}:${value.toString().padStart(2, "0")}`);
+			}
+
+			function pluralize(number, noun, extraPluralLetters = "") {
+				[number, noun, extraPluralLetters] = [window.Number(number), window.String(noun), window.String(extraPluralLetters)];
+
+				if (number === 0)
+					return "";
+				const ending = (number === 1) ? "" : `${extraPluralLetters}s`;
+				return `${window.Number(number)} ${noun}${ending}`;
+			}
+
+			return class AudioPlayer {
+				constructor(element, mdcScriptElement) {
+					_busy.set(this, false);
+					_currentTime.set(this, new window.Date(0));
+					_disabled.set(this, true);
+					_duration.set(this, undefined);
+					_loaded.set(this, false);
+					_muted.set(this, false);
+					_playing.set(this, false);
+					_volume.set(this, INITIAL_VOLUME);
+					this.components = undefined; // ComponentCollection
+					this.element = element;
+					this.audio = new window.Audio();
+					this.audio.setAttribute("preload", "metadata");
+					this.audio.setAttribute("type", this.element.dataset.audioType);
+					this.audio.addEventListener("canplay", this.audioOnCanPlay.bind(this), false);
+					this.audio.addEventListener("durationchange", this.audioOnDurationChange.bind(this), false);
+					this.audio.addEventListener("ended", this.audioOnEnded.bind(this), false);
+					this.audio.addEventListener("error", this.audioOnError.bind(this), false);
+					this.audio.addEventListener("progress", this.audioOnProgress.bind(this), false);
+					this.audio.addEventListener("timeupdate", this.audioOnTimeUpdate.bind(this), false);
+					this.audio.setAttribute("src", this.element.dataset.audioSrc);
+				}
+				get isBusy() { return _busy.get(this); }
+				get currentTime() { return _currentTime.get(this); }
+				get currentTimeSeconds() { return window.Number(this.currentTime) / 1000; }
+				get duration() { return _duration.get(this); }
+				get element() { return _element.get(this); }
+				get isDisabled() { return _disabled.get(this); }
+				get isLoaded() { return _loaded.get(this); }
+				get isMuted() { return _muted.get(this); }
+				get isPaused() { return !this.isPlaying; }
+				get isPlaying() { return _playing.get(this); }
+				get volume() { return _volume.get(this); }
+				set isBusy(isBusy) {
+					_busy.set(this, window.Boolean(isBusy));
+					this.components[TIME_ELAPSED].isBusy = this.components[TRACK_SLIDER].isBusy = this.isBusy;
+				}
+				set currentTime(currentTime) {
+					_currentTime.set(this, new window.Date(window.Number(currentTime) * 1000));
+					this.components[TIME_ELAPSED].displayValue = formatTime(this.currentTime);
+				}
+				set duration(duration) {
+					_duration.set(this, new window.Date(window.Number(duration) * 1000));
+					this.components[TIME_DURATION].displayValue = formatTime(this.duration);
+					this.components[TRACK_SLIDER].duration = duration;
+				}
+				set element(element) {
+					_element.set(this, element);
+					this.components = new ComponentCollection(this.element);
+					this.components[MUTE_BUTTON].addEventListener("click", this.muteButtonOnClick.bind(this), false);
+					this.components[PLAY_PAUSE_BUTTON].addEventListener("click", this.playPauseButtonOnClick.bind(this), false);
+					this.components[TRACK_SLIDER].addEventListener("change", this.trackSliderOnChange.bind(this), false);
+					this.components[TRACK_SLIDER].addEventListener("input", this.trackSliderOnInput.bind(this), false);
+					this.components[VOLUME_SLIDER].addEventListener("input", this.volumeSliderOnInput.bind(this), false);
+				}
+				set isDisabled(isDisabled) {
+					_disabled.set(this, window.Boolean(isDisabled));
+					this.components.isDisabled = this.isDisabled;
+					this.element.setAttribute("aria-disabled", this.isDisabled);
+				}
+				set isMuted(isMuted) {
+					_muted.set(this, window.Boolean(isMuted));
+					this.audio.muted = this.isMuted;
+				}
+				set isPaused(isPaused) { this.isPlaying = !window.Boolean(isPaused); }
+				set isPlaying(isPlaying) {
+					_playing.set(this, window.Boolean(isPlaying));
+					this.isBusy = isPlaying;
+
+					if (this.isPlaying) {
+						this.audio.play();
+
+					} else {
+						this.audio.pause();
+					}
+				}
+				set volume(volume) {
+					_volume.set(this, window.Number(volume));
+					this.audio.volume = this.volume;
+					this.muted = false;
+				}
+				// for audio events, see also https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events
+				audioOnCanPlay() { // Sent when enough data is available that the media can be played, at least for a couple of frames.
+					_loaded.set(this, true);
+					this.isDisabled = false;
+				}
+				audioOnDurationChange() { this.duration = this.audio.duration; }
+				audioOnEnded() { // Sent when playback completes.
+					console.log("audio ended", this);
+					this.components[TRACK_SLIDER].value = 0;
+					this.trackSliderOnChange();
+				}
+				audioOnError() { // Sent when an error occurs.  The element's error attribute contains more information.
+					console.log("audio error!", this);
+					this.isDisabled = true;
+				}
+				audioOnProgress(event) { //	Sent periodically to inform interested parties of progress downloading the media. 
+					// console.log("audio progress", event, this);
+				}
+				audioOnTimeUpdate() { //The time indicated by the element's currentTime attribute has changed.
+					if (this.components[TRACK_SLIDER].isDragging)
+						return;
+					this.currentTime = this.audio.currentTime;
+					this.components[TRACK_SLIDER].value = this.currentTimeSeconds;
+				}
+				muteButtonOnClick() { this.isMuted = !this.components[MUTE_BUTTON].isMuted; }
+				playPauseButtonOnClick() { this.isPlaying = !this.components[PLAY_PAUSE_BUTTON].isPlaying; }
+				trackSliderOnChange() {
+					window.setTimeout(() => this.components[TRACK_SLIDER].isDragging = false, 100);
+
+					if (this.components[TRACK_SLIDER].value === this.currentTimeSeconds)
+						return;
+					this.trackSliderOnInput();
+					this.audio.currentTime = this.currentTimeSeconds;
+				}
+				trackSliderOnInput() {
+					this.currentTime = this.components[TRACK_SLIDER].value;
+					this.components[TRACK_SLIDER].isDragging = true;
+				}
+				volumeSliderOnInput() { this.volume = this.components[VOLUME_SLIDER].value; }
+			}
+		})(),
+	};
+})();
+const audioPlayer = undefined; // MLP.AudioPlayer
+new MLP.AudioPlayer(document.querySelector(".mlp-audio-player"), MLPIndex.materialComponentsWebScript);
+</script>

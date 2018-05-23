@@ -11,7 +11,7 @@ $media-controls-active-cursor: pointer;
 
 @mixin audio-media-controls-panel($prefix) {
 	audio::#{$prefix}media-controls-panel {
-		background: adjust-color($twi-eye-gradient-mid, $alpha: -0.6);
+		background: var(--mdc-theme-secondary, adjust-color($twi-eye-gradient-mid, $alpha: -0.6));
 		// border: 1px solid;
 		// border-color: $twi-hair-primary;
 		// border-radius: 5px;

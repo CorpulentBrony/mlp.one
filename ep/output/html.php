@@ -53,40 +53,6 @@
 
 			html::selection { background: var(--mdc-theme-secondary); }
 			html::-moz-selection { background: var(--mdc-theme-secondary); }
-
-			.mlp-audio-player {
-				align-items: center;
-				align-self: center;
-				background-color: var(--mdc-theme-secondary);
-				color: var(--mdc-theme-on-secondary);
-				display: flex;
-				fill: var(--mdc-theme-on-secondary);
-				flex-direction: row;
-				height: 36px;
-				margin: 0 -5px;
-				padding: 0 5px;
-				width: calc(100% - 10px);
-			}
-			.mlp-audio-player > * { margin: 0 5px; }
-			.mlp-audio-player .mdc-fab {
-				height: 24px;
-				width: 24px;
-			}
-			.mlp-audio-player--time {
-				/* @include disable-user-select; */
-				-webkit-touch-callout: none;
-				-webkit-user-select: none;
-				-moz-user-select: none;
-				user-select: none;
-			}
-			.mlp-audio-player--time.mdc-typography--caption { color: var(--mdc-theme-on-secondary); }
-			.mlp-audio-player--track-slider-container, .mlp-audio-player--volume-slider-container {
-				flex-grow: 1;
-				flex-shrink: 1;
-			}
-			.mlp-audio-player--volume-slider-container {
-				max-width: 10%;
-			}
 		</style>
 	</head>
 	<body class="mdc-typography">
@@ -124,52 +90,13 @@
 		<main>
 			<article class="mdc-card">
 				<!-- <section class="mdc-card__media mdc-card__media--16-9"></section> -->
-				<audio aria-label="Embedded control to listen to a stream of this episode" controls id="mlp-audio-element" itemprop="audio" itemscope="true" itemtype="http://schema.org/AudioObject" src="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg" preload="metadata"></audio>
-				<aside class="mlp-audio-player" data-audio-src="<?= $thisEpisodeNumber ?>.mp3" data-audio-type="audio/mpeg">
-					<button aria-label="Play button" class="mdc-fab mlp-audio-player--play-pause-button" disabled>
-						<img alt="Play" class="mdc-fab__icon" data-is-svg data-other-state-src-name="pause" data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_play_arrow_24px.svg" srcset="/material-design-icons/av/svg/production/ic_play_arrow_48px.svg 2x" title="Play" type="image/svg+xml">
-					</button>
-					<span class="mdc-typography--caption mlp-audio-player--time">
-						<time aria-label="Time elapsed" class="mlp-audio-player--time-elapsed">0:00</time>
-						<span class="mlp-audio-player--time-separator">&nbsp;/&nbsp;</span>
-						<time aria-label="Total length" class="mlp-audio-player--time-duration"></time>
-					</span>
-					<div class="mlp-audio-player--track-slider-container">
-						<div aria-disabled="true" aria-label="Audio track progress" aria-valuemax="" aria-valuemin="0" aria-valuenow="0" class="mdc-slider mlp-audio-player--track-slider" role="slider" tabindex="0">
-							<div class="mdc-slider__track-container">
-								<div class="mdc-slider__track"></div>
-							</div>
-							<div class="mdc-slider__thumb-container">
-								<svg class="mdc-slider__thumb" height="21" viewBox="0 0 21 21" width="21">
-									<circle cx="10.5" cy="10.5" r="7.875"></circle>
-								</svg>
-								<div class="mdc-slider__focus-ring"></div>
-							</div>
-						</div>
-					</div>
-					<button aria-label="Mute button" class="mdc-fab mlp-audio-player--mute-button" disabled>
-						<img alt="Mute" class="mdc-fab__icon" data-is-svg data-other-state-src-name="volume_off" data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_volume_up_24px.svg" srcset="/material-design-icons/av/svg/production/ic_volume_up_48px.svg 2x" title="Mute" type="image/svg+xml">
-					</button>
-					<div class="mlp-audio-player--volume-slider-container">
-						<div aria-disabled="true" aria-label="Volume selector" aria-valuemax="1" aria-valuemin="0" aria-valuenow="1" class="mdc-slider mlp-audio-player--volume-slider" role="slider" tabindex="0">
-							<div class="mdc-slider__track-container">
-								<div class="mdc-slider__track"></div>
-							</div>
-							<div class="mdc-slider__thumb-container">
-								<svg class="mdc-slider__thumb" height="21" viewBox="0 0 21 21" width="21">
-									<circle cx="10.5" cy="10.5" r="7.875"></circle>
-								</svg>
-								<div class="mdc-slider__focus-ring"></div>
-							</div>
-						</div>
-					</div>
-				</aside>
+ 				<audio aria-label="Embedded audio player to listen to a stream of this episode" controls id="mlp-audio-element" itemprop="audio" itemscope="true" itemtype="http://schema.org/AudioObject" src="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg" preload="metadata"></audio>
 				<header>
 					<h1 class="mdc-typography--headline6"><?= $this->episode->title ?></h1>
 					<aside class="mdc-typography--caption">
 						<time aria-label="Date this episode was published" datetime="<?= $this->episode->publishDate->format("Y-m-d") ?>" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
 						<span title="Episode Duration">
-							<img alt="Duration" aria-label="The following time is the duration of this episode" data-is-svg data-pagespeed-no-transform height="12" src="/material-design-icons/device/svg/production/ic_access_time_24px.svg" srcset="/material-design-icons/device/svg/production/ic_access_time_48px.svg 2x" type="image/svg+xml" width="12">
+							<img alt="Duration" data-is-svg data-pagespeed-no-transform height="12" role="presentation" src="/material-design-icons/device/svg/production/ic_access_time_24px.svg" srcset="/material-design-icons/device/svg/production/ic_access_time_48px.svg 2x" type="image/svg+xml" width="12">
 							<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>"><?= $this->episode->getDurationFormatted() ?></time>
 						</span>
 					</aside>
