@@ -13,6 +13,7 @@
 		public const TXT = 6;
 		public const JPG = 7;
 		public const TORRENT = 8;
+		public const OGG = 9;
 
 		public static function fromExtension($extension): int {
 			if (is_int($extension))

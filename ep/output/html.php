@@ -9,6 +9,7 @@
 	$fileUrl = str_ireplace("http://", "https://", $this->episode->defaultFile->url);
 	$nextEpisodeNumber = $this->getNextEpisodeNumber();
 	$previousEpisodeNumber = $this->getPreviousEpisodeNumber();
+	$requestUrl = $this->getRequestUrl();
 	http_response_code(200);
 	header("Content-Type: {$this->mimeType}");
 ?><!DOCTYPE html>
@@ -25,13 +26,13 @@
 		<!-- prefetches -->
 		<!-- <link as="audio" href="/ep/<?= $thisEpisodeNumber ?>.mp3" rel="prefetch" type="audio/mpeg"> -->
 		<!--# include file="/common_header_base.html" -->
-		<link href="<?= $this->getRequestUrl() ?>" rel="canonical self" type="text/html">
+		<link href="<?= $requestUrl ?>" rel="canonical self" type="text/html">
 		<meta content="<?= $this->episode->getYouTubeThumbnail() ?>" itemprop="image" name="twitter:image" property="og:image">
 		<meta content="1280" property="og:image:width">
 		<meta content="720" property="og:image:height">
 		<meta content="image/png" property="og:image:type">
 		<meta content="website" property="og:type">
-		<meta content="https://<?= $this->getRequestUrl() ?>" itemprop="url" property="og:url">
+		<meta content="https://<?= $requestUrl ?>" itemprop="url" property="og:url">
 		<meta content="<?= $episodeFullTitle ?>" itemprop="headline name" name="title" property="og:title">
 		<meta content="<?= $description ?>" itemprop="description" name="description" property="og:description">
 		<meta content="<?= implode(",", $this->episode->keywords) ?>" itemprop="keywords" name="keywords">
@@ -44,11 +45,11 @@
 		<script async defer src="/js/output.js"></script>
 		<style type="text/css">
 			:root {
-				--image-url: url(/ep/<?= $thisEpisodeNumber ?>.jpg);
-				--title-prefix-text: "<?= $_SERVER["SITE_TITLE"] ?> #";
+				/*--image-url: url(/ep/<?= $thisEpisodeNumber ?>.jpg);*/
+				--title-prefix-text: "<?= $_SERVER["SITE_TITLE"] ?> ";
 			}
 			@media only screen and (max-width: 768px) {
-				:root { --title-prefix-text: "#"; }
+				:root { --title-prefix-text: ""; }
 			}
 
 			html::selection { background: var(--mdc-theme-secondary); }
@@ -63,10 +64,10 @@
 		<header class="mdc-top-app-bar">
 			<div class="mdc-top-app-bar__row">
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
-					<button aria-haspopup="menu" class="mdc-top-app-bar__navigation-icon">
+					<button aria-haspopup="menu" class="mdc-top-app-bar__navigation-icon" type="button">
 						<img alt="Show menu" aria-label="Show the episode menu" data-is-svg data-pagespeed-no-transform src="/material-design-icons/navigation/svg/production/ic_menu_24px.svg" srcset="/material-design-icons/navigation/svg/production/ic_menu_48px.svg 2x, /material-design-icons/navigation/svg/production/ic_menu_36px.svg 1.5x" title="Show menu" type="image/svg+xml">
 					</button>
-					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>"><?= $thisEpisodeNumber ?> - <?= $this->episode->title ?></data>
+					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>"><a href="/" rel="index" title="<?= $_SERVER["SITE_TITLE"] ?>"></a> #<?= $thisEpisodeNumber ?> - <?= $this->episode->title ?></data>
 				</section>
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
 					<a class="mdc-top-app-bar__action-item" href="<?= $this->episode->getYouTubeUrl() ?>" rel="external noopener" target="_blank" type="text/html">
@@ -81,7 +82,7 @@
 		<aside class="mdc-drawer mdc-drawer--temporary">
 			<div class="mdc-drawer__toolbar-spacer" role="separator"></div>
 			<nav aria-hidden="true" class="mdc-drawer__drawer" role="menu">
-				<h3 class="mdc-list-group__subheader"><a class="mdc-list-item" href="/" rel="index" role="menuitem" title="List of episodes">/mlp/odcast</a></h3>
+				<h3 class="mdc-list-group__subheader"><a class="mdc-list-item" href="/" rel="index" role="menuitem" title="<?= $_SERVER["SITE_TITLE"] ?>">/mlp/odcast</a></h3>
 				<ul class="mdc-drawer__content mdc-list">
 					<!--# include virtual="/api/podcast-html-list.php" -->
 				</ul>
@@ -90,7 +91,11 @@
 		<main>
 			<article class="mdc-card">
 				<!-- <section class="mdc-card__media mdc-card__media--16-9"></section> -->
- 				<audio aria-label="Embedded audio player to listen to a stream of this episode" controls id="mlp-audio-element" itemprop="audio" itemscope="true" itemtype="http://schema.org/AudioObject" src="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg" preload="metadata"></audio>
+ 				<audio aria-label="Embedded audio player to listen to a stream of this episode" controls controlslist="nodownload" id="mlp-audio-element" itemprop="audio" itemscope="true" itemtype="http://schema.org/AudioObject" preload="metadata">
+ 					<source src="<?= $thisEpisodeNumber ?>.ogg" type="audio/ogg">
+ 					<source src="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg">
+ 					It appears your browser doesn't support embedded audio.  No worries, you can download the audio from one of the links on this page.
+ 				</audio>
 				<header>
 					<h1 class="mdc-typography--headline6"><?= $this->episode->title ?></h1>
 					<aside class="mdc-typography--caption">
@@ -111,29 +116,51 @@
 					</nav>
 					<nav class="mdc-card__action-icons">
 						<?php if (is_null($previousEpisodeNumber)): ?>
-							<button class="mdc-button mdc-button--dense mdc-button__icon mdc-card__action mdc-card__action--icon" disabled>
-								<img alt="&lt;" aria-label="Go to previous episode" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_previous_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_previous_48px.svg 2x" title="Previous episode" type="image/svg+xml">
+							<button class="mdc-button mdc-card__action" disabled type="button">
+								<img alt="&lt;" aria-label="Go to previous episode" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_previous_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_previous_48px.svg 2x" title="Previous episode" type="image/svg+xml">
 							</button>
 						<?php else: ?>
-							<a class="mdc-button mdc-button--dense mdc-button__icon mdc-card__action mdc-card__action--icon" href="<?= strval($previousEpisodeNumber) ?>" rel="prev">
-								<img alt="&lt;" aria-label="Go to previous episode" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_previous_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_previous_48px.svg 2x" title="Previous episode" type="image/svg+xml">
+							<a class="mdc-button mdc-card__action" href="<?= strval($previousEpisodeNumber) ?>" rel="prev">
+								<img alt="&lt;" aria-label="Go to previous episode" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_previous_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_previous_48px.svg 2x" title="Previous episode" type="image/svg+xml">
 							</a>
 						<?php endif; ?>
 
 						<?php if (is_null($nextEpisodeNumber)): ?>
-							<button class="mdc-button mdc-button--dense mdc-button__icon mdc-card__action mdc-card__action--icon" disabled>
-								<img alt="&lt;" aria-label="Go to previous episode" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_next_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_next_48px.svg 2x" title="Previous episode" type="image/svg+xml">
+							<button class="mdc-button mdc-card__action" disabled type="button">
+								<img alt="&lt;" aria-label="Go to previous episode" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_next_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_next_48px.svg 2x" title="Previous episode" type="image/svg+xml">
 							</button>
 						<?php else: ?>
-							<a class="mdc-button mdc-button--dense mdc-button__icon mdc-card__action mdc-card__action--icon" href="<?= strval($nextEpisodeNumber) ?>" rel="next">
-								<img alt="&lt;" aria-label="Go to previous episode" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_next_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_next_48px.svg 2x" title="Previous episode" type="image/svg+xml">
+							<a class="mdc-button mdc-card__action" href="<?= strval($nextEpisodeNumber) ?>" rel="next">
+								<img alt="&lt;" aria-label="Go to previous episode" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_next_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_next_48px.svg 2x" title="Previous episode" type="image/svg+xml">
 							</a>
 						<?php endif; ?>
 						<aside class="mdc-menu-anchor">
-							<span aria-controls="mlp-menu" aria-haspopup="menu" class="mdc-button mdc-button--dense mdc-button__icon mdc-card__action mdc-card__action--icon" id="mlp-btn-more-formats" role="button" tabindex="0">
-								<img alt="More Formats" aria-label="View episode in more formats" data-is-svg data-pagespeed-no-transform src="/material-design-icons/navigation/svg/production/ic_more_vert_24px.svg" srcset="/material-design-icons/navigation/svg/production/ic_more_vert_48px.svg 2x, /material-design-icons/navigation/svg/production/ic_more_vert_36px.svg 1.5x" title="More formats" type="image/svg+xml">
-							</span>
-							<section aria-hidden="true" class="mdc-menu" id="mlp-menu" role="menu">
+							<button aria-controls="mlp-menu-share" aria-haspopup="menu" class="mdc-button mdc-card__action" id="mlp-btn-share" role="button" tabindex="0" type="button">
+								<img alt="Share" aria-label="Share this episode" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/social/svg/production/ic_share_24px.svg" srcset="/material-design-icons/social/svg/production/ic_share_48px.svg 2x" title="Share" type="image/svg+xml">
+							</button>
+							<section aria-hidden="true" class="mdc-menu" id="mlp-menu-share" role="menu">
+								<ul class="mdc-menu__items mdc-list">
+									<li class="mdc-list-item" role="menuitem">
+										<button class="mdc-button mdc-list-item__text mdc-typography--subtitle2" data-href="<?= $requestUrl ?>" id="mlp-menu-share-copy-btn" role="button" tabindex="0" type="button">Clipboard</button>
+									</li>
+									<li class="mdc-list-item" role="menuitem">
+										<a class="mdc-list-item__text mdc-typography--subtitle2" href="https://www.facebook.com/sharer/sharer.php?kid_directed_site=0&sdk=joey&u=<?= rawurlencode($requestUrl) ?>&display=popup&ref=plugin&src=share_button" target="_blank" type="text/html">
+											Facebook
+										</a>
+									</li>
+									<li class="mdc-list-item" role="menuitem">
+										<a class="mdc-list-item__text mdc-typography--subtitle2" href="https://twitter.com/intent/tweet?original_referer<?= rawurlencode($requestUrl) ?>&ref_src=twsrc%5Etfw&text=<?= rawurlencode("{$_SERVER["SITE_TITLE"]} #{$thisEpisodeNumber} - {$this->episode->title}") ?>&tw_p=tweetbutton&url=<?= rawurlencode($requestUrl) ?>" target="_blank" type="text/html">
+											Twitter
+										</a>
+									</li>
+								</ul>
+							</section>
+						</aside>
+						<aside class="mdc-menu-anchor">
+							<button aria-controls="mlp-menu-more-formats" aria-haspopup="menu" class="mdc-button mdc-card__action " id="mlp-btn-more-formats" role="button" tabindex="0" type="button">
+								<img alt="More Formats" aria-label="View episode in more formats" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/navigation/svg/production/ic_more_vert_24px.svg" srcset="/material-design-icons/navigation/svg/production/ic_more_vert_48px.svg 2x, /material-design-icons/navigation/svg/production/ic_more_vert_36px.svg 1.5x" title="More formats" type="image/svg+xml">
+							</button>
+							<section aria-hidden="true" class="mdc-menu" id="mlp-menu-more-formats" role="menu">
 								<ul class="mdc-menu__items mdc-list">
 									<?=
 										array_reduce($this->getAllRequestTypes([RequestType::HTML, RequestType::MP3]), function(string $links, array $typeDescriptor): string {
@@ -147,5 +174,9 @@
 				</footer>
 			</article>
 		</main>
+		<aside aria-hidden="true" class="mdc-snackbar mdc-snackbar--align-start" role="alert">
+			<div class="mdc-snackbar__text mdc-typography--subtitle2"></div>
+			<div class="mdc-snackbar__action-wrapper"><button class="mdc-snackbar__action-button" type="button"></button></div>
+		</aside>
 	</body>
 </html>

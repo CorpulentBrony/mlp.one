@@ -1,6 +1,8 @@
 @charset "utf-8";
 @import "colors";
 
+$mdc-theme-on-secondary: #000 !default;
+$mdc-theme-secondary: adjust-color($twi-eye-gradient-mid, $alpha: -0.6) !default;
 $media-controls-active-cursor: pointer;
 
 @mixin audio-media-controls($prefix) {
@@ -11,19 +13,38 @@ $media-controls-active-cursor: pointer;
 
 @mixin audio-media-controls-panel($prefix) {
 	audio::#{$prefix}media-controls-panel {
-		background: var(--mdc-theme-secondary, adjust-color($twi-eye-gradient-mid, $alpha: -0.6));
+		background: $mdc-theme-on-secondary;
 		// border: 1px solid;
 		// border-color: $twi-hair-primary;
 		// border-radius: 5px;
 	}
 }
 
+// audio::-webkit-media-controls-play-button.pause {
+// 	-webkit-appearance: none;
+// 	appearance: none;
+// 	background-image: -webkit-image-set(url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNOCA1djE0bDExLTd6IiBmaWxsPSIjYzlhYWQwIi8+PC9zdmc+") 1x);
+// 	fill: $mdc-theme-on-secondary;
+// }
+
+// audio::-webkit-media-controls-play-button {
+// 	-webkit-appearance: none;
+// 	appearance: none;
+// 	background-image: -webkit-image-set(url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNiAxOWg0VjVINnYxNHptOC0xNHYxNGg0VjVoLTR6IiBmaWxsPSIjYzlhYWQwIi8+PC9zdmc+") 1x);
+// 	fill: $mdc-theme-on-secondary;
+// }
+
 audio {
+	// color: $mdc-theme-on-secondary;
 	display: block;
+	// fill: $mdc-theme-on-secondary;
+	// -webkit-text-fill-color: $mdc-theme-on-secondary;
+	// text-fill-color: $mdc-theme-on-secondary;
 	width: 100%;
 
 	&::-internal-media-controls-download-button { cursor: $media-controls-active-cursor; }
 }
+input[pseudo="-webkit-media-controls-timeline" i]::-internal-track-segment-highlight-after { background-color: $mdc-theme-secondary; }
 /* trying to combine these selectors (mixing -webkit with -moz) will cause webkit to ignore them */
 @include audio-media-controls-panel("-webkit-");
 @include audio-media-controls-panel("-moz-");

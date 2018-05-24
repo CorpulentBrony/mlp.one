@@ -155,7 +155,8 @@
 
 		if ($command->fetchAll(\PDO::FETCH_COLUMN, 0)[0] !== "0")
 			throw new OutputException(Errors::single("file", "episode {$episodeNumber} has already been saved to server, please use the edit form to make changes"));
-		$fileName = "mlpodcast/" . str_pad(strval($episodeNumber), 4, "0", STR_PAD_LEFT) . "." . $fileExtension;
+		$fileNameBase = "mlpodcast/" . str_pad(strval($episodeNumber), 4, "0", STR_PAD_LEFT);
+		$fileName = $fileNameBase . "." . $fileExtension;
 		// save data about the file before moving and deleting it
 		$inputFieldsFile->put("episodeNumber", $episodeNumber);
 		$inputFieldsFile->put("name", $_FILES["file"]["name"]);
@@ -167,7 +168,20 @@
 		// move file using S3
 		$s3 = new \Aws\S3\S3Client(["region" => "us-east-1", "version" => "latest"]);
 		$s3->putObjectAsync(["ACL" => ACL, "Bucket" => BUCKET, "ContentType" => $mimeType, "Key" => KEY . $fileName, "SourceFile" => $tempFilePath, "StorageClass" => STORAGE_CLASS])
-			->then(function () use ($tempFilePath): void { unlink($tempFilePath); })
+			->then(function () use ($tempFilePath): void {
+				unlink($tempFilePath);
+							$transcoder = \Aws\ElasticTranscoder\ElasticTranscoderClient::factory(["region" => "us-east-1", "version" => "latest"]);
+				$job = $transcoder->createJob([
+					"Input" => [
+						"Key" => KEY . $fileName
+					],
+					"Output" => [
+						"Key" => KEY . $fileName . ".ogg",
+						"PresetId" => "1527129762137-hd4h6g"
+					],
+					"PipelineId" => "1527129380843-abgkhi"
+				]);
+			})
 			->otherwise(function ($err): void { throw new OutputException(Errors::single("file", "received following error when attempting to copy file to S3: " . var_export($err, true))); })
 			->wait();
 		// set metadata in database for episode

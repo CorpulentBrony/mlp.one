@@ -15,7 +15,8 @@
 			RequestType::XML => ["extension" => "xml", "mimeType" => "application/xml", "outputHandler" => "output/xml.php"],
 			RequestType::TXT => ["extension" => "txt", "mimeType" => "text/plain", "outputHandler" => "output/txt.php"],
 			RequestType::JPG => ["extension" => "jpg", "mimeType" => "image/jpeg", "outputHandler" => "output/jpg.php"],
-			RequestType::TORRENT => ["extension" => "torrent", "mimeType" => "application/x-bittorrent", "outputHandler" => "output/torrent.php"]
+			RequestType::TORRENT => ["extension" => "torrent", "mimeType" => "application/x-bittorrent", "outputHandler" => "output/torrent.php"],
+			RequestType::OGG => ["extension" => "ogg", "mimeType" => "audio/ogg", "outputHandler" => "output/ogg.php"]
 		];
 
 		public static $types = self::TYPES; // array
@@ -66,10 +67,6 @@
 
 		public function getAllRequestUrls(): array {
 			return array_column($this->getAllRequestTypes(), "url", "extension");
-			// return RequestType::getKeys()->reduce(function(array $result, string $key, int $type): array {
-			// 	$result[strtolower($key)] = $this->getRequestUrl($type);
-			// 	return $result;
-			// }, []);
 		}
 
 		public function getNextEpisodeNumber() { return ($this->number >= $this->episode->lastEpisodeNumber) ? null : $this->number + 1; }
