@@ -21,4 +21,13 @@
 		$ending = ($number === 1) ? "" : "{$extraPluralLetters}s";
 		return strval($number) . " {$noun}{$ending}";
 	}
+
+	function getSvg(string $svgFile, array $attributes = []) {
+		$svg = new \DOMDocument();
+		$svg->load($svgFile);
+
+		foreach ($attributes as $attribute => $value)
+			$svg->documentElement->setAttribute($attribute, $value);
+		return $svg->saveXML();
+	}
 ?>

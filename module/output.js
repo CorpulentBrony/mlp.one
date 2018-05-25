@@ -4,7 +4,7 @@ import { Drawer } from "./Drawer.js";
 import { MoreFormatsMenu } from "./MoreFormatsMenu.js";
 import { ShareMenu } from "./ShareMenu.js";
 import { TopAppBar } from "./TopAppBar.js";
-import { isDocumentLoaded, loadSvg } from "./util.js";
+import { isDocumentLoaded } from "./util.js";
 
 (async function output() {
 	const MLPIndex = window.Object.create(window.Object.prototype);
@@ -78,21 +78,12 @@ import { isDocumentLoaded, loadSvg } from "./util.js";
 		}
 	}
 
-	// should used IndexedDB instead? https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
-	function iconOnLoad({ currentTarget: icon }) {
-		if (icon.currentSrc === "" || icon.currentSrc === "https://www.gstatic.com/psa/static/1.gif")
-			return;
-		loadSvg(icon).catch(console.error);
-		icon.removeEventListener("load", iconOnLoad, false);
-	}
-
 	function materialComponentsWebScriptOnLoad() {
 		window.Promise.all(async([
 			() => MLPIndex.drawer = new Drawer({ currentElement: MLPIndex.selectedEpisodeListItem, topAppBar: new TopAppBar(), triggerElementSelector: "header.mdc-top-app-bar button.mdc-top-app-bar__navigation-icon" }),
 			() => MLPIndex.moreFormatsMenu = new MoreFormatsMenu({ triggerElementId: "mlp-btn-more-formats" }),
 			() => MLPIndex.shareMenu = new ShareMenu({ triggerElementId: "mlp-btn-share" }),
-			() => MLPIndex.rippleButtonClassNames.forEach((querySelector) => attachRipple(querySelector)),
-			triggerIconLoad
+			() => MLPIndex.rippleButtonClassNames.forEach((querySelector) => attachRipple(querySelector))
 		])).catch(console.error);
 	}
 
@@ -110,14 +101,6 @@ import { isDocumentLoaded, loadSvg } from "./util.js";
 			audioElement.currentTime = window.Number(cachedCurrentTimeValue);
 		audioElement.addEventListener("timeupdate", () => Cache.set(cachedCurrentTimeKey, audioElement.currentTime), false);
 		audioElement.addEventListener("volumechange", () => Cache.set(cachedVolumeKey, audioElement.volume), false);
-	}
-
-	function triggerIconLoad() {
-		window.document.querySelectorAll("img[data-is-svg]").forEach((icon) => {
-			if (icon.complete && icon.currentSrc !== "" && icon.currentSrc !== "https://www.gstatic.com/psa/static/1.gif")
-				iconOnLoad({ currentTarget: icon });
-			icon.addEventListener("load", iconOnLoad, false);
-		});
 	}
 
 	await documentOnLoad();

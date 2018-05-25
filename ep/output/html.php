@@ -1,5 +1,6 @@
 <?php
 	namespace Mlp\Ep;
+	require_once "../include/utility.inc.php";
 
 	const DATE_DISPLAY_FORMAT = "l, F j<\s\u\p>S</\s\u\p>, Y";
 	$description = str_replace("\n", " ", $this->episode->description);
@@ -65,16 +66,16 @@
 			<div class="mdc-top-app-bar__row">
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
 					<button aria-haspopup="menu" class="mdc-top-app-bar__navigation-icon" type="button">
-						<img alt="Show menu" aria-label="Show the episode menu" data-is-svg data-pagespeed-no-transform src="/material-design-icons/navigation/svg/production/ic_menu_24px.svg" srcset="/material-design-icons/navigation/svg/production/ic_menu_48px.svg 2x, /material-design-icons/navigation/svg/production/ic_menu_36px.svg 1.5x" title="Show menu" type="image/svg+xml">
+						<?= \Mlp\getSvg("../material-design-icons/navigation/svg/production/ic_menu_24px.svg", ["aria-label" => "Show the episode menu", "title" => "Show Menu"]) ?>
 					</button>
 					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>"><a href="/" rel="index" title="<?= $_SERVER["SITE_TITLE"] ?>"></a> #<?= $thisEpisodeNumber ?> - <?= $this->episode->title ?></data>
 				</section>
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
 					<a class="mdc-top-app-bar__action-item" href="<?= $this->episode->getYouTubeUrl() ?>" rel="external noopener" target="_blank" type="text/html">
-						<img alt="Watch on YouTube" aria-label="Watch this episode on YouTube" data-is-svg data-pagespeed-no-transform height="24" src="/fontawesome-free-5.0.13/advanced-options/raw-svg/brands/youtube.svg" title="Watch on YouTube" type="image/svg+xml" width="24">
+						<?= \Mlp\getSvg("../fontawesome-free-5.0.13/advanced-options/raw-svg/brands/youtube.svg", ["aria-label" => "Watch this episode on YouTube", "height" => 24, "title" => "Watch on YouTube", "width" => 24]) ?>
 					</a>
 					<a class="mdc-top-app-bar__action-item" href="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg">
-						<img alt="Download MP3" aria-label="Download this episode in MP3 format" data-is-svg data-pagespeed-no-transform src="/material-design-icons/file/svg/production/ic_file_download_24px.svg" srcset="/material-design-icons/file/svg/production/ic_file_download_48px.svg 2x" title="Download MP3" type="image/svg+xml">
+						<?= \Mlp\getSvg("../material-design-icons/file/svg/production/ic_file_download_24px.svg", ["aria-label" => "Download this episode in MP3 format", "title" => "Download MP3"]) ?>
 					</a>
 				</section>
 			</div>
@@ -101,7 +102,7 @@
 					<aside class="mdc-typography--caption">
 						<time aria-label="Date this episode was published" datetime="<?= $this->episode->publishDate->format("Y-m-d") ?>" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
 						<span title="Episode Duration">
-							<img alt="Duration" data-is-svg data-pagespeed-no-transform height="12" role="presentation" src="/material-design-icons/device/svg/production/ic_access_time_24px.svg" srcset="/material-design-icons/device/svg/production/ic_access_time_48px.svg 2x" type="image/svg+xml" width="12">
+							<?= \Mlp\getSvg("../material-design-icons/device/svg/production/ic_access_time_24px.svg", ["height" => 12, "role" => "presentation", "width" => 12]) ?>
 							<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>"><?= $this->episode->getDurationFormatted() ?></time>
 						</span>
 					</aside>
@@ -111,32 +112,32 @@
 				</section>
 				<footer class="mdc-card__actions">
 					<nav class="mdc-card__action-buttons">
-						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $this->episode->getYouTubeUrl() ?>" rel="external noopener" target="_blank" type="text/html">Watch</a>
-						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg">Download</a>
+						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $this->episode->getYouTubeUrl() ?>" rel="external noopener" role="button" target="_blank" type="text/html">Watch</a>
+						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $thisEpisodeNumber ?>.mp3" role="button" type="audio/mpeg">Download</a>
 					</nav>
 					<nav class="mdc-card__action-icons">
 						<?php if (is_null($previousEpisodeNumber)): ?>
-							<button class="mdc-button mdc-card__action" disabled type="button">
-								<img alt="&lt;" aria-label="Go to previous episode" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_previous_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_previous_48px.svg 2x" title="Previous episode" type="image/svg+xml">
+							<button aria-disabled="true" class="mdc-button mdc-card__action" disabled type="button">
+								<?= \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_previous_24px.svg", ["aria-label" => "Go to previous episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Previous Episode"]) ?>
 							</button>
 						<?php else: ?>
-							<a class="mdc-button mdc-card__action" href="<?= strval($previousEpisodeNumber) ?>" rel="prev">
-								<img alt="&lt;" aria-label="Go to previous episode" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_previous_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_previous_48px.svg 2x" title="Previous episode" type="image/svg+xml">
+							<a class="mdc-button mdc-card__action" href="<?= strval($previousEpisodeNumber) ?>" rel="prev" role="button">
+								<?= \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_previous_24px.svg", ["aria-label" => "Go to previous episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Previous Episode"]) ?>
 							</a>
 						<?php endif; ?>
 
 						<?php if (is_null($nextEpisodeNumber)): ?>
-							<button class="mdc-button mdc-card__action" disabled type="button">
-								<img alt="&lt;" aria-label="Go to previous episode" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_next_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_next_48px.svg 2x" title="Previous episode" type="image/svg+xml">
+							<button aria-disabled="true" class="mdc-button mdc-card__action" disabled type="button">
+								<?= \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_next_24px.svg", ["aria-label" => "Go to next episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Next Episode"]) ?>
 							</button>
 						<?php else: ?>
 							<a class="mdc-button mdc-card__action" href="<?= strval($nextEpisodeNumber) ?>" rel="next">
-								<img alt="&lt;" aria-label="Go to previous episode" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/av/svg/production/ic_skip_next_24px.svg" srcset="/material-design-icons/av/svg/production/ic_skip_next_48px.svg 2x" title="Previous episode" type="image/svg+xml">
+								<?= \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_next_24px.svg", ["aria-label" => "Go to next episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Next Episode"]) ?>
 							</a>
 						<?php endif; ?>
 						<aside class="mdc-menu-anchor">
 							<button aria-controls="mlp-menu-share" aria-haspopup="menu" class="mdc-button mdc-card__action" id="mlp-btn-share" role="button" tabindex="0" type="button">
-								<img alt="Share" aria-label="Share this episode" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/social/svg/production/ic_share_24px.svg" srcset="/material-design-icons/social/svg/production/ic_share_48px.svg 2x" title="Share" type="image/svg+xml">
+								<?= \Mlp\getSvg("../material-design-icons/social/svg/production/ic_share_24px.svg", ["aria-label" => "Share this episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Share"]) ?>
 							</button>
 							<section aria-hidden="true" class="mdc-menu" id="mlp-menu-share" role="menu">
 								<ul class="mdc-menu__items mdc-list">
@@ -168,7 +169,7 @@
 						</aside>
 						<aside class="mdc-menu-anchor">
 							<button aria-controls="mlp-menu-more-formats" aria-haspopup="menu" class="mdc-button mdc-card__action " id="mlp-btn-more-formats" role="button" tabindex="0" type="button">
-								<img alt="More Formats" aria-label="View episode in more formats" class="mdc-button__icon mdc-card__action--icon" data-is-svg data-pagespeed-no-transform src="/material-design-icons/navigation/svg/production/ic_more_vert_24px.svg" srcset="/material-design-icons/navigation/svg/production/ic_more_vert_48px.svg 2x, /material-design-icons/navigation/svg/production/ic_more_vert_36px.svg 1.5x" title="More formats" type="image/svg+xml">
+								<?= \Mlp\getSvg("../material-design-icons/navigation/svg/production/ic_more_vert_24px.svg", ["aria-label" => "View episode in more formats", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "More Formats"]) ?>
 							</button>
 							<section aria-hidden="true" class="mdc-menu" id="mlp-menu-more-formats" role="menu">
 								<ul class="mdc-menu__items mdc-list">
