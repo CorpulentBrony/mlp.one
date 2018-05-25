@@ -28,6 +28,6 @@
 
 		foreach ($attributes as $attribute => $value)
 			$svg->documentElement->setAttribute($attribute, $value);
-		return $svg->saveXML();
+		return $svg->saveXML($svg->documentElement);
 	}
 ?>
