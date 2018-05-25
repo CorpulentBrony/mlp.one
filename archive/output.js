@@ -16,7 +16,7 @@ const MLP = (function MLP() {
 	});
 	const _snackbar = new window.Promise(async function(resolve, reject) {
 		await isMdcLoaded;
-		resolve(new ComponentHandler({ elementSelector: ".mdc-snackbar", mdcType: window.mdc.snackbar.MDCSnackbar }));
+		resolve(new ComponentHandler({ elementSelector: ".mdc-snackbar", mdcType: window.mdc.MDCSnackbar }));
 	});
 
 	class Cache {
@@ -60,7 +60,7 @@ const MLP = (function MLP() {
 
 	class MenuComponentHandler extends ToggleableComponentHandler {
 		constructor({ elementId, triggerElementId, triggerElementSelector }) {
-			super({ elementId, eventListeners: { ["MDCMenu:cancel"]: () => super.element.setAttribute("aria-hidden", true) }, mdcType: window.mdc.menu.MDCMenu, triggerElementId, triggerElementSelector });
+			super({ elementId, eventListeners: { ["MDCMenu:cancel"]: () => super.element.setAttribute("aria-hidden", true) }, mdcType: window.mdc.MDCMenu, triggerElementId, triggerElementSelector });
 			super.element.querySelectorAll("li").forEach((item) => item.addEventListener("click", this.close.bind(this), false));
 			super.mdcObject.listen("MDCMenu:cancel", this.close.bind(this));
 		}
@@ -105,7 +105,7 @@ const MLP = (function MLP() {
 	function getElement({ elementId, elementSelector }) { return elementId ? window.document.getElementById(elementId) : window.document.querySelector(elementSelector); }
 	function javaStringHash(string) { return window.Array.prototype.reduce.call(window.String(string), (hash, character) => (hash << 5) - hash + character.charCodeAt(0) | 0, 0); }
 
-	function loadSvg(replacesElement, src = undefined) {
+	async function loadSvg(replacesElement, src = undefined) { // returns window.Promise
 		if (replacesElement.parentNode == null)
 			return;
 		else if (typeof src === "undefined" && "currentSrc" in replacesElement)
@@ -120,7 +120,7 @@ const MLP = (function MLP() {
 		if (svgCached) {
 			const svg = parseSvgText(svgCached)
 			replacesElement.parentNode.replaceChild(svg, replacesElement);
-			return window.Promise.resolve(svg);
+			return svg;
 		} else {
 			notifyPreload("fetch", src, "image/svg+xml");
 			return window.fetch(src).then((response) => response.text()).then((svgText) => {
@@ -137,7 +137,7 @@ const MLP = (function MLP() {
 				Cache.set(cacheKey, serializer.serializeToString(svg));
 				replacesElement.parentNode.replaceChild(svg, replacesElement);
 				return svg;
-			}).catch(console.error);
+			});
 		}
 	}
 
@@ -186,7 +186,7 @@ const MLP = (function MLP() {
 						["MDCTemporaryDrawer:open"]: () => super.mdcObject.drawer.setAttribute("aria-hidden", false),
 						["MDCTemporaryDrawer:close"]: () => super.mdcObject.drawer.setAttribute("aria-hidden", true)
 					}, 
-					mdcType: window.mdc.drawer.MDCTemporaryDrawer,
+					mdcType: window.mdc.MDCTemporaryDrawer,
 					triggerElementId,
 					triggerElementSelector
 				});
@@ -215,7 +215,7 @@ const MLP = (function MLP() {
 			}
 		},
 		TopAppBar: class TopAppBar extends ComponentHandler {
-			constructor() { super({ elementSelector: "header.mdc-top-app-bar", mdcType: window.mdc.topAppBar.MDCTopAppBar }); }
+			constructor() { super({ elementSelector: "header.mdc-top-app-bar", mdcType: window.mdc.MDCTopAppBar }); }
 			get clientHeight() { return super.mdcObject.root_.clientHeight; }
 		},
 		loadSvg,
@@ -243,7 +243,7 @@ const MLP = (function MLP() {
 		});
 	}
 
-	function attachRipple(querySelector) { window.document.querySelectorAll(querySelector).forEach((item) => MLPIndex.ripples.add(new window.mdc.ripple.MDCRipple(item))); }
+	function attachRipple(querySelector) { window.document.querySelectorAll(querySelector).forEach((item) => MLPIndex.ripples.add(new window.mdc.MDCRipple(item))); }
 
 	function checkWebpSupport() {
 		const cacheKey = "isWebpSupported";
@@ -300,7 +300,7 @@ const MLP = (function MLP() {
 	function iconOnLoad({ currentTarget: icon }) {
 		if (icon.currentSrc === "" || icon.currentSrc === "https://www.gstatic.com/psa/static/1.gif")
 			return;
-		MLP.loadSvg(icon);
+		MLP.loadSvg(icon).catch(console.error);
 		icon.removeEventListener("load", iconOnLoad, false);
 	}
 

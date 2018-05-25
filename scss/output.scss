@@ -196,10 +196,6 @@ main {
 			aside.mdc-typography--caption { font-size: 0.66rem; }
 			h1 { margin: 0; }
 		}
-		// section.mdc-card__media {
-		// 	@extend %card-item-elevated;
-		// 	background-image: var(--image-url);
-		// }
 		section.mdc-typography--body2 {
 			color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54));
 			padding: 0 1rem 8px 1rem;
@@ -216,26 +212,19 @@ main {
 .mdc-card {
 	$color-value: var(--mdc-theme-text-icon-on-background, rgba(0, 0, 0, 0.38));
 
-	// &__action--icon:disabled {
-	// 	fill: $color-value;
-	// 	opacity: 0.37;
-	// 	padding: 0;
-	// }
-	// &__action-icons, &__action--icon:not(:disabled) { fill: $color-value; }
+	&__action-buttons { flex-grow: 1; }
+	&__action-buttons+.mdc-card__action-icons { margin-left: 0; }
 	&__action-icons {
 		@include mdc-button-icon-color($mdc-theme-on-surface);
-		.mdc-button { padding: 0; }
+		.mdc-button {
+			min-width: 40px;
+			padding: 0;
+		}
 		.mdc-button__icon { margin: auto; }
 		.mdc-card__action--icon { padding: 0; }
 	}
 	h1 { color: $mdc-theme-primary; }
 }
-// .mdc-chip {
-// 	@include mdc-chip-fill-color-accessible($mdc-theme-primary);
-
-// 	&-chip-set { justify-content: center; }
-// 	&__text { font-size: smaller; }
-// }
 .mdc-drawer {
 	&__drawer {
 		padding-bottom: $mdc-top-app-bar-row-height;

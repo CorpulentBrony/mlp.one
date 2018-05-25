@@ -20,7 +20,6 @@
 		<link href="//fonts.gstatic.com" rel="preconnect">
 		<!-- preloads -->
 		<link as="image" href="//www.gstatic.com/psa/static/1.gif" rel="preload" type="image/gif">
-		<link as="script" href="//unpkg.com/material-components-web@latest/dist/material-components-web.min.js" rel="preload" type="application/javascript">
 		<link as="script" href="//www.google-analytics.com/analytics.js" rel="preload" type="application/javascript">
 		<link as="style" href="//fonts.googleapis.com/css?family=Roboto:300,400,500" rel="preload" type="text/css">
 		<!-- prefetches -->
@@ -41,8 +40,9 @@
 		<script type="application/ld+json"><?php require "jsonld.php"; ?></script>
 		<title><?= $episodeFullTitle ?></title>
 		<link href="/css/output.css" rel="stylesheet" type="text/css">
-		<script async defer id="mlp-material-components-web-script" src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-		<script async defer src="/js/output.js"></script>
+		<!-- <script async defer id="mlp-material-components-web-script" src="/js/mdc-bundle.js"></script> -->
+		<script async defer nomodule src="/js/output.js"></script>
+		<script async src="/module/output.js" type="module"></script>
 		<style type="text/css">
 			:root {
 				/*--image-url: url(/ep/<?= $thisEpisodeNumber ?>.jpg);*/
@@ -149,8 +149,18 @@
 										</a>
 									</li>
 									<li class="mdc-list-item" role="menuitem">
+										<a class="mdc-list-item__text mdc-typography--subtitle2" href="http://www.tumblr.com/share/link?url=<?= rawurlencode($requestUrl) ?>&title=<?= rawurlencode("{$_SERVER["SITE_TITLE"]} #{$thisEpisodeNumber} - {$this->episode->title}") ?>" target="_blank" type="text/html">
+											Tumblr
+										</a>
+									</li>
+									<li class="mdc-list-item" role="menuitem">
 										<a class="mdc-list-item__text mdc-typography--subtitle2" href="https://twitter.com/intent/tweet?original_referer<?= rawurlencode($requestUrl) ?>&ref_src=twsrc%5Etfw&text=<?= rawurlencode("{$_SERVER["SITE_TITLE"]} #{$thisEpisodeNumber} - {$this->episode->title}") ?>&tw_p=tweetbutton&url=<?= rawurlencode($requestUrl) ?>" target="_blank" type="text/html">
 											Twitter
+										</a>
+									</li>
+									<li class="mdc-list-item" role="menuitem">
+										<a class="mdc-list-item__text mdc-typography--subtitle2" href="http://vkontakte.ru/share.php?url=<?= rawurlencode($requestUrl) ?>" target="_blank" type="text/html">
+											Vk
 										</a>
 									</li>
 								</ul>
