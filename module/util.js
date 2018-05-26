@@ -7,6 +7,15 @@ export const isDocumentLoaded = new window.Promise((resolve, reject) => {
 		resolve();
 });
 
+export function async(funcOrArray) {
+	if (window.Array.isArray(funcOrArray))
+		return funcOrArray.map((func) => async(func));
+	return new window.Promise((resolve, reject) => {
+		try { window.setTimeout(() => resolve(funcOrArray.call(undefined))); }
+		catch (err) { reject(err); }
+	});
+}
+
 export function getElement({ elementId, elementSelector }) { return elementId ? window.document.getElementById(elementId) : window.document.querySelector(elementSelector); }
 
 export function writeTextToClipboard(text) { // returns window.Promise

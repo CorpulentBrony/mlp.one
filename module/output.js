@@ -4,29 +4,14 @@ import { Drawer } from "./Drawer.js";
 import { MoreFormatsMenu } from "./MoreFormatsMenu.js";
 import { ShareMenu } from "./ShareMenu.js";
 import { TopAppBar } from "./TopAppBar.js";
-import { isDocumentLoaded } from "./util.js";
+import { async, isDocumentLoaded } from "./util.js";
 
 (async function output() {
 	const MLPIndex = window.Object.create(window.Object.prototype);
-	MLPIndex.drawer = undefined; // Drawer
 	MLPIndex.episodeNumber = JSON.parse(document.querySelector("script[type=\"application/ld+json\"]").innerText).episodeNumber;
-	MLPIndex.materialComponentsWebScript = undefined; // window.HTMLScriptElement
-	MLPIndex.moreFormatsMenu = undefined; // MoreFormatsMenu
 	MLPIndex.rippleButtonClassNames = [".mdc-button", ".mdc-chip", ".mdc-fab", ".mdc-list-item", ".mdc-ripple-surface"]; // removing ".mdc-card__primary-action"
-	MLPIndex.ripples = new window.Set();
-	MLPIndex.selectedEpisodeListItem = undefined; // window.HTMLLIElement
-	MLPIndex.shareMenu = undefined; // ShareMenu
 
-	function async(funcOrArray) {
-		if (window.Array.isArray(funcOrArray))
-			return funcOrArray.map((func) => async(func));
-		return new window.Promise((resolve, reject) => {
-			try { window.setTimeout(() => resolve(funcOrArray.call(undefined))); }
-			catch (err) { reject(err); }
-		});
-	}
-
-	function attachRipple(querySelector) { window.document.querySelectorAll(querySelector).forEach((item) => MLPIndex.ripples.add(new window.mdc.MDCRipple(item))); }
+	function attachRipple(querySelector) { window.document.querySelectorAll(querySelector).forEach((item) => new window.mdc.MDCRipple(item)); }
 
 	function checkWebpSupport() {
 		const cacheKey = "isWebpSupported";
@@ -59,32 +44,25 @@ import { isDocumentLoaded } from "./util.js";
 
 	async function documentOnLoad() {
 		await isDocumentLoaded;
-		MLPIndex.materialComponentsWebScript = window.document.getElementById("mlp-material-components-web-script");
-		checkWebpSupport();
 		window.Promise.all(async([
-			findSelectedEpisodeListItem,
-			setupAudioControls
+			checkWebpSupport,
+			setupAudioControls,
+			() => new Drawer({ currentElement: findSelectedEpisodeListItem(), topAppBar: new TopAppBar(), triggerElementSelector: "header.mdc-top-app-bar button.mdc-top-app-bar__navigation-icon" }),
+			() => new MoreFormatsMenu({ triggerElementId: "mlp-btn-more-formats" }),
+			() => new ShareMenu({ triggerElementId: "mlp-btn-share" }),
+			() => MLPIndex.rippleButtonClassNames.forEach((querySelector) => attachRipple(querySelector))
 		])).catch(console.error);
-		materialComponentsWebScriptOnLoad();
 		window.document.removeEventListener("DOMContentLoaded", documentOnLoad, false)
 	}
 
 	function findSelectedEpisodeListItem() {
-		MLPIndex.selectedEpisodeListItem = window.document.querySelector(`aside.mdc-drawer ul.mdc-drawer__content.mdc-list li.mdc-list-item[value="${MLPIndex.episodeNumber}"]`);
+		const selectedEpisodeListItem = window.document.querySelector(`aside.mdc-drawer ul.mdc-drawer__content.mdc-list li.mdc-list-item[value="${MLPIndex.episodeNumber}"]`);
 
-		if (MLPIndex.selectedEpisodeListItem) {
-			MLPIndex.selectedEpisodeListItem.classList.add("mdc-list-item--activated");
-			MLPIndex.selectedEpisodeListItem.setAttribute("aria-current", "page");
+		if (selectedEpisodeListItem) {
+			selectedEpisodeListItem.classList.add("mdc-list-item--activated");
+			selectedEpisodeListItem.setAttribute("aria-current", "page");
 		}
-	}
-
-	function materialComponentsWebScriptOnLoad() {
-		window.Promise.all(async([
-			() => MLPIndex.drawer = new Drawer({ currentElement: MLPIndex.selectedEpisodeListItem, topAppBar: new TopAppBar(), triggerElementSelector: "header.mdc-top-app-bar button.mdc-top-app-bar__navigation-icon" }),
-			() => MLPIndex.moreFormatsMenu = new MoreFormatsMenu({ triggerElementId: "mlp-btn-more-formats" }),
-			() => MLPIndex.shareMenu = new ShareMenu({ triggerElementId: "mlp-btn-share" }),
-			() => MLPIndex.rippleButtonClassNames.forEach((querySelector) => attachRipple(querySelector))
-		])).catch(console.error);
+		return selectedEpisodeListItem;
 	}
 
 	function setupAudioControls() {

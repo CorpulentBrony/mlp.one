@@ -8,5 +8,8 @@ export class Snackbar extends ComponentHandler {
 		this.instance._alert(message, timeout);
 	}
 	constructor() { super({ elementSelector: ".mdc-snackbar", mdcType: window.mdc.MDCSnackbar }); }
-	_alert(message, timeout) { this.mdcObject.show({ message, timeout }); }
+	_alert(message, timeout) {
+		this.mdcObject.show({ message, timeout });
+		window.setTimeout(() => this.element.classList.remove("mdc-snackbar--active"), 10000);
+	}
 }
