@@ -26,6 +26,7 @@
 		<!-- preconnects -->
 		<link href="//fonts.googleapis.com" rel="preconnect">
 		<link href="//fonts.gstatic.com" rel="preconnect">
+		<link href="//www.google-analytics.com" rel="preconnect">
 		<!-- preloads -->
 		<link as="image" href="//www.gstatic.com/psa/static/1.gif" rel="preload" type="image/gif">
 		<link as="script" href="//www.google-analytics.com/analytics.js" rel="preload" type="application/javascript">

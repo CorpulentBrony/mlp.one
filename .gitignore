@@ -13,5 +13,5 @@ material-components-web
 material-design-icons
 node_modules/
 *.map
-js/mdc-bundle.js
-js/output.js
+js/*.js
+!js/mdc.js

@@ -1,6 +1,4 @@
-import { Cache } from "./Cache.js";
-
-export const isDocumentLoaded = new window.Promise((resolve, reject) => {
+export const isDocumentLoaded = new window.Promise((resolve) => {
 	if (window.document.readyState === "loading")
 		window.document.addEventListener("DOMContentLoaded", resolve, false);
 	else
@@ -11,16 +9,24 @@ export function async(funcOrArray) {
 	if (window.Array.isArray(funcOrArray))
 		return funcOrArray.map((func) => async(func));
 	return new window.Promise((resolve, reject) => {
-		try { window.setTimeout(() => resolve(funcOrArray.call(undefined))); }
+		try { window.setTimeout(() => resolve(funcOrArray.call(undefined)), 0); }
 		catch (err) { reject(err); }
 	});
 }
 
 export function getElement({ elementId, elementSelector }) { return elementId ? window.document.getElementById(elementId) : window.document.querySelector(elementSelector); }
 
-export function loadDeferredStylesheets(containerId = "deferred-stylesheets") {
+export async function loadDeferredStylesheets(containerId = "deferred-stylesheets") {
 	const parser = new window.DOMParser();
-	parser.parseFromString(document.getElementById(containerId).textContent, "text/html").querySelectorAll("link").forEach((link) => window.document.head.appendChild(link));
+	const loader = () => parser.parseFromString(document.getElementById(containerId).textContent, "text/html").querySelectorAll("link").forEach((link) => window.document.head.appendChild(link));
+	const requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+	if (requestAnimationFrame)
+		requestAnimationFrame(() => window.setTimeout(loader.call(undefined), 0));
+	else {
+		await isDocumentLoaded;
+		loader.call(undefined);
+	}
 }
 
 export function writeTextToClipboard(text) { // returns window.Promise

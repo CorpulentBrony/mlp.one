@@ -24,5 +24,6 @@ const common = {
 };
 module.exports = [
 	Object.assign({ entry: "./js/mdc.js", output: { filename: "js/mdc-bundle.js" } }, common),
-	Object.assign({ entry: "./module/output.js", output: { filename: "js/output.js" } }, common)
+	Object.assign({ entry: "./module/output.js", output: { filename: "js/output.js" } }, common),
+	Object.assign({ entry: "./module/index.js", output: { filename: "js/index.js" } }, common)
 ];

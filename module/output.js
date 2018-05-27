@@ -43,11 +43,11 @@ import { async, isDocumentLoaded, loadDeferredStylesheets } from "./util.js";
 	}
 
 	async function documentOnLoad() {
+		loadDeferredStylesheets();
 		await isDocumentLoaded;
 		MLPIndex.episodeNumber = window.Number(window.document.getElementById("microdata-episode-number").textContent);
 		window.Promise.all(async([
 			checkWebpSupport,
-			loadDeferredStylesheets,
 			setupAudioControls,
 			() => new Drawer({ currentElement: findSelectedEpisodeListItem(), topAppBar: new TopAppBar(), triggerElementSelector: "header.mdc-top-app-bar button.mdc-top-app-bar__navigation-icon" }),
 			() => new MoreFormatsMenu({ triggerElementId: "mlp-btn-more-formats" }),

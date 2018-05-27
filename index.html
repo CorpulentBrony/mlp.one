@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html itemid="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemscope itemtype="http://schema.org/RadioEpisode" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
 	<head>
+		<!-- preconnects -->
+		<link href="//fonts.googleapis.com" rel="preconnect">
+		<link href="//fonts.gstatic.com" rel="preconnect">
+		<link href="//www.google-analytics.com" rel="preconnect">
+		<!-- preloads -->
+		<link as="image" href="//www.gstatic.com/psa/static/1.gif" rel="preload" type="image/gif">
+		<link as="script" href="//www.google-analytics.com/analytics.js" rel="preload" type="application/javascript">
+		<link as="style" href="//fonts.googleapis.com/css?family=Open+Sans:400,400i,800|Roboto:300,400,500,900,900i" rel="preload" type="text/css">
 		<!--# include file="common_header.html" -->
 		<link href="http://api.mlp.one/podcast" rel="alternate" title="/mlp/odcast" type="application/rss+xml">
 		<meta content="<!--# echo var='siteTitle' -->" itemprop="headline name" name="title" property="og:title">
@@ -10,9 +18,10 @@
 		<meta content="<!--# echo var='siteDescription' -->" name="twitter:description">
 		<meta content="dHG36go54Xk_JAAP9rulwG5SRO6FN2LYagwq3Fs0fvw" name="google-site-verification">
 		<title><!--# echo var="siteTitle" --></title>
-		<script async src="/index.js"></script>
+		<script async defer nomodule src="/js/index.js"></script>
+		<script async src="/module/index.js" type="module"></script>
 		<!--# include virtual="/api/podcast-schema.php" -->
-		<noscript id="deferred-styles"><link href="/index.css" rel="stylesheet" type="text/css"></noscript>
+		<noscript id="deferred-stylesheets"><link href="/index.css" rel="stylesheet" type="text/css"></noscript>
 		<style type="text/css">
 			@charset "utf-8";
 			<!--# include file="css/vars.css" -->
