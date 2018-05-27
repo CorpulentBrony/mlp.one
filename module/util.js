@@ -18,6 +18,11 @@ export function async(funcOrArray) {
 
 export function getElement({ elementId, elementSelector }) { return elementId ? window.document.getElementById(elementId) : window.document.querySelector(elementSelector); }
 
+export function loadDeferredStylesheets(containerId = "deferred-stylesheets") {
+	const parser = new window.DOMParser();
+	parser.parseFromString(document.getElementById(containerId).textContent, "text/html").querySelectorAll("link").forEach((link) => window.document.head.appendChild(link));
+}
+
 export function writeTextToClipboard(text) { // returns window.Promise
 	if ("navigator" in window && "clipboard" in window.navigator && "writeText" in window.navigator.clipboard) {
 		return window.navigator.clipboard.writeText(window.String(text));

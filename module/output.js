@@ -4,7 +4,7 @@ import { Drawer } from "./Drawer.js";
 import { MoreFormatsMenu } from "./MoreFormatsMenu.js";
 import { ShareMenu } from "./ShareMenu.js";
 import { TopAppBar } from "./TopAppBar.js";
-import { async, isDocumentLoaded } from "./util.js";
+import { async, isDocumentLoaded, loadDeferredStylesheets } from "./util.js";
 
 (async function output() {
 	const MLPIndex = window.Object.create(window.Object.prototype);
@@ -47,6 +47,7 @@ import { async, isDocumentLoaded } from "./util.js";
 		MLPIndex.episodeNumber = window.Number(window.document.getElementById("microdata-episode-number").textContent);
 		window.Promise.all(async([
 			checkWebpSupport,
+			loadDeferredStylesheets,
 			setupAudioControls,
 			() => new Drawer({ currentElement: findSelectedEpisodeListItem(), topAppBar: new TopAppBar(), triggerElementSelector: "header.mdc-top-app-bar button.mdc-top-app-bar__navigation-icon" }),
 			() => new MoreFormatsMenu({ triggerElementId: "mlp-btn-more-formats" }),
@@ -82,5 +83,5 @@ import { async, isDocumentLoaded } from "./util.js";
 		audioElement.addEventListener("volumechange", () => Cache.set(cachedVolumeKey, audioElement.volume), false);
 	}
 
-	await documentOnLoad();
+	documentOnLoad();
 })().catch(console.error);

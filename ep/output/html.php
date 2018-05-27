@@ -49,7 +49,6 @@
 		<title><?= $episodeFullTitle ?></title>
 		<script async defer nomodule src="/js/output.js"></script>
 		<script async src="/module/output.js" type="module"></script>
-		<link href="/css/output.css" rel="stylesheet" type="text/css">
 		<style type="text/css">
 			:root {
 				--title-prefix-text: "<?= $_SERVER["SITE_TITLE"] ?> ";
@@ -63,6 +62,9 @@
 		</style>
 	</head>
 	<body class="mdc-typography">
+		<noscript id="deferred-stylesheets">
+			<link href="/css/output.css" rel="stylesheet" type="text/css">
+		</noscript>
 		<picture>
 			<source data-pagespeed-no-transform sizes="(min-width: 1024px) 70vw, 100vw" srcset="/image/mlpodcast_couch/3840w.webp 3840w, /image/mlpodcast_couch/2880w.webp 2880w, /image/mlpodcast_couch/1920w.webp 1920w, /image/mlpodcast_couch/1280w.webp 1280w, /image/mlpodcast_couch/960w.webp 960w" type="image/webp">
 			<img alt="" data-pagespeed-no-transform id="mlp-img-bg" role="presentation" sizes="(min-width: 1024px) 70vw, 100vw" src="/image/mlpodcast_couch/960w.png" srcset="/image/mlpodcast_couch/3840w.png 3840w, /image/mlpodcast_couch/2880w.png 2880w, /image/mlpodcast_couch/1920w.png 1920w, /image/mlpodcast_couch/1280w.png 1280w" type="image/png">
@@ -136,7 +138,7 @@
 				<footer class="mdc-card__actions">
 					<nav class="mdc-card__action-buttons">
 						<a class="mdc-button mdc-button--unelevated mdc-card__action mdc-card__action--button" href="<?= $thisEpisodeNumber ?>.mp3" role="button" type="audio/mpeg">Download</a>
-						<a class="mdc-button mdc-button--outlined mdc-card__action mdc-card__action--button" href="<?= $youTubeUrl ?>" id="microdata-youtube-url" itemprop="discussionUrl" rel="external noopener" role="button" target="_blank" type="text/html">Watch</a>
+						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $youTubeUrl ?>" id="microdata-youtube-url" itemprop="discussionUrl" rel="external noopener" role="button" target="_blank" type="text/html">Watch</a>
 					</nav>
 					<nav class="mdc-card__action-icons">
 						<?php if (is_null($previousEpisodeNumber)): ?>
