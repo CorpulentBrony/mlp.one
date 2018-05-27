@@ -33,8 +33,8 @@
 		"keywords" => implode(", ", $this->episode->keywords),
 		"license" => "https://donutsteel.pl",
 		"name" => $this->episode->title,
-		"partOfSeason" => ["@id" => "tag:mlp.one,2018:?season=1", "@type" => "RadioSeason"],
-		"partOfSeries" => ["@id" => "tag:mlp.one,2018:", "@type" => "RadioSeries"],
+		"partOfSeason" => ["@id" => "tag:mlp.one,2018:/mlp/odcast?season=1", "@type" => "RadioSeason"],
+		"partOfSeries" => ["@id" => "tag:mlp.one,2018:/mlp/odcast", "@type" => "RadioSeries"],
 		"position" => $this->episode->number,
 		"potentialAction" => [[
 			"@type" => "ListenAction",
@@ -71,7 +71,7 @@
 		]],
 		"thumbnailUrl" => $youTubeThumbnail,
 		"timeRequired" => $duration,
-		"url" => $this->episode->getEpisodeManagerUrl(),
+		"url" => $this->getRequestUrl(RequestType::HTML),
 		"video" => [
 			"@type" => "VideoObject",
 			"@id" => $youTubeUrl,

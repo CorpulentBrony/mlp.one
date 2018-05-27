@@ -170,13 +170,13 @@
 		$s3->putObjectAsync(["ACL" => ACL, "Bucket" => BUCKET, "ContentType" => $mimeType, "Key" => KEY . $fileName, "SourceFile" => $tempFilePath, "StorageClass" => STORAGE_CLASS])
 			->then(function () use ($tempFilePath): void {
 				unlink($tempFilePath);
-							$transcoder = \Aws\ElasticTranscoder\ElasticTranscoderClient::factory(["region" => "us-east-1", "version" => "latest"]);
+				$transcoder = \Aws\ElasticTranscoder\ElasticTranscoderClient::factory(["region" => "us-east-1", "version" => "latest"]);
 				$job = $transcoder->createJob([
 					"Input" => [
 						"Key" => KEY . $fileName
 					],
 					"Output" => [
-						"Key" => KEY . $fileName . ".ogg",
+						"Key" => KEY . $fileNameBase . ".ogg",
 						"PresetId" => "1527129762137-hd4h6g"
 					],
 					"PipelineId" => "1527129380843-abgkhi"

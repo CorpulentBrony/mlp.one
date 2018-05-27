@@ -41,7 +41,7 @@
 			return implode(", ", array_diff([\Mlp\pluralize($this->duration->h, "hour"), \Mlp\pluralize($this->duration->i, "minute"), \Mlp\pluralize($this->duration->s, "second")], [""]));
 		}
 
-		public function getEpisodeManagerUrl(): string { return self::MANAGER_URL_PREFIX . "/" . strval($this->number); }
+		public function getEpisodeManagerUrl(): string { return self::MANAGER_URL_PREFIX . strval($this->number); }
 		public function getGuid(): string { return is_null($this->guidOverride) ? self::GUID_PREFIX . strval($this->number) : $this->guidOverride; }
 		public function getYouTubeEmbedUrl(): string { return "https://www.youtube.com/embed/" . rawurlencode($this->youTubeId); }
 		public function getYouTubeThumbnail(): string { return "https://img.youtube.com/vi/" . rawurlencode($this->youTubeId) . "/maxresdefault.jpg"; }

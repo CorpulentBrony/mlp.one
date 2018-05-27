@@ -7,15 +7,22 @@
 	$thisEpisodeNumber = strval($this->episode->number);
 	// $episodeFullTitle = "{$_SERVER["SITE_TITLE"]} #" . $thisEpisodeNumber . " - {$this->episode->title}";
 	$episodeFullTitle = "{$this->episode->title} - {$_SERVER["SITE_TITLE"]}";
+	$filePathInfo = pathinfo($this->episode->defaultFile->name);
 	$fileUrl = str_ireplace("http://", "https://", $this->episode->defaultFile->url);
+	$guid = $this->episode->getGuid();
+	$keywords = implode(",", $this->episode->keywords);
 	$nextEpisodeNumber = $this->getNextEpisodeNumber();
 	$previousEpisodeNumber = $this->getPreviousEpisodeNumber();
+	$publishDateIsoFormat = $this->episode->publishDate->format("Y-m-d");
 	$requestUrl = $this->getRequestUrl();
+	$requestUrlMp3 = $this->getRequestUrl(RequestType::MP3);
+	$requestUrlOgg = $this->getRequestUrl(RequestType::OGG);
+	$youTubeUrl = $this->episode->getYouTubeUrl();
 	http_response_code(200);
 	header("Content-Type: {$this->mimeType}");
 ?><!DOCTYPE html>
-<html itemid="<?= $this->episode->getGuid() ?>" itemscope itemtype="http://schema.org/WebPage" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
-	<head>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
+	<head id="microdata-head">
 		<!-- preconnects -->
 		<link href="//fonts.googleapis.com" rel="preconnect">
 		<link href="//fonts.gstatic.com" rel="preconnect">
@@ -27,26 +34,24 @@
 		<!-- <link as="audio" href="/ep/<?= $thisEpisodeNumber ?>.mp3" rel="prefetch" type="audio/mpeg"> -->
 		<!--# include file="/common_header_base.html" -->
 		<link href="<?= $requestUrl ?>" rel="canonical self" type="text/html">
-		<meta content="<?= $this->episode->getYouTubeThumbnail() ?>" itemprop="image" name="twitter:image" property="og:image">
+		<meta content="<?= $this->episode->getYouTubeThumbnail() ?>" id="microdata-thumbnail" itemprop="image thumbnailUrl" name="twitter:image" property="og:image">
 		<meta content="1280" property="og:image:width">
 		<meta content="720" property="og:image:height">
 		<meta content="image/png" property="og:image:type">
 		<meta content="website" property="og:type">
-		<meta content="https://<?= $requestUrl ?>" itemprop="url" property="og:url">
-		<meta content="<?= $episodeFullTitle ?>" itemprop="headline name" name="title" property="og:title">
-		<meta content="<?= $description ?>" itemprop="description" name="description" property="og:description">
-		<meta content="<?= implode(",", $this->episode->keywords) ?>" itemprop="keywords" name="keywords">
+		<meta content="<?= $requestUrl ?>" itemprop="url" property="og:url">
+		<meta content="<?= $episodeFullTitle ?>" name="title" property="og:title">
+		<meta content="<?= $description ?>" id="microdata-description" itemprop="description" name="description" property="og:description">
+		<meta content="<?= $keywords ?>" itemprop="keywords" name="keywords">
 		<meta content="<?= $episodeFullTitle ?>" name="twitter:title">
 		<meta content="<?= $description ?>" name="twitter:description">
-		<script type="application/ld+json"><?php require "jsonld.php"; ?></script>
+		<script src="<?= $thisEpisodeNumber ?>.jsonld" type="application/ld+json"></script>
 		<title><?= $episodeFullTitle ?></title>
-		<link href="/css/output.css" rel="stylesheet" type="text/css">
-		<!-- <script async defer id="mlp-material-components-web-script" src="/js/mdc-bundle.js"></script> -->
 		<script async defer nomodule src="/js/output.js"></script>
 		<script async src="/module/output.js" type="module"></script>
+		<link href="/css/output.css" rel="stylesheet" type="text/css">
 		<style type="text/css">
 			:root {
-				/*--image-url: url(/ep/<?= $thisEpisodeNumber ?>.jpg);*/
 				--title-prefix-text: "<?= $_SERVER["SITE_TITLE"] ?> ";
 			}
 			@media only screen and (max-width: 768px) {
@@ -68,10 +73,10 @@
 					<button aria-haspopup="menu" class="mdc-top-app-bar__navigation-icon" type="button">
 						<?= \Mlp\getSvg("../material-design-icons/navigation/svg/production/ic_menu_24px.svg", ["aria-label" => "Show the episode menu", "title" => "Show Menu"]) ?>
 					</button>
-					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>"><a href="/" rel="index" title="<?= $_SERVER["SITE_TITLE"] ?>"></a> #<?= $thisEpisodeNumber ?> - <?= $this->episode->title ?></data>
+					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>"><a href="/" rel="index" title="<?= $_SERVER["SITE_TITLE"] ?>"></a> #<span id="microdata-episode-number" itemprop="episodeNumber position"><?= $thisEpisodeNumber ?></span> - <?= $this->episode->title ?></data>
 				</section>
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
-					<a class="mdc-top-app-bar__action-item" href="<?= $this->episode->getYouTubeUrl() ?>" rel="external noopener" target="_blank" type="text/html">
+					<a class="mdc-top-app-bar__action-item" href="<?= $youTubeUrl ?>" rel="external noopener" target="_blank" type="text/html">
 						<?= \Mlp\getSvg("../fontawesome-free-5.0.13/advanced-options/raw-svg/brands/youtube.svg", ["aria-label" => "Watch this episode on YouTube", "height" => 24, "title" => "Watch on YouTube", "width" => 24]) ?>
 					</a>
 					<a class="mdc-top-app-bar__action-item" href="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg">
@@ -90,20 +95,38 @@
 			</nav>
 		</aside>
 		<main>
-			<article class="mdc-card">
+			<article itemid="<?= $guid ?>" itemref="microdata-episode-number microdata-head" itemscope itemtype="http://schema.org/RadioEpisode" class="mdc-card">
+				<data itemprop="isAccessibleForFree" value="true"></data>
+				<link href="https://donutsteel.pl" itemprop="license">
+				<span itemid="tag:mlp.one,2018:/mlp/odcast?season=1" itemprop="partOfSeason" itemscope itemtype="http://schema.org/RadioSeason"></span>
+				<span itemid="tag:mlp.one,2018:/mlp/odcast" itemprop="partOfSeries" itemscope itemtype="http://schema.org/RadioSeries"></span>
 				<!-- <section class="mdc-card__media mdc-card__media--16-9"></section> -->
- 				<audio aria-label="Embedded audio player to listen to a stream of this episode" controls controlslist="nodownload" id="mlp-audio-element" itemprop="audio" itemscope="true" itemtype="http://schema.org/AudioObject" preload="metadata">
+ 				<audio aria-label="Embedded audio player to listen to a stream of this episode" controls controlslist="nodownload" id="mlp-audio-element" preload="metadata">
  					<source src="<?= $thisEpisodeNumber ?>.ogg" type="audio/ogg">
  					<source src="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg">
  					It appears your browser doesn't support embedded audio.  No worries, you can download the audio from one of the links on this page.
+ 					<span itemprop="audio" itemref="microdata-access-mode microdata-media-common microdata-thumbnail" itemscope itemtype="http://schema.org/AudioObject">
+ 						<link href="<?= $requestUrlOgg ?>" itemprop="contentUrl url">
+ 						<span content="ogg" itemprop="encodingFormat"></span>
+ 						<span content="<?= Request::TYPES[RequestType::OGG]["mimeType"] ?>" itemprop="fileFormat"></span>
+ 						<span content="<?= $filePathInfo["filename"] ?>.ogg" itemprop="name"></span>
+ 					</span>
+ 					<span itemprop="audio" itemref="microdata-access-mode microdata-media-common microdata-thumbnail" itemscope itemtype="http://schema.org/AudioObject">
+ 						<data itemprop="bitrate" value="<?= strval($this->episode->defaultFile->bitRate) ?>"></data>
+ 						<data itemprop="contentSize" value="<?= strval($this->episode->defaultFile->size) ?>"></data>
+ 						<link href="<?= $requestUrlMp3 ?>" itemprop="contentUrl url">
+ 						<span content="<?= $filePathInfo["extension"] ?>" itemprop="encodingFormat"></span>
+ 						<span content="<?= Request::TYPES[RequestType::MP3]["mimeType"] ?>" itemprop="fileFormat"></span>
+ 						<span content="<?= $this->episode->defaultFile->name ?>" itemprop="name"></span>
+ 					</span>
  				</audio>
 				<header>
-					<h1 class="mdc-typography--headline6"><?= $this->episode->title ?></h1>
+					<h1 class="mdc-typography--headline6" id="microdata-name" itemprop="headline name"><?= $this->episode->title ?></h1>
 					<aside class="mdc-typography--caption">
-						<time aria-label="Date this episode was published" datetime="<?= $this->episode->publishDate->format("Y-m-d") ?>" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
+						<time aria-label="Date this episode was published" datetime="<?= $publishDateIsoFormat ?>" itemprop="datePublished" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
 						<span title="Episode Duration">
 							<?= \Mlp\getSvg("../material-design-icons/device/svg/production/ic_access_time_24px.svg", ["height" => 12, "role" => "presentation", "width" => 12]) ?>
-							<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>"><?= $this->episode->getDurationFormatted() ?></time>
+							<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>" itemprop="timeRequired"><?= $this->episode->getDurationFormatted() ?></time>
 						</span>
 					</aside>
 				</header>
@@ -112,8 +135,8 @@
 				</section>
 				<footer class="mdc-card__actions">
 					<nav class="mdc-card__action-buttons">
-						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $this->episode->getYouTubeUrl() ?>" rel="external noopener" role="button" target="_blank" type="text/html">Watch</a>
-						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $thisEpisodeNumber ?>.mp3" role="button" type="audio/mpeg">Download</a>
+						<a class="mdc-button mdc-button--unelevated mdc-card__action mdc-card__action--button" href="<?= $thisEpisodeNumber ?>.mp3" role="button" type="audio/mpeg">Download</a>
+						<a class="mdc-button mdc-button--outlined mdc-card__action mdc-card__action--button" href="<?= $youTubeUrl ?>" id="microdata-youtube-url" itemprop="discussionUrl" rel="external noopener" role="button" target="_blank" type="text/html">Watch</a>
 					</nav>
 					<nav class="mdc-card__action-icons">
 						<?php if (is_null($previousEpisodeNumber)): ?>
@@ -183,7 +206,43 @@
 						</aside>
 					</nav>
 				</footer>
+				<span itemprop="potentialAction" itemref="microdata-potential-action-common" itemscope itemtype="http://schema.org/ListenAction">
+					<span content="Listen to <?= $_SERVER["SITE_TITLE"] ?>: <?= $this->episode->title ?>" itemprop="name"></span>
+					<span itemprop="target" itemref="microdata-target-common" itemscope itemtype="http://schema.org/EntryPoint">
+						<link href="<?= $requestUrlMp3 ?>" itemprop="urlTemplate">
+					</span>
+					<link href="<?= $requestUrlMp3 ?>" itemprop="url">
+				</span>
+				<span itemprop="potentialAction" itemref="microdata-potential-action-common" itemscope itemtype="http://schema.org/WatchAction">
+					<span content="Watch <?= $_SERVER["SITE_TITLE"] ?>: <?= $this->episode->title ?>" itemprop="name"></span>
+					<span itemprop="target" itemref="microdata-target-common" itemscope itemtype="http://schema.org/EntryPoint">
+						<link href="<?= $youTubeUrl ?>" itemprop="urlTemplate">
+					</span>
+					<link href="<?= $youTubeUrl ?>" itemprop="url">
+				</span>
+				<span itemprop="video" itemref="microdata-description microdata-media-common microdata-name microdata-thumbnail" itemscope itemtype="http://schema.org/VideoObject">
+					<link href="<?= $this->episode->getYouTubeEmbedUrl() ?>" itemprop="embedUrl">
+					<link href="<?= $youTubeUrl ?>" itemprop="url">
+				</span>
 			</article>
+			<span content="auditory" id="microdata-access-mode" itemprop="accessMode accessModeSufficient"></span>
+			<span id="microdata-media-common">
+				<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>" itemprop="duration"></time>
+				<time datetime="<?= $publishDateIsoFormat ?>" itemprop="uploadDate"></time>
+			</span>
+			<span id="microdata-potential-action-common">
+				<span content="PotentialStatusAction" itemprop="actionStatus"></span>
+				<span itemprop="expectsAcceptanceOf" itemscope itemtype="http://schema.org/Offer">
+					<time datetime="<?= $publishDateIsoFormat ?>" itemprop="availabilityStarts"></time>
+					<span content="free" itemprop="category"></span>
+				</span>
+			</span>
+			<span id="microdata-target-common">
+				<link href="http://schema.googleapis.com/GoogleVideoCast" itemprop="actionPlatform">
+				<link href="http://schema.org/DesktopWebPlatform" itemprop="actionPlatform">
+				<link href="http://schema.org/MobileWebPlatform" itemprop="actionPlatform">
+				<span content="en" itemprop="inLanguage"></span>
+			</span>
 		</main>
 		<aside aria-hidden="true" class="mdc-snackbar mdc-snackbar--align-start" role="alert">
 			<div class="mdc-snackbar__text mdc-typography--subtitle2"></div>

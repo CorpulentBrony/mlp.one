@@ -8,7 +8,7 @@ import { async, isDocumentLoaded } from "./util.js";
 
 (async function output() {
 	const MLPIndex = window.Object.create(window.Object.prototype);
-	MLPIndex.episodeNumber = JSON.parse(document.querySelector("script[type=\"application/ld+json\"]").innerText).episodeNumber;
+	MLPIndex.episodeNumber = undefined; // int // JSON.parse(document.querySelector("script[type=\"application/ld+json\"]").innerText).episodeNumber;
 	MLPIndex.rippleButtonClassNames = [".mdc-button", ".mdc-chip", ".mdc-fab", ".mdc-list-item", ".mdc-ripple-surface"]; // removing ".mdc-card__primary-action"
 
 	function attachRipple(querySelector) { window.document.querySelectorAll(querySelector).forEach((item) => new window.mdc.MDCRipple(item)); }
@@ -44,6 +44,7 @@ import { async, isDocumentLoaded } from "./util.js";
 
 	async function documentOnLoad() {
 		await isDocumentLoaded;
+		MLPIndex.episodeNumber = window.Number(window.document.getElementById("microdata-episode-number").textContent);
 		window.Promise.all(async([
 			checkWebpSupport,
 			setupAudioControls,
