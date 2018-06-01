@@ -19,7 +19,7 @@
 		<link href="/module/TopAppBar.js" rel="modulepreload">
 		<link href="/module/privacy.js" rel="modulepreload">
 		<link href="/module/util.js" rel="modulepreload">
-		<!--# include file="/common_header.html" -->
+		<!--# include file="/common/header.html" -->
 		<meta content="<!--# include file="no" stub="privacyPolicyTitle" -->" name="title" property="og:title">
 		<meta content="<!--# echo var="privacyPolicyDescription" -->" itemprop="description" name="description" property="og:description">
 		<meta content="/mlp/odcast, privacy policy" itemprop="keywords" name="keywords">
@@ -101,15 +101,7 @@
 				</dl>
 			</article>
 		</main>
-		<aside class="mdc-drawer mdc-drawer--temporary">
-			<div class="mdc-drawer__toolbar-spacer" role="separator"></div>
-			<nav aria-hidden="true" class="mdc-drawer__drawer" role="menu">
-				<h3 class="mdc-list-group__subheader"><a class="mdc-list-item" href="/" rel="index" role="menuitem" title="<!--# echo var="siteTitle" -->"><!--# echo var="siteTitle" --></a></h3>
-				<ul class="mdc-drawer__content mdc-list">
-					<!--# include virtual="/api/podcast-html-list.php" -->
-				</ul>
-			</nav>
-		</aside>
-		<!--# include file="/common_footer.html" -->
+		<!--# include file="/common/drawer.html" -->
+		<!--# include file="/common/footer.html" -->
 	</body>
 </html>

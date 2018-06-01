@@ -8,7 +8,7 @@
 ?><!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
 	<head>
-		<!--# include file="/common_header_base.html" -->
+		<!--# include file="/common/header_base.html" -->
 		<meta content="noindex" name="robots">
 		<meta content="<?= $errorImage ?>" itemprop="image" name="twitter:image" property="og:image">
 		<meta content="441" property="og:image:width">
@@ -45,5 +45,6 @@
 				<h2><a href="/">Go on, git on back home now.</a></h2>
 			</nav>
 		</main>
+		<!--# include file="/common/footer.html" -->
 	</body>
 </html>

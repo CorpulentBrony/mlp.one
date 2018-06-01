@@ -54,7 +54,7 @@
 ?><!DOCTYPE html>
 <html itemid="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemscope itemtype="https://schema.org/WebPage" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
 	<head>
-		<!--# include file="/common_header.html" -->
+		<!--# include file="/common/header.html" -->
 		<meta content="<?= $pageTitle ?>" itemprop="headline name" name="title" property="og:title">
 		<meta content="<?= $pageDescription ?>" itemprop="description" name="description" property="og:description">
 		<meta content="<?= $pageTitle ?>" name="twitter:title">

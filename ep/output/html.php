@@ -34,7 +34,7 @@
 		<link as="style" href="//fonts.googleapis.com/css?family=Roboto:300,400,500" rel="preload" type="text/css">
 		<!-- prefetches -->
 		<!-- <link as="audio" href="/ep/<?= $thisEpisodeNumber ?>.mp3" rel="prefetch" type="audio/mpeg"> -->
-		<!--# include file="/common_header_base.html" -->
+		<!--# include file="/common/header_base.html" -->
 		<link href="<?= $requestUrl ?>" rel="canonical self" type="text/html">
 		<meta content="<?= $youTubeThumbnail ?>" id="microdata-thumbnail" itemprop="image thumbnailUrl" name="twitter:image" property="og:image">
 		<meta content="1280" property="og:image:width">
@@ -263,19 +263,11 @@
 				<span content="en" itemprop="inLanguage"></span>
 			</span>
 		</main>
-		<aside class="mdc-drawer mdc-drawer--temporary">
-			<div class="mdc-drawer__toolbar-spacer" role="separator"></div>
-			<nav aria-hidden="true" class="mdc-drawer__drawer" role="menu">
-				<h3 class="mdc-list-group__subheader"><a class="mdc-list-item" href="/" rel="home index" role="menuitem" title="<?= $_SERVER["SITE_TITLE"] ?>"><?= $_SERVER["SITE_TITLE"] ?></a></h3>
-				<ul class="mdc-drawer__content mdc-list">
-					<!--# include virtual="/api/podcast-html-list.php" -->
-				</ul>
-			</nav>
-		</aside>
+		<!--# include file="/common/drawer.html" -->
 		<aside aria-hidden="true" class="mdc-snackbar mdc-snackbar--align-start" role="alert">
 			<div class="mdc-snackbar__text mdc-typography--subtitle2"></div>
 			<div class="mdc-snackbar__action-wrapper"><button class="mdc-snackbar__action-button" type="button"></button></div>
 		</aside>
-		<!--# include file="/common_footer.html" -->
+		<!--# include file="/common/footer.html" -->
 	</body>
 </html>
