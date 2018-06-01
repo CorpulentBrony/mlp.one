@@ -31,6 +31,7 @@
 					$rss->createElement("media:param", ["name" => "height"], "35", $mediaEmbed);
 					$rss->createElement("media:param", ["name" => "type"], $this->mimeType, $mediaEmbed);
 					$rss->createElement("media:param", ["name" => "width"], "300", $mediaEmbed);
+					$rss->createElement("media:peerLink", ["href" => $this->episode->getEpisodeManagerUrl() . ".torrent", "type" => "application/x-bittorrent"], null, $mediaContent);
 				}
 			}
 		}

@@ -1,0 +1,23 @@
+<svg version="1.1" viewBox="0 0 320 360" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<defs>
+		<g id="top" transform="translate(0,-1)">
+			<polyline points="-0.258819045,0.965925826 0,0 0.258819045,0.965925826" transform="scale(0.70710678)"/>
+		</g>
+		<g id="half">
+			<use xlink:href="#top" transform="rotate(-60)"/>
+			<use xlink:href="#top" transform="rotate(0)"/>
+			<use xlink:href="#top" transform="rotate(60)"/>
+		</g>
+		<g id="star" transform="translate(160,180) scale(160)">
+			<circle r="0.3660254"/>
+			<use xlink:href="#half"/>
+			<use xlink:href="#half" transform="scale(1,-1)"/>
+		</g>
+	</defs>
+	<g fill="#fff" transform="rotate(30 160 180) scale(0.8 0.8) translate(40 40)">
+		<use xlink:href="#star"/>
+	</g>
+	<g fill="#ed438a">
+		<use xlink:href="#star"/>
+	</g>
+</svg>

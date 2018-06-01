@@ -19,8 +19,8 @@
 	const CONTACT_EMAIL = "corpulent@brony.email (" . CONTACT_NAME . ")";
 	const URL_PREFIX = "http://" . BUCKET . "/";
 
-	const CHANNEL_IMAGE = URL_PREFIX . "mlpodcast.png";
-	const CHANNEL_IMAGE_LARGE = URL_PREFIX . "mlpodcast-large.jpg";
+	const CHANNEL_IMAGE = URL_PREFIX . "mlpodcast-1c1c5a5209c8d6d0fc7713b0defad44f.png";
+	const CHANNEL_IMAGE_LARGE = URL_PREFIX . "mlpodcast-large-d41a4943bf081bcb3968921ddaab59ce.jpg";
 	const RSS_ICON_URL = URL_PREFIX . "rss.png";
 
 	header("Content-Type: text/plain");

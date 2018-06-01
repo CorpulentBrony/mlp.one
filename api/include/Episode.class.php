@@ -6,10 +6,11 @@
 
 	class Episode extends \Mlp\Episode implements RssOutput {
 		public function toRss(Rss $rss): void {
+			$episodeManagerUrl = parent::getEpisodeManagerUrl();
 			$youtubeUrl = parent::getYouTubeUrl();
 			$item = $rss->createElement("item");
 			$rss->createElement("title", [], $this->title, $item);
-			$rss->createElement("link", [], $youtubeUrl, $item);
+			$rss->createElement("link", [], $episodeManagerUrl, $item);
 			$rss->createElement("description", [], $this->description, $item);
 			$this->defaultFile->toRss($rss, $item);
 			$rss->createElement("guid", ["isPermaLink" => "false"], parent::getGuid(), $item);
@@ -39,7 +40,7 @@
 				$file->toRss($rss, $mediaGroup);
 			$rss->createElement("media:player", ["url" => $this->getYouTubeEmbedUrl()], null, $rss->createElement("media:content", ["lang" => "en", "medium" => "video"], null, $mediaGroup));
 			$rss->createElement("media:keywords", [], implode(", ", $this->keywords), $item);
-			$rss->createElement("media:thumbnail", ["url" => parent::getYouTubeThumbnail()]);
+			$rss->createElement("media:thumbnail", ["url" => parent::getYouTubeThumbnail()], null, $item);
 			$rss->createElement("media:title", ["type" => "plain"], $this->title, $item);
 		}
 	}

@@ -168,7 +168,7 @@
 		// move file using S3
 		$s3 = new \Aws\S3\S3Client(["region" => "us-east-1", "version" => "latest"]);
 		$s3->putObjectAsync(["ACL" => ACL, "Bucket" => BUCKET, "ContentType" => $mimeType, "Key" => KEY . $fileName, "SourceFile" => $tempFilePath, "StorageClass" => STORAGE_CLASS])
-			->then(function () use ($tempFilePath): void {
+			->then(function () use ($tempFilePath, $fileName, $fileNameBase): void {
 				unlink($tempFilePath);
 				$transcoder = \Aws\ElasticTranscoder\ElasticTranscoderClient::factory(["region" => "us-east-1", "version" => "latest"]);
 				$job = $transcoder->createJob([

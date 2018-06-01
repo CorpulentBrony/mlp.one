@@ -5,9 +5,9 @@
 	<url>
 		<changefreq>weekly</changefreq>
 		<image:image>
-			<image:caption><!--# echo var="siteDescription" --></image:caption>
-			<image:loc><!--# echo var='siteImage' --></image:loc>
-			<image:title><!--# echo var="siteTitle" --></image:title>
+			<image:caption>Some anons from /mlp/ get together to discuss the show, fandom, and for general bants. Please be patient, we have autism.</image:caption>
+			<image:loc>https://mlp.one/podcast/mlpodcast.png</image:loc>
+			<image:title>/mlp/odcast banner</image:title>
 		</image:image>
 		<lastmod><!--# echo var="date_local" --></lastmod>
 		<loc>https://<!--# echo var="host" -->/</loc> 

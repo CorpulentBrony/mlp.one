@@ -1,59 +1,37 @@
 @charset "utf-8";
-@import "colors";
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500");
 
-$mdc-theme-background: $twi-body-fill-shadow;
-$mdc-theme-surface: $twi-body-fill;
-$mdc-theme-primary: $twi-hair-primary;
-$mdc-theme-secondary: $twi-hair-highlight-purple;
-$mdc-theme-on-surface: $twi-hair-primary;
-$mdc-theme-on-primary: $twi-hair-highlight-pink;
-$mdc-theme-on-secondary: $twi-eye-highlight-light;
-$typography-default-coloring: (color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54)), fill: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54)));
-$mdc-typography-styles-body2: $typography-default-coloring;
-$mdc-typography-styles-caption: $typography-default-coloring;
-$mdc-typography-styles-subtitle2: $typography-default-coloring;
-
+@import "colors";
+@import "common";
 @import "@material/button/mdc-button";
 @import "@material/card/mdc-card";
-@import "@material/drawer/mdc-drawer";
 @import "@material/elevation/mdc-elevation";
-@import "@material/list/mdc-list";
 @import "@material/menu/mdc-menu";
 @import "@material/snackbar/mdc-snackbar";
-@import "@material/theme/mdc-theme";
-@import "@material/top-app-bar/mdc-top-app-bar";
 @import "@material/typography/mdc-typography";
 @import "audio";
+@import "mdc-drawer";
+@import "mdc-list";
+@import "mdc-theme";
+@import "mdc-top-app-bar";
 
 $background-width: 70%;
 $card-item-elevation: 4;
-$main-padding: $mdc-top-app-bar-row-height / 4;
 $main-width: 50%;
 $media-width-phone: 768px;
 $media-width-tablet: 1024px;
 
-%disable-user-select {
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	user-select: none;
-}
+%card-item-elevated { @include mdc-elevation($card-item-elevation); }
 
 :root {
 	--background-position-x: right;
 	--main-width: #{$main-width};
-	--mdc-theme-text-primary-on-background: #{$mdc-theme-primary};
-	--mdc-theme-text-icon-on-background: #{$mdc-theme-primary};
-	--mdc-theme-text-secondary-on-background: #{$mdc-theme-secondary};
 
 	@media only screen and (max-width: $media-width-tablet) {
 		--background-position-x: center;
-		--main-width: 90%;//calc(95vw - #{2 * $main-padding});
+		--main-width: 90%;//calc(95vw - #{2 * $top-app-bar-padding});
 	}
 }
-
-%card-item-elevated { @include mdc-elevation($card-item-elevation); }
 
 body {
 	margin: 0;
@@ -63,23 +41,9 @@ footer nav ul {
 	margin: 0;
 	padding: 0;
 }
-header.mdc-top-app-bar {
-	@include mdc-top-app-bar-ink-color($mdc-theme-on-primary);
-	z-index: 999;
-
-	.mdc-top-app-bar {
-		&__action-item, &__navigation-icon { will-change: inherit; }
-		&__title a {
-			color: inherit;
-			text-decoration: inherit;
-			
-			&:before { content: var(--title-prefix-text); }
-		}
-	}
-}
 html { background-color: $mdc-theme-background; }
 main {
-	padding: $mdc-top-app-bar-row-height + $main-padding $main-padding $main-padding;
+	padding: $mdc-top-app-bar-row-height + $top-app-bar-padding $top-app-bar-padding $top-app-bar-padding;
 	width: var(--main-width);
 
 	article.mdc-card {
@@ -135,33 +99,6 @@ main {
 	}
 	h1 { color: $mdc-theme-primary; }
 }
-.mdc-drawer {
-	.mdc-list-item__text { @extend %disable-user-select; }
-	&__drawer {
-		padding-bottom: $mdc-top-app-bar-row-height;
-	}
-	&--temporary.mdc-drawer--open::before {
-		-webkit-backdrop-filter: blur(2px);
-		backdrop-filter: blur(2px);
-		background-color: $mdc-theme-secondary;
-		opacity: 0.6;
-	}
-}
-.mdc-list {
-	padding: 0;
-
-	&-group__subheader {
-		margin: 0;
-
-		a { width: 100%; }
-		.mdc-list-item { font-size: 1.5rem; }
-	}
-	&-item a {
-		color: inherit;
-		text-decoration: none;
-		width: 100%;
-	}
-}
 .mdc-menu {
 	.mdc-list { @extend .mdc-list; }
 }
@@ -170,7 +107,6 @@ main {
 
 	.mdc-snackbar__text { color: $mdc-theme-on-primary; }
 }
-.mdc-top-app-bar__title { @extend %disable-user-select; }
 
 #mlp-img-bg {
 	bottom: 0;

@@ -1,0 +1,7 @@
+@import "@material/theme/mdc-theme";
+
+:root {
+	--mdc-theme-text-primary-on-background: #{$mdc-theme-primary};
+	--mdc-theme-text-icon-on-background: #{$mdc-theme-primary};
+	--mdc-theme-text-secondary-on-background: #{$mdc-theme-secondary};
+}

@@ -1,0 +1,17 @@
+@import "@material/list/mdc-list";
+
+.mdc-list {
+	padding: 0;
+
+	&-group__subheader {
+		margin: 0;
+
+		a { width: 100%; }
+		.mdc-list-item { font-size: 1.5rem; }
+	}
+	&-item a {
+		color: inherit;
+		text-decoration: none;
+		width: 100%;
+	}
+}

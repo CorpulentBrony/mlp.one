@@ -3,7 +3,7 @@
 	require_once "../include/utility.inc.php";
 
 	const DATE_DISPLAY_FORMAT = "l, F j<\s\u\p>S</\s\u\p>, Y";
-	$description = str_replace("\n", " ", $this->episode->description);
+	$description = str_replace("\n", " ", (strlen($this->episode->description) > 300) ? substr($this->episode->description, 0, 299) . "&hellip;" : $this->episode->description);
 	$thisEpisodeNumber = strval($this->episode->number);
 	// $episodeFullTitle = "{$_SERVER["SITE_TITLE"]} #" . $thisEpisodeNumber . " - {$this->episode->title}";
 	$episodeFullTitle = "{$this->episode->title} - {$_SERVER["SITE_TITLE"]}";
@@ -14,9 +14,10 @@
 	$nextEpisodeNumber = $this->getNextEpisodeNumber();
 	$previousEpisodeNumber = $this->getPreviousEpisodeNumber();
 	$publishDateIsoFormat = $this->episode->publishDate->format("Y-m-d");
-	$requestUrl = $this->getRequestUrl();
+	$requestUrl = $this->getRequestUrl(RequestType::HTML);
 	$requestUrlMp3 = $this->getRequestUrl(RequestType::MP3);
 	$requestUrlOgg = $this->getRequestUrl(RequestType::OGG);
+	$youTubeThumbnail = $this->episode->getYouTubeThumbnail();
 	$youTubeUrl = $this->episode->getYouTubeUrl();
 	http_response_code(200);
 	header("Content-Type: {$this->mimeType}");
@@ -35,7 +36,7 @@
 		<!-- <link as="audio" href="/ep/<?= $thisEpisodeNumber ?>.mp3" rel="prefetch" type="audio/mpeg"> -->
 		<!--# include file="/common_header_base.html" -->
 		<link href="<?= $requestUrl ?>" rel="canonical self" type="text/html">
-		<meta content="<?= $this->episode->getYouTubeThumbnail() ?>" id="microdata-thumbnail" itemprop="image thumbnailUrl" name="twitter:image" property="og:image">
+		<meta content="<?= $youTubeThumbnail ?>" id="microdata-thumbnail" itemprop="image thumbnailUrl" name="twitter:image" property="og:image">
 		<meta content="1280" property="og:image:width">
 		<meta content="720" property="og:image:height">
 		<meta content="image/png" property="og:image:type">
@@ -46,6 +47,29 @@
 		<meta content="<?= $keywords ?>" itemprop="keywords" name="keywords">
 		<meta content="<?= $episodeFullTitle ?>" name="twitter:title">
 		<meta content="<?= $description ?>" name="twitter:description">
+		<script type="application/ld+json">
+			{
+				"@context": "http://schema.org",
+				"@type": "BreadcrumbList",
+				"itemListElement": [{
+					"@type": "ListItem",
+					"position": 1,
+					"item": {
+						"@id": "<?= $_SERVER["REQUEST_SCHEME"] ?>://<?= $_SERVER["HTTP_HOST"] ?>/",
+						"image": "https:<?= $_SERVER["SITE_IMAGE"] ?>",
+						"name": "<?= $_SERVER["SITE_TITLE"] ?>"
+					}
+				}, {
+					"@type": "ListItem",
+					"position": 2,
+					"item": {
+						"@id": "<?= $requestUrl ?>",
+						"image": "<?= $this->getRequestUrl(RequestType::JPG) ?>",
+						"name": "<?= $episodeFullTitle ?>"
+					}
+				}]
+			}
+		</script>
 		<script src="<?= $thisEpisodeNumber ?>.jsonld" type="application/ld+json"></script>
 		<title><?= $episodeFullTitle ?></title>
 		<script async defer nomodule src="/js/output.js"></script>
@@ -60,6 +84,7 @@
 
 			html::selection { background: var(--mdc-theme-secondary); }
 			html::-moz-selection { background: var(--mdc-theme-secondary); }
+			.mdc-drawer { left: -10000px; }
 		</style>
 	</head>
 	<body class="mdc-typography">
@@ -76,7 +101,7 @@
 					<button aria-haspopup="menu" class="mdc-top-app-bar__navigation-icon" type="button">
 						<?= \Mlp\getSvg("../material-design-icons/navigation/svg/production/ic_menu_24px.svg", ["aria-label" => "Show the episode menu", "title" => "Show Menu"]) ?>
 					</button>
-					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>"><a href="/" rel="index" title="<?= $_SERVER["SITE_TITLE"] ?>"></a> #<span id="microdata-episode-number" itemprop="episodeNumber position"><?= $thisEpisodeNumber ?></span> - <?= $this->episode->title ?></data>
+					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>"><a href="/" rel="home index" title="<?= $_SERVER["SITE_TITLE"] ?>"></a> #<span id="microdata-episode-number" itemprop="episodeNumber position"><?= $thisEpisodeNumber ?></span> - <?= $this->episode->title ?></data>
 				</section>
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
 					<a class="mdc-top-app-bar__action-item" href="<?= $youTubeUrl ?>" rel="external noopener" target="_blank" type="text/html">
@@ -88,15 +113,6 @@
 				</section>
 			</div>
 		</header>
-		<aside class="mdc-drawer mdc-drawer--temporary">
-			<div class="mdc-drawer__toolbar-spacer" role="separator"></div>
-			<nav aria-hidden="true" class="mdc-drawer__drawer" role="menu">
-				<h3 class="mdc-list-group__subheader"><a class="mdc-list-item" href="/" rel="index" role="menuitem" title="<?= $_SERVER["SITE_TITLE"] ?>">/mlp/odcast</a></h3>
-				<ul class="mdc-drawer__content mdc-list">
-					<!--# include virtual="/api/podcast-html-list.php" -->
-				</ul>
-			</nav>
-		</aside>
 		<main>
 			<article itemid="<?= $guid ?>" itemref="microdata-episode-number microdata-head" itemscope itemtype="http://schema.org/RadioEpisode" class="mdc-card">
 				<data itemprop="isAccessibleForFree" value="true"></data>
@@ -247,9 +263,19 @@
 				<span content="en" itemprop="inLanguage"></span>
 			</span>
 		</main>
+		<aside class="mdc-drawer mdc-drawer--temporary">
+			<div class="mdc-drawer__toolbar-spacer" role="separator"></div>
+			<nav aria-hidden="true" class="mdc-drawer__drawer" role="menu">
+				<h3 class="mdc-list-group__subheader"><a class="mdc-list-item" href="/" rel="home index" role="menuitem" title="<?= $_SERVER["SITE_TITLE"] ?>"><?= $_SERVER["SITE_TITLE"] ?></a></h3>
+				<ul class="mdc-drawer__content mdc-list">
+					<!--# include virtual="/api/podcast-html-list.php" -->
+				</ul>
+			</nav>
+		</aside>
 		<aside aria-hidden="true" class="mdc-snackbar mdc-snackbar--align-start" role="alert">
 			<div class="mdc-snackbar__text mdc-typography--subtitle2"></div>
 			<div class="mdc-snackbar__action-wrapper"><button class="mdc-snackbar__action-button" type="button"></button></div>
 		</aside>
+		<!--# include file="/common_footer.html" -->
 	</body>
 </html>

@@ -1,0 +1,21 @@
+@import "@material/top-app-bar/mdc-top-app-bar";
+@import "common";
+
+$top-app-bar-padding: $mdc-top-app-bar-row-height / 4;
+
+.mdc-top-app-bar {
+	@include mdc-top-app-bar-ink-color($mdc-theme-on-primary);
+	z-index: 999;
+
+	&__action-item, &__navigation-icon { will-change: inherit; }
+	&__title {
+		@extend %disable-user-select;
+
+		a {
+			color: inherit;
+			text-decoration: inherit;
+			
+			&:before { content: var(--title-prefix-text); }
+		}
+	}
+}

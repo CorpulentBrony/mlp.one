@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet exclude-result-prefixes="atom creativeCommons dcterms itunes media" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:creativeCommons="http://blogs.law.harvard.edu/tech/creativeCommonsRssModule" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:media="http://search.yahoo.com/mrss/" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-	<xsl:strip-space elements="*" />
-	<xsl:output media-type="text/html" method="html" indent="yes" omit-xml-declaration="yes" />
+	<!-- <xsl:strip-space elements="*" /> -->
+	<xsl:output media-type="text/html;charset=UTF-8" method="html" indent="yes" omit-xml-declaration="yes" />
 	<xsl:template match="/rss/channel">
 		<xsl:variable name="createdDate">2017-11-10T00:00:00+0000</xsl:variable>
 		<xsl:variable name="description"><xsl:call-template name="escape-quotes"><xsl:with-param name="text" select="description" /></xsl:call-template></xsl:variable>
@@ -63,11 +63,22 @@
 						<xsl:sort select="itunes:episode" data-type="number" order="descending" />
 						<xsl:variable name="enclosureUrl">https://<xsl:value-of select="substring-after(enclosure/@url, 'http://')" /></xsl:variable>
 						<xsl:variable name="episodeDescription">
-							<xsl:call-template name="escape-quotes"><xsl:with-param name="text" select="description" /></xsl:call-template>
+							<xsl:call-template name="escape-quotes">
+								<xsl:with-param name="text">
+									<xsl:call-template name="insert-breaks">
+										<xsl:with-param name="text">
+											<xsl:choose>
+												<xsl:when test="string-length(description) &gt; 300"><xsl:value-of select="concat(substring(description, 1, 299), '&#8230;')" /></xsl:when>
+												<xsl:otherwise><xsl:value-of select="description" /></xsl:otherwise>
+											</xsl:choose>
+										</xsl:with-param>
+									</xsl:call-template>
+								</xsl:with-param>
+							</xsl:call-template>
 						</xsl:variable>
 						<xsl:variable name="episodeName"><xsl:call-template name="escape-quotes"><xsl:with-param name="text" select="title" /></xsl:call-template></xsl:variable>
 						<xsl:variable name="filePublishedDate"><xsl:call-template name="FormatDateTime"><xsl:with-param name="DateTime" select="pubDate" /></xsl:call-template></xsl:variable>
-						<xsl:variable name="thumbnailUrl">https://img.youtube.com/vi/<xsl:value-of select="substring-after(link, 'watch?v=')" />/maxresdefault.jpg</xsl:variable>
+						<xsl:variable name="thumbnailUrl">https://img.youtube.com/vi/<xsl:value-of select="substring-after(link, 'watch?v=')" />maxresdefault.jpg</xsl:variable>
 						<xsl:if test="position() != 1">,</xsl:if>
 						{
 							"@type": "ListItem",
@@ -145,12 +156,13 @@
 								"url": "<xsl:value-of select="../link" />/#episode-<xsl:value-of select="itunes:episode" />",
 								"video": {
 									"@type": "VideoObject",
-									"@id": "<xsl:value-of select="link" />",
+									"@id": "<xsl:value-of select="comments" />",
 									"description": "<xsl:value-of select="$episodeDescription" />",
 									"embedUrl": "<xsl:value-of select="(media:group[1]/media:content[@medium='video'])[1]/media:player/@url" />",
 									"name": "<xsl:value-of select="$episodeName" />",
 									"thumbnailUrl": "<xsl:value-of select="$thumbnailUrl" />",
-									"url": "<xsl:value-of select="link" />"
+									"uploadDate": "<xsl:value-of select="$filePublishedDate" />",
+									"url": "<xsl:value-of select="comments" />"
 								}
 							}
 						}</xsl:for-each>
@@ -224,6 +236,15 @@
 			<xsl:with-param name="haystack" select="$text" />
 			<xsl:with-param name="needle">&quot;</xsl:with-param>
 			<xsl:with-param name="replacement">\&quot;</xsl:with-param>
+		</xsl:call-template>
+	</xsl:template>
+	<xsl:template name="insert-breaks">
+		<xsl:param name="text" />
+
+		<xsl:call-template name="replace">
+			<xsl:with-param name="haystack" select="$text" />
+			<xsl:with-param name="needle">&#13;</xsl:with-param>
+			<xsl:with-param name="replacement">\n</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
 </xsl:stylesheet>
