@@ -2,26 +2,24 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500");
 
 @import "colors";
-@import "common";
+@import "placeholders";
 @import "@material/button/mdc-button";
 @import "@material/card/mdc-card";
 @import "@material/elevation/mdc-elevation";
 @import "@material/menu/mdc-menu";
 @import "@material/snackbar/mdc-snackbar";
 @import "@material/typography/mdc-typography";
-@import "audio";
 @import "mdc-drawer";
 @import "mdc-list";
 @import "mdc-theme";
 @import "mdc-top-app-bar";
 
 $background-width: 70%;
-$card-item-elevation: 4;
 $main-width: 50%;
 $media-width-phone: 768px;
 $media-width-tablet: 1024px;
 
-%card-item-elevated { @include mdc-elevation($card-item-elevation); }
+%card-item-elevated { @include mdc-elevation(4); }
 
 :root {
 	--background-position-x: right;
@@ -53,14 +51,6 @@ main {
 		&:before {
 			backdrop-filter: blur(10px);
 			filter: blur(20px);
-		}
-		audio {
-			padding-top: 0.4rem;
-			width: 100%;
-
-			&::-webkit-media-controls { @include mdc-elevation($card-item-elevation - 1); }
-			&::-moz-media-controls { @include mdc-elevation($card-item-elevation - 1); }
-			&::media-controls { @include mdc-elevation($card-item-elevation - 1); }
 		}
 		header {
 			padding: 1rem;

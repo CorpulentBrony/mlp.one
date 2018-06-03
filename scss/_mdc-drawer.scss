@@ -2,7 +2,7 @@
 @import "@material/drawer/mdc-drawer";
 @import "mdc-list";
 @import "mdc-top-app-bar";
-@import "common";
+@import "placeholders";
 
 .mdc-drawer {
 	.mdc-list-item__text { @extend %disable-user-select; }

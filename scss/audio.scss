@@ -1,6 +1,8 @@
 @charset "utf-8";
 @import "colors";
+@import "@material/elevation/mdc-elevation";
 
+$card-item-elevation: 4;
 $mdc-theme-on-secondary: #000 !default;
 $mdc-theme-secondary: adjust-color($twi-eye-gradient-mid, $alpha: -0.6) !default;
 $media-controls-active-cursor: pointer;
@@ -33,15 +35,14 @@ $media-controls-active-cursor: pointer;
 // 	background-image: -webkit-image-set(url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNiAxOWg0VjVINnYxNHptOC0xNHYxNGg0VjVoLTR6IiBmaWxsPSIjYzlhYWQwIi8+PC9zdmc+") 1x);
 // 	fill: $mdc-theme-on-secondary;
 // }
-
 audio {
-	// color: $mdc-theme-on-secondary;
 	display: block;
-	// fill: $mdc-theme-on-secondary;
-	// -webkit-text-fill-color: $mdc-theme-on-secondary;
-	// text-fill-color: $mdc-theme-on-secondary;
+	padding-top: 0.4rem;
 	width: 100%;
 
+	&::-webkit-media-controls { @include mdc-elevation($card-item-elevation - 1); }
+	&::-moz-media-controls { @include mdc-elevation($card-item-elevation - 1); }
+	&::media-controls { @include mdc-elevation($card-item-elevation - 1); }
 	&::-internal-media-controls-download-button { cursor: $media-controls-active-cursor; }
 }
 input[pseudo="-webkit-media-controls-timeline" i]::-internal-track-segment-highlight-after { background-color: $mdc-theme-secondary; }

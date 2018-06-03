@@ -7,15 +7,15 @@
 			<xsl:sort select="itunes:episode" data-type="number" order="descending" />
 			<xsl:variable name="enclosureUrl">https://<xsl:value-of select="substring-after(enclosure/@url, 'http://')" /></xsl:variable>
 			<li value="{itunes:episode}">
-				<h3 role="heading"><a href="/ep/{itunes:episode}">Episode&#160;<xsl:value-of select="itunes:episode" /></a>:</h3>
+				<h6 role="heading"><a href="/ep/{itunes:episode}">Episode&#160;<xsl:value-of select="itunes:episode" /></a>:</h6>
 				<details id="episode-{itunes:episode}" name="episode-{itunes:episode}">
 					<xsl:if test="position()=1">
 						<xsl:attribute name="open"><xsl:text>true</xsl:text></xsl:attribute>
 					</xsl:if>
 					<summary>
-						<h3>
+						<h6>
 							<data value="{itunes:episode}"><xsl:value-of select="title" /></data>
-						</h3>
+						</h6>
 					</summary>
 					<a href="{link}" itemprop="significantLink" rel="external noopener replies" target="_blank" title="Watch this episode on YouTube">
 						<img alt="Watch this episode on YouTube" src="/image/youtube.svg" type="image/svg+xml" />

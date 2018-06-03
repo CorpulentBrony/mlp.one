@@ -2,16 +2,14 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500");
 
 @import "colors";
-@import "@material/typography/mdc-typography";
 @import "mdc-drawer";
 @import "mdc-list";
 @import "mdc-theme";
 @import "mdc-top-app-bar";
 
 body {
-	@extend %background-gradient;
+	@include mlp-background-gradient;
 	color: $mdc-theme-primary;
 	margin: 0;
 }
-dt { @include mdc-typography(headline6); }
-h1 { margin: 0; }
+h1, h2, h3, h4, h5, h6 { margin: 0; }

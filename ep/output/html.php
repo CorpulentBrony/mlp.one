@@ -100,6 +100,7 @@
 	</head>
 	<body class="mdc-typography">
 		<noscript id="deferred-stylesheets">
+			<link href="/css/audio.css" rel="stylesheet" type="text/css">
 			<link href="/css/output.css" rel="stylesheet" type="text/css">
 		</noscript>
 		<picture>
