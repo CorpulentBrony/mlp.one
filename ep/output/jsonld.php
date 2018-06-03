@@ -33,8 +33,8 @@
 		"keywords" => implode(", ", $this->episode->keywords),
 		"license" => "https://donutsteel.pl",
 		"name" => $this->episode->title,
-		"partOfSeason" => ["@id" => "tag:mlp.one,2018:/mlp/odcast?season=1", "@type" => "RadioSeason"],
-		"partOfSeries" => ["@id" => "tag:mlp.one,2018:/mlp/odcast", "@type" => "RadioSeries"],
+		"partOfSeason" => ["@id" => "{$_SERVER["PODCAST_TAG"]}?season=1", "@type" => "RadioSeason"],
+		"partOfSeries" => ["@id" => "{$_SERVER["PODCAST_TAG"]}", "@type" => "RadioSeries"],
 		"position" => $this->episode->number,
 		"potentialAction" => [[
 			"@type" => "ListenAction",

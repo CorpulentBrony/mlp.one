@@ -1,7 +1,10 @@
+@import "colors";
 @import "@material/top-app-bar/mdc-top-app-bar";
 @import "common";
 
 $top-app-bar-padding: $mdc-top-app-bar-row-height / 4;
+
+main { padding: $mdc-top-app-bar-row-height + $top-app-bar-padding $top-app-bar-padding $top-app-bar-padding; }
 
 .mdc-top-app-bar {
 	@include mdc-top-app-bar-ink-color($mdc-theme-on-primary);

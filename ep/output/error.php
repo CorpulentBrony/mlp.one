@@ -1,7 +1,7 @@
 <?php
 	namespace Mlp\Ep;
 	$errorImage = "https://mlp.one/404.png";
-	$errorMessage = "Sorry pardner, I may be a silly pony but even I reckon when I's lost.  Yee haw.";
+	$errorMessage = "Sorry pardner, I may be a silly pony but even I reckons when I's lost.  Yee haw.";
 	$errorTitle = "Silly Pony is Lost";
 	http_response_code(404);
 	header("Content-Type: text/html");

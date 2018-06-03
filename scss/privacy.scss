@@ -15,4 +15,3 @@ body {
 }
 dt { @include mdc-typography(headline6); }
 h1 { margin: 0; }
-main { padding: $mdc-top-app-bar-row-height + $top-app-bar-padding $top-app-bar-padding $top-app-bar-padding; }

@@ -18,7 +18,7 @@
 	"orientation": "any",
 	"related_applications": [{
 		"platform": "web",
-		"url": "https://<!--# echo var='host' -->"
+		"url": "https://<!--# echo var='host' -->/"
 	}],
 	"scope": "/",
 	"start_url": "/",

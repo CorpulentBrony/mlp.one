@@ -1,9 +1,9 @@
 {
-	"@context": "https://schema.org",
+	"@context": "http://schema.org",
 	"@type": "Organization",
 	"image": "https://podcast.mlp.one/%252Fmlp%252F.jpg",
 	"logo": "https://podcast.mlp.one/%252Fmlp%252F.jpg",
-	"name": "/mlp/odcast",
+	"name": "<!--# echo var="siteTitle"-->",
 	"sameAs": "https://www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg",
-	"url": "https://mlp.one"
+	"url": "https://<!--# echo var="host" -->/"
 }

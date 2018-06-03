@@ -1,7 +1,10 @@
+<style type="text/css">
+	.mdc-drawer { left: -10000px; }
+	.mdc-drawer--animating, .mdc-drawer--open { left: 0; }
+</style>
 <aside class="mdc-drawer mdc-drawer--temporary">
 	<div class="mdc-drawer__toolbar-spacer" role="separator"></div>
 	<nav aria-hidden="true" class="mdc-drawer__drawer" role="menu">
-		<h3 class="mdc-list-group__subheader"><a class="mdc-list-item" href="/" rel="index" role="menuitem" title="<!--# echo var="siteTitle" -->"><!--# echo var="siteTitle" --></a></h3>
 		<ul class="mdc-drawer__content mdc-list">
 			<!--# include virtual="/api/podcast-html-list.php" -->
 		</ul>

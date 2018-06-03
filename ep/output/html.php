@@ -5,7 +5,6 @@
 	const DATE_DISPLAY_FORMAT = "l, F j<\s\u\p>S</\s\u\p>, Y";
 	$description = str_replace("\n", " ", (strlen($this->episode->description) > 300) ? substr($this->episode->description, 0, 299) . "&hellip;" : $this->episode->description);
 	$thisEpisodeNumber = strval($this->episode->number);
-	// $episodeFullTitle = "{$_SERVER["SITE_TITLE"]} #" . $thisEpisodeNumber . " - {$this->episode->title}";
 	$episodeFullTitle = "{$this->episode->title} - {$_SERVER["SITE_TITLE"]}";
 	$filePathInfo = pathinfo($this->episode->defaultFile->name);
 	$fileUrl = str_ireplace("http://", "https://", $this->episode->defaultFile->url);
@@ -27,6 +26,7 @@
 		<!-- preconnects -->
 		<link href="//fonts.googleapis.com" rel="preconnect">
 		<link href="//fonts.gstatic.com" rel="preconnect">
+		<link href="//stats.g.doubleclick.net" rel="preconnect">
 		<link href="//www.google-analytics.com" rel="preconnect">
 		<!-- preloads -->
 		<link as="image" href="//www.gstatic.com/psa/static/1.gif" rel="preload" type="image/gif">
@@ -34,7 +34,19 @@
 		<link as="style" href="//fonts.googleapis.com/css?family=Roboto:300,400,500" rel="preload" type="text/css">
 		<!-- prefetches -->
 		<!-- <link as="audio" href="/ep/<?= $thisEpisodeNumber ?>.mp3" rel="prefetch" type="audio/mpeg"> -->
-		<!--# include file="/common/header_base.html" -->
+		<!-- modules -->
+		<link href="/module/output.js" rel="modulepreload">
+		<link href="/module/ComponentHandler.js" rel="modulepreload">
+		<link href="/module/Cache.js" rel="modulepreload">
+		<link href="/module/Drawer.js" rel="modulepreload">
+		<link href="/module/MenuComponentHandler.js" rel="modulepreload">
+		<link href="/module/MoreFormatsMenu.js" rel="modulepreload">
+		<link href="/module/ShareMenu.js" rel="modulepreload">
+		<link href="/module/Snackbar.js" rel="modulepreload">
+		<link href="/module/ToggleableComponentHandler.js" rel="modulepreload">
+		<link href="/module/TopAppBar.js" rel="modulepreload">
+		<link href="/module/util.js" rel="modulepreload">
+		<?= file_get_contents("../common/header_base.html") ?>
 		<link href="<?= $requestUrl ?>" rel="canonical self" type="text/html">
 		<meta content="<?= $youTubeThumbnail ?>" id="microdata-thumbnail" itemprop="image thumbnailUrl" name="twitter:image" property="og:image">
 		<meta content="1280" property="og:image:width">
@@ -84,7 +96,6 @@
 
 			html::selection { background: var(--mdc-theme-secondary); }
 			html::-moz-selection { background: var(--mdc-theme-secondary); }
-			.mdc-drawer { left: -10000px; }
 		</style>
 	</head>
 	<body class="mdc-typography">
@@ -101,7 +112,10 @@
 					<button aria-haspopup="menu" class="mdc-top-app-bar__navigation-icon" type="button">
 						<?= \Mlp\getSvg("../material-design-icons/navigation/svg/production/ic_menu_24px.svg", ["aria-label" => "Show the episode menu", "title" => "Show Menu"]) ?>
 					</button>
-					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>"><a href="/" rel="home index" title="<?= $_SERVER["SITE_TITLE"] ?>"></a> #<span id="microdata-episode-number" itemprop="episodeNumber position"><?= $thisEpisodeNumber ?></span> - <?= $this->episode->title ?></data>
+					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>">
+						<a href="/" rel="home index" title="<?= $_SERVER["SITE_TITLE"] ?>"></a> #
+						<span id="microdata-episode-number" itemprop="episodeNumber position"><?= $thisEpisodeNumber ?></span> - <?= $this->episode->title ?>
+					</data>
 				</section>
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
 					<a class="mdc-top-app-bar__action-item" href="<?= $youTubeUrl ?>" rel="external noopener" target="_blank" type="text/html">
@@ -117,8 +131,8 @@
 			<article itemid="<?= $guid ?>" itemref="microdata-episode-number microdata-head" itemscope itemtype="http://schema.org/RadioEpisode" class="mdc-card">
 				<data itemprop="isAccessibleForFree" value="true"></data>
 				<link href="https://donutsteel.pl" itemprop="license">
-				<span itemid="tag:mlp.one,2018:/mlp/odcast?season=1" itemprop="partOfSeason" itemscope itemtype="http://schema.org/RadioSeason"></span>
-				<span itemid="tag:mlp.one,2018:/mlp/odcast" itemprop="partOfSeries" itemscope itemtype="http://schema.org/RadioSeries"></span>
+				<span itemid="<?= $_SERVER["PODCAST_TAG"] ?>?season=1" itemprop="partOfSeason" itemscope itemtype="http://schema.org/RadioSeason"></span>
+				<span itemid="<?= $_SERVER["PODCAST_TAG"] ?>" itemprop="partOfSeries" itemscope itemtype="http://schema.org/RadioSeries"></span>
 				<!-- <section class="mdc-card__media mdc-card__media--16-9"></section> -->
  				<audio aria-label="Embedded audio player to listen to a stream of this episode" controls controlslist="nodownload" id="mlp-audio-element" preload="metadata">
  					<source src="<?= $thisEpisodeNumber ?>.ogg" type="audio/ogg">
@@ -263,11 +277,11 @@
 				<span content="en" itemprop="inLanguage"></span>
 			</span>
 		</main>
-		<!--# include file="/common/drawer.html" -->
+		<?= file_get_contents("../common/drawer.html") ?>
 		<aside aria-hidden="true" class="mdc-snackbar mdc-snackbar--align-start" role="alert">
 			<div class="mdc-snackbar__text mdc-typography--subtitle2"></div>
 			<div class="mdc-snackbar__action-wrapper"><button class="mdc-snackbar__action-button" type="button"></button></div>
 		</aside>
-		<!--# include file="/common/footer.html" -->
+		<?= file_get_contents("../common/footer.html") ?>
 	</body>
 </html>
