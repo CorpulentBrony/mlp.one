@@ -1,0 +1,41 @@
+@function mlp-strip-unit($value) {
+	@return $value / ($value * 0 + 1);
+}
+
+@mixin mlp-background-gradient {
+	& {
+		background-attachment: fixed;
+		background-color: $mdc-theme-background;
+		background-image: linear-gradient(135deg, $mdc-theme-background 50%, $twi-body-stroke);
+		background-size: 100vw 100vh;
+	}
+}
+
+@mixin mlp-disable-user-select {
+	& {
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		user-select: none;
+	}
+}
+
+// all parameters should be given in px
+@mixin mlp-fluid-type($min-width, $max-width, $min-font-size, $max-font-size) {
+	$line-height-addition: 8px;
+	& {
+		$font-size-delta: mlp-strip-unit($max-font-size - $min-font-size);
+		$width-delta: mlp-strip-unit($max-width - $min-width);
+		font-size: $min-font-size;
+		line-height: $min-font-size + $line-height-addition;
+
+		@media screen and (min-width: $min-width) {
+			font-size: calc(#{$min-font-size} + #{$font-size-delta} * ((100vw - #{$min-width}) / #{$width-delta}));
+			line-height: calc(#{$min-font-size + $line-height-addition} + #{$font-size-delta} * ((100vw - #{$min-width}) / #{$width-delta}));
+		}
+		@media screen and (min-width: $max-width) {
+			font-size: $max-font-size;
+			line-height: $max-font-size + $line-height-addition;
+		}
+	}
+}

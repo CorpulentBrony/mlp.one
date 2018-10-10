@@ -1,7 +1,7 @@
 #!/bin/bash
 
-## use --style compressed if you want
-find "scss/" -maxdepth 1 -name "[a-z]*.scss" -type f -exec sh -c 'scss --style expanded --load-path material-components-web/packages/material-components-web/node_modules --default-encoding UTF-8 "{}" css/$(basename "{}" ".scss").css' \;
+## use --style compressed or expanded
+find "scss/" -maxdepth 1 -name "[a-z]*.scss" -type f -exec sh -c 'scss --style expanded --load-path node_modules --default-encoding UTF-8 "{}" css/$(basename "{}" ".scss").css' \;
 
 ## since pagespeed rewrites these files, it gets upset if they are already encoded and it hasn't cached them yet
 #brotli -f css/*.css

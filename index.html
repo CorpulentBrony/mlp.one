@@ -1,113 +1,49 @@
 <!DOCTYPE html>
 <html itemid="https://<!--# echo var='host' --><!--# echo var='request_uri' -->" itemscope itemtype="http://schema.org/WebPage" lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
 	<head>
+		<meta charset="utf-8">
+		<link href="https://<!--# echo var='host' -->/" rel="canonical self" type="text/html">
 		<!-- preconnects -->
 		<link href="//fonts.googleapis.com" rel="preconnect">
 		<link href="//fonts.gstatic.com" rel="preconnect">
 		<link href="//stats.g.doubleclick.net" rel="preconnect">
 		<link href="//www.google-analytics.com" rel="preconnect">
 		<!-- preloads -->
-		<link as="image" href="//www.gstatic.com/psa/static/1.gif" rel="preload" type="image/gif">
-		<link as="script" href="//www.google-analytics.com/analytics.js" rel="preload" type="application/javascript">
 		<link as="style" href="//fonts.googleapis.com/css?family=Roboto:300,400,500" rel="preload" type="text/css">
-		<!-- modules -->
-		<link href="/module/index.js" rel="modulepreload">
-		<link href="/module/common.js" rel="modulepreload">
-		<link href="/module/ComponentHandler.js" rel="modulepreload">
-		<link href="/module/Drawer.js" rel="modulepreload">
-		<link href="/module/ToggleableComponentHandler.js" rel="modulepreload">
-		<link href="/module/TopAppBar.js" rel="modulepreload">
-		<link href="/module/util.js" rel="modulepreload">
-		<link href="/js/mdc-bundle.js" rel="modulepreload">
-		<!--# include file="common/header.html" -->
-		<link href="http://api.mlp.one/podcast" rel="alternate" title="<!--# echo var='siteTitle' -->" type="application/rss+xml">
-		<meta content="<!--# echo var='siteTitle' -->" itemprop="headline name" name="title" property="og:title">
-		<meta content="<!--# echo var='siteDescription' -->" itemprop="description" name="description" property="og:description">
-		<meta content="<!--# echo var='siteKeywords' -->" itemprop="keywords" name="keywords">
+		<!--# include file="/common/common.js.html" -->
+		<!--# include file="/common/header.html" -->
+		<link href="//api.mlp.one/podcast" rel="alternate" title="<!--# echo var='siteTitle' -->" type="application/rss+xml">
+		<meta content="<!--# echo var='siteTitle' -->" name="title" property="og:title">
+		<meta content="<!--# echo var='siteTitle' -->" itemprop="headline name">
+		<meta content="<!--# echo var='siteDescription' -->" name="description" property="og:description">
+		<meta content="<!--# echo var='siteDescription' -->" itemprop="description">
+		<meta content="<!--# echo var='siteKeywords' -->" name="keywords">
+		<meta content="<!--# echo var='siteKeywords' -->" itemprop="keywords">
 		<meta content="<!--# echo var='siteTitle' -->" name="twitter:title">
 		<meta content="<!--# echo var='siteDescription' -->" name="twitter:description">
 		<meta content="dHG36go54Xk_JAAP9rulwG5SRO6FN2LYagwq3Fs0fvw" name="google-site-verification">
+		<meta content="F22D6FD9077AEB86C48E282176E51F9C" name="msvalidate.01">
 		<title><!--# echo var="siteTitle" --></title>
-		<script async defer nomodule src="/js/common.js"></script>
 		<script async defer nomodule src="/js/index.js"></script>
-		<script async src="/module/common.js" type="module"></script>
 		<script async src="/module/index.js" type="module"></script>
 		<!--# include virtual="/api/podcast-schema.php" -->
-		<style type="text/css">
-			@charset "utf-8";
-			audio { padding: 0.5rem 0; }
-			header > div {
-				margin: auto;
-				width: 50%;
-			}
-			img[itemprop=primaryImageOfPage] {
-				max-height: 50vh;
-				max-width: 100%;
-				object-fit: contain;
-				object-position: left;
-			}
-			section > div + div { margin-top: 1em; }
-			main > nav > ol {
-				display: table;
-				list-style-type: none;
-				margin: 0 0.5em;
-			}
-			main > nav > ol > li { display: table-row; }
-			main > nav > ol > li > h6 {
-				padding-right: 1ex;
-				text-align: right;
-			}
-			main > nav > ol > li > h6, main > nav > ol > li > details { display: table-cell; }
-			main > nav > ol > li > details > summary > h6 { display: inline; }
-			details > a > img {
-				height: 32px;
-				margin-right: 1em;
-				vertical-align: middle;
-				width: 32px;
-			}
-			details[open] { padding-bottom: 1em; }
-			summary:hover {
-				background: rgba(239, 79, 145, 0.2);
-				cursor: pointer;
-			}
-			h6 > a > data { font-style: italic; }
-			blockquote {
-				margin-bottom: 0;
-				margin-top: 0;
-			}
-			footer { display: table; }
-			footer > h5 { display: table-caption; }
-			footer > nav { display: table-row-group; }
-			footer > nav > ul {
-				display: table-row;
-				list-style: none;
-			}
-			footer > nav > ul > li {
-				display: table-cell;
-				padding: 0 5px;
-			}
+		<style>
+			/* this can be removed anytime after i rebuild index.scss */
+			header > div + div, header > h5 + div, header > div + h5 { margin-top: 1rem; }
 		</style>
 	</head>
 	<body>
 		<noscript id="deferred-stylesheets">
-			<link href="/css/audio.css" rel="stylesheet" type="text/css">
-			<link href="/css/common.css" rel="stylesheet" type="text/css">
-			<link href="/css/index.css" rel="stylesheet" type="text/css">
-			<link href="/css/typography.css" rel="stylesheet" type="text/css">
+			<link href="/css/card.css" rel="stylesheet">
+			<link href="/css/common.css" rel="stylesheet">
+			<link href="/css/index.css" rel="stylesheet">
 		</noscript>
+		<!--# include file="/common/background.html" -->
 		<!--# include file="/common/top_app_bar.html" -->
-		<main itemprop="mainContentOfPage" role="main">
-			<header>
-				<h3><!--# echo var="siteTitle" --></h3>
-				<div>
-					<picture>
-						<img alt="<!--# echo var='siteTitle' --> banner" itemprop="primaryImageOfPage" src="/podcast/mlpodcast.png" type="image/png">
-					</picture>
-				</div>
-				<!--# echo var="siteDescription" -->
-			</header>
-			<section>
-				<h5 role="heading">Listen Live</h5>
+		<main itemprop="mainContentOfPage">
+			<header class="mdc-card mlp-bg-overlay__index" role="main">
+				<h1>A podcast <span class="mlp-meme-text">for you</span></h1>
+				<h5>Listen Live <span aria-label="radio emoticon" role="img">📻</span></h5>
 				<div>
 					<span itemscope itemtype="http://schema.org/BroadcastEvent">
 						<link href="http://schema.org/EventScheduled" itemprop="eventStatus">
@@ -120,9 +56,8 @@
 						<span content="<!--# echo var='siteTitle' --> Weekly Live Stream" itemprop="name"></span>
 						<data itemprop="startDate" value="<!--# include file="next_podcast_date.txt" -->"></data>
 						<link href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg/live" itemprop="url">
-						<span itemprop="description">Every <time datetime="<!--# include file="next_podcast_date.txt" -->">Friday night around 10pm EST</time> we try to stream the podcast recording.</span>
+						<span itemprop="description">Every <time datetime="<!--# include file="next_podcast_date.txt" -->"><strong>Friday night</strong> around <strong>10pm EST <span aria-label="10 o'clock emoticon" role="img">🕙</span></strong></time> we usually stream the podcast recording.</span>
 					</span>
-					So, you know,  
 					<span itemprop="potentialAction" itemscope itemtype="http://schema.org/SubscribeAction">
 						<span content="PotentialActionStatus" itemprop="actionStatus"></span>
 						<span content="Subscribe to our YouTube channel" itemprop="name"></span>
@@ -130,13 +65,13 @@
 							<link href="http://schema.org/DesktopWebPlatform" itemprop="actionPlatform">
 							<link href="http://schema.org/MobileWebPlatform" itemprop="actionPlatform">
 							<span content="en" itemprop="inLanguage"></span>
-							<a href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg?sub_confirmation=1" itemprop="urlTemplate" rel="external noopener" target="_blank">subscribe to our YouTube channel</a> 
+							<strong><a href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg?sub_confirmation=1" itemprop="urlTemplate" rel="external noopener" target="_blank">Subscribe to our YouTube channel</a></strong> 
 						</span>
 						<link href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg?sub_confirmation=1" itemprop="url">
-					</span> if you want to be notified, or just come check out the channel around that time if you're bored and have nothing better to do on a Friday night.  I know that's basically everyone reading this right now.  Don't kid yourself.
+					</span> if you want to be notified, or just visit around that time if you're bored and have nothing better to do on a Friday night.  I know that's basically everyone reading this right now.  Don't kid yourself.
 				</div>
 				<div>
-					We also have a <a href="//discord.gg" rel="external noopener" target="_blank">Discord</a> server that you can 
+					We also have a <strong><a href="//discord.gg" rel="external noopener" target="_blank">Discord</a> server</strong> that you can 
 					<span itemprop="potentialAction" itemscope itemtype="http://schema.org/JoinAction">
 						<span content="PotentialActionStatus" itemprop="actionStatus"></span>
 						<span content="Join our Discord server" itemprop="name"></span>
@@ -147,52 +82,18 @@
 							<a href="http://discord.mlp.one" itemprop="urlTemplate" target="_blank">join right here</a> 
 						</span>
 						<link href="http://discord.mlp.one" itemprop="url">
-					</span> if you're bored and want to /soc/ialize with us or if you want to become one of the many anons on the podcast.
+					</span> if you're bored and want to /soc/ialize with us, join the podcast, or just be our friend.  <span class="mdc-typography--caption">Please we are really lonely and need friends.</span> <span aria-label="crying face emoticon" role="img">😢</span>
 				</div>
-			</section>
-			<nav>
-				<h5 id="season-1" name="season-1" role="heading">Episodes</h5>
-				<ol>
+				<h5>Listen to Past Episodes <span aria-label="videocassette emoticon" role="img">📼</span></h5>
+				<div>
+					Below is a list of all our recorded and edited podcasts.  We try to keep up with this, but they may be a week or two or three behind.  You can be notified whenever we release new episodes by <strong>subscribing to our <a href="//api.mlp.one/podcast" rel="noopener" target="_blank" type="application/rss+xml">RSS feed</a></strong> or using a podcast feed aggregator like <strong><a href="//playmusic.app.goo.gl/?ibi=com.google.PlayMusic&isi=691797987&ius=googleplaymusic&apn=com.google.android.music&link=https://play.google.com/music/m/Iwpkbfdp7sh2eoyspoloemepfiy?t%3D/mlp/odcast%26pcampaignid%3DMKT-na-all-co-pr-mu-pod-16" itemprop="sameAs" rel="external noopener" target="_blank">Google Play</a></strong>, <strong><a href="//itunes.apple.com/us/podcast/mlp-odcast/id1319420599" itemprop="sameAs" rel="external noopener" target="_blank">iTunes</a></strong>, or <strong><a href="http://stitcher.com/s?fid=159260&refid=stpr" itemprop="sameAs" rel="external noopener" target="_blank">Stitcher</a></strong>.  If you want us to post somewhere else, please <strong><a href="mailto:admin@mlp.one?subject=%2Fmlp%2Fodcast%20suggestion">let us know</a></strong>.
+				</div>
+			</header>
+			<section>
+				<nav aria-label="Episode list" id="season-1" name="season-1">
 					<!--# include virtual="/api/podcast-html.php" -->
-				</ol>
-			</nav>
-			<footer>
-				<h5 role="heading">Podcast URLs</h5>
-				<nav role="navigation">
-					<ul>
-						<li>
-							<a href="//www.youtube.com/playlist?list=PLpXLx1a_owv0xfz2JH8TEHcCLGBE2kfaX" itemprop="sameAs" rel="external noopener" target="_blank">
-								<img alt="Watch on YouTube" height="50" src="/image/youtube.svg" type="image/svg+xml">
-							</a>
-						</li>
-						<li>
-							<a href="//playmusic.app.goo.gl/?ibi=com.google.PlayMusic&isi=691797987&ius=googleplaymusic&apn=com.google.android.music&link=https://play.google.com/music/m/Iwpkbfdp7sh2eoyspoloemepfiy?t%3D/mlp/odcast%26pcampaignid%3DMKT-na-all-co-pr-mu-pod-16" itemprop="sameAs" rel="external noopener" target="_blank">
-								<img alt="Listen on Google Play Music" height="50" src="/image/google.svg" type="image/svg+xml">
-							</a>
-						</li>
-						<li>
-							<a href="//itunes.apple.com/us/podcast/mlp-odcast/id1319420599" itemprop="sameAs" rel="external noopener" target="_blank">
-								<img alt="Listen on iTunes" height="50" src="/image/apple.svg" type="image/svg+xml">
-							</a>
-						</li>
-						<li>
-							<a href="http://stitcher.com/s?fid=159260&refid=stpr" itemprop="sameAs" rel="external noopener" target="_blank">
-								<img alt="Listen on Stitcher" height="50" src="/image/stitcher.svg" type="image/svg+xml">
-							</a>
-						</li>
-						<li>
-							<a href="//tunein.com/radio/mlpodcast-p1079874/" itemprop="sameAs" rel="external noopener" target="_blank">
-								<img alt="Listen on TuneIn" height="50" src="/image/tunein.svg" type="image/svg+xml">
-							</a>
-						</li>
-						<li>
-							<a href="http://api.mlp.one/podcast" rel="noopener" target="_blank" type="application/rss+xml">
-								<img alt="Subscribe to RSS Feed" height="50" src="/image/rss.svg" type="image/svg+xml">
-							</a>
-						</li>
-					</ul>
 				</nav>
-			</footer>
+			</section>
 		</main>
 		<!--# include file="/common/drawer.html" -->
 		<!--# include file="/common/footer.html" -->

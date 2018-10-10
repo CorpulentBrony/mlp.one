@@ -1,10 +1,14 @@
-@import "colors";
 @import "@material/top-app-bar/mdc-top-app-bar";
-@import "placeholders";
+@import "mdc-drawer";
+@import "mixins";
 
-$top-app-bar-padding: $mdc-top-app-bar-row-height / 4;
+$top-app-bar-padding: $mdc-top-app-bar-row-height / 4 !default;
 
-main { padding: $mdc-top-app-bar-row-height + $top-app-bar-padding $top-app-bar-padding $top-app-bar-padding; }
+ :root {
+ 	--mlp-body-item-padding: #{0 $top-app-bar-padding};
+ }
+
+main { padding: #{$mdc-top-app-bar-row-height + $top-app-bar-padding $top-app-bar-padding 0}; }
 
 .mdc-top-app-bar {
 	@include mdc-top-app-bar-ink-color($mdc-theme-on-primary);
@@ -12,7 +16,7 @@ main { padding: $mdc-top-app-bar-row-height + $top-app-bar-padding $top-app-bar-
 
 	&__action-item, &__navigation-icon { will-change: inherit; }
 	&__title {
-		@extend %disable-user-select;
+		@include mlp-disable-user-select;
 
 		a {
 			color: inherit;

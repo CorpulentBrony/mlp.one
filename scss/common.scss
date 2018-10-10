@@ -2,14 +2,30 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500");
 
 @import "colors";
-@import "mdc-drawer";
-@import "mdc-list";
 @import "mdc-theme";
 @import "mdc-top-app-bar";
 
 body {
 	@include mlp-background-gradient;
 	color: $mdc-theme-primary;
+	fill: $mdc-theme-primary;
 	margin: 0;
 }
 h1, h2, h3, h4, h5, h6 { margin: 0; }
+span[role=img] { color: $mdc-theme-secondary; }
+
+.mlp-bold { font-weight: 500; }
+.mlp-meme-text {
+	color: #789922;
+	fill: #789922;
+
+	&::before { content: "\3e"; }
+}
+.mlp-ripple-surface {
+	@include mdc-ripple-surface;
+	@include mdc-ripple-radius-bounded;
+	@include mdc-states;
+}
+
+::moz-selection { background-color: $mdc-theme-on-primary; }
+::selection { background-color: $mdc-theme-on-primary; }

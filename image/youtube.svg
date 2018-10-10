@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" id="YouTube_Icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
-	 y="0px" viewBox="0 0 1024 721" enable-background="new 0 0 1024 721" xml:space="preserve">
+<svg version="1.1" id="YouTube_Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 721" enable-background="new 0 0 1024 721">
 <path id="Triangle" fill="#FFFFFF" d="M407,493l276-143L407,206V493z"/>
 <path id="The_Sharpness" opacity="0.12" fill="#420000" enable-background="new    " d="M407,206l242,161.6l34-17.6L407,206z"/>
 <g id="Lozenge">

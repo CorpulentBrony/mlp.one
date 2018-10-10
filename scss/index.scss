@@ -1,13 +1,22 @@
 @charset "utf-8";
 
 @import "colors";
+@import "mixins";
 
-main { margin: 0 1em; }
+@function convert-breakpoint-rem-to-px($value) { @return $value / 1rem * 16px - 1; }
+
+$mlp-episode-min-width: 20rem;
+$mlp-grid-gap: 1rem;
 
 *[aria-hidden="true"] {
 	max-height: 0;
 	visibility: hidden;
 }
+h1 {
+	@include mlp-fluid-type(320px, 1000px, 14px, 32px);
+	font-weight: 500;
+}
+header > div + div, header > h5 + div, header > div + h5, section > div + div { margin-top: 1rem; }
 
 .bold { font-weight: 500; }
 .button {
@@ -26,7 +35,7 @@ main { margin: 0 1em; }
 	-moz-user-select: none;
 	user-select: none;
 }
-.button:before {
+.button::before {
 	background: #000;
 	bottom: 0;
 	content: "";
@@ -38,8 +47,67 @@ main { margin: 0 1em; }
 	transition: all 0.5s;
 }
 .button:active, .button:hover { color: $fg-color-invert; }
-.button:hover:before { opacity: 0.2; }
-.button:active:before { opacity: 0.6; }
+.button:hover::before { opacity: 0.2; }
+.button:active::before { opacity: 0.6; }
+.mlp-bg-overlay {
+	&__index.mdc-card {
+		margin: 0 auto;
+
+		& + section { margin: $mlp-grid-gap auto; }
+	}
+}
+.mlp-episode-list {
+	$mdc-theme-primary-rgb: "rgb(#{red($mdc-theme-primary)}, #{green($mdc-theme-primary)}, #{blue($mdc-theme-primary)})";
+	$mlp-episode-height: 9rem;
+
+	display: grid;
+	grid-gap: $mlp-grid-gap;
+	grid-template-columns: repeat(auto-fill, minmax($mlp-episode-min-width, 1fr));
+	list-style: none;
+	margin: 0;
+	padding: 0;
+
+	&__featured {
+		grid-template-columns: repeat(auto-fit, minmax($mlp-episode-min-width, 1fr));
+		margin: 0 0 $mlp-grid-gap;
+	}
+
+	& > li {
+		display: inline-block;
+		margin: 0;
+		position: relative;
+
+		& > a {
+			color: inherit;
+			outline: none;
+			text-decoration: none;
+
+			& > section {
+				display: flex;
+				flex-direction: column;
+				position: relative;
+
+				header {
+					h6 {
+						display: flex;
+
+						data {
+							overflow: hidden;
+							text-overflow: ellipsis;
+							white-space: nowrap;
+						}
+					}
+					time {
+						display: inline-flex;
+						font-size: 0.65rem;
+
+						& + time::before { content: "\a0" attr(data-duration-label) "\a0"; }
+					}
+				}
+			}
+		}
+	}
+}
 .warning {
 	@extend .bold;
 	color: red;

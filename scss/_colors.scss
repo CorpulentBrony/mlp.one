@@ -1,54 +1,7 @@
-// define best pony's colors, for use later
-/* colors from https://kefkafloyd.deviantart.com/art/Twilight-Sparkle-Color-Guide-2-0-UPDATED-199520929 */
-$twi-body-fill: #d19fe3;
-$twi-body-fill-shadow: #b689c8; // very slightly darker, almost unnoticeable
-$twi-body-stroke: #a76bc2;
-$twi-eye-gradient-dark: #22093f; // black purple
-$twi-eye-gradient-light: #672f8b;
-$twi-eye-gradient-mid: #532976;
-$twi-eye-highlight-dark: #9561a8;
-$twi-eye-highlight-light: #c9aad0;
-$twi-hair-highlight-pink: #ed438a; // same color as cutie mark
-$twi-hair-highlight-purple: #662d8a;
-$twi-hair-primary: #263773;
-$twi-hair-stroke: #131f46; // black blue
-$twi-mouth: #a8005b; // almost red
-$twi-teeth-stroke: #b9e0f7; // light blue
-$twi-tongue: #f47735; // orange
-
-// define styling variables
-$bg-primary-color: $twi-body-fill;
-$bg-secondary-color: $twi-body-stroke;
-$fg-color: $twi-hair-primary;
-
-// define variables based on previously defined variables
-$fg-color-invert: invert($fg-color);
-
-// material design variables
-$mdc-theme-background: $twi-body-fill-shadow;
-$mdc-theme-surface: $twi-body-fill;
-$mdc-theme-primary: $twi-hair-primary;
-$mdc-theme-secondary: $twi-hair-highlight-purple;
-$mdc-theme-on-surface: $twi-hair-primary;
-$mdc-theme-on-primary: $twi-hair-highlight-pink;
-$mdc-theme-on-secondary: $twi-eye-highlight-light;
-$typography-default-coloring: (color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54)), fill: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54)));
-$mdc-typography-styles-body2: $typography-default-coloring;
-$mdc-typography-styles-caption: $typography-default-coloring;
-$mdc-typography-styles-subtitle2: $typography-default-coloring;
-
-@mixin mlp-background-gradient {
-	background-attachment: fixed;
-	background-color: $bg-primary-color;
-	background-image: linear-gradient(135deg, $mdc-theme-surface 50%, $mdc-theme-background);
-	background-size: 100vw 100vh;
-}
-
-%background-gradient {
-	@include mlp-background-gradient;
-}
+@import "color_vars";
 
 :root {
+	--mdc-theme-surface-transparent: #{$mdc-theme-surface-transparent};
 	--twi-hair-highlight-pink: #{$twi-hair-highlight-pink};
 	--twi-hair-highlight-purple: #{$twi-hair-highlight-purple};
 }

@@ -1,3 +1,5 @@
+import { Cache } from "./Cache.js";
+
 export const isDocumentLoaded = new window.Promise((resolve) => {
 	if (window.document.readyState === "loading")
 		window.document.addEventListener("DOMContentLoaded", resolve, false);
@@ -14,12 +16,41 @@ export function async(funcOrArray) {
 	});
 }
 
+export function checkWebpSupport() {
+	const cacheKey = "isWebpSupported";
+	const cacheValue = Cache.get(cacheKey);
+	const setWebpSupportedClass = (isWebpSupported) => window.document.body.classList.add(({ true: "webp-support", false: "webp-no-support" })[isWebpSupported]);
+
+	if (cacheValue != null)
+		setWebpSupportedClass(cacheValue);
+	else {
+		const check = new window.Promise((resolve, reject) => {
+			const image = new window.Image();
+			image.addEventListener("error", (err) => reject(err), false);
+			image.addEventListener("load", () => {
+				if (image.width === 1 && image.height === 1)
+					resolve();
+				else
+					reject(new window.Error("Loaded WebP does not have the expected dimensions."));
+			}, false);
+			image.src = "data:image/webp;base64,UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAABBxAR/Q9ERP8DAABWUDggGAAAADABAJ0BKgEAAQADADQlpAADcAD++/1QAA==";
+		});
+		check.then(() => {
+			Cache.set(cacheKey, "true");
+			setWebpSupportedClass("true");
+		}).catch(() => {
+			Cache.set(cacheKey, "false");
+			setWebpSupportedClass("false");
+		});
+	}
+}
+
 export function getElement({ elementId, elementSelector }) { return elementId ? window.document.getElementById(elementId) : window.document.querySelector(elementSelector); }
 
 export async function loadDeferredStylesheets(containerId = "deferred-stylesheets") {
 	const parser = new window.DOMParser();
 	const loader = () => parser.parseFromString(document.getElementById(containerId).textContent, "text/html").querySelectorAll("link").forEach((link) => window.document.head.appendChild(link));
-	const requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+	const requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
 
 	if (requestAnimationFrame)
 		requestAnimationFrame(() => window.setTimeout(loader.call(undefined), 0));

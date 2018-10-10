@@ -38,6 +38,7 @@
 
 			foreach ($this->files as $file)
 				$file->toRss($rss, $mediaGroup);
+			$rss->createElement("media:content", ["channels" => 2, "duration" => $this->length, "lang" => "en", "medium" => "audio", "type" => "audio/ogg", "url" => "{$this->getEpisodeManagerUrl()}.ogg"], null, $mediaGroup);
 			$rss->createElement("media:player", ["url" => $this->getYouTubeEmbedUrl()], null, $rss->createElement("media:content", ["lang" => "en", "medium" => "video"], null, $mediaGroup));
 			$rss->createElement("media:keywords", [], implode(", ", $this->keywords), $item);
 			$rss->createElement("media:thumbnail", ["url" => parent::getYouTubeThumbnail()], null, $item);

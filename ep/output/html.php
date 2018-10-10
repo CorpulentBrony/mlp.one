@@ -23,14 +23,13 @@
 ?><!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
 	<head id="microdata-head">
+		<meta charset="utf-8">
 		<!-- preconnects -->
 		<link href="//fonts.googleapis.com" rel="preconnect">
 		<link href="//fonts.gstatic.com" rel="preconnect">
 		<link href="//stats.g.doubleclick.net" rel="preconnect">
 		<link href="//www.google-analytics.com" rel="preconnect">
 		<!-- preloads -->
-		<link as="image" href="//www.gstatic.com/psa/static/1.gif" rel="preload" type="image/gif">
-		<link as="script" href="//www.google-analytics.com/analytics.js" rel="preload" type="application/javascript">
 		<link as="style" href="//fonts.googleapis.com/css?family=Roboto:300,400,500" rel="preload" type="text/css">
 		<!-- prefetches -->
 		<!-- <link as="audio" href="/ep/<?= $thisEpisodeNumber ?>.mp3" rel="prefetch" type="audio/mpeg"> -->
@@ -48,15 +47,18 @@
 		<link href="/module/util.js" rel="modulepreload">
 		<?= file_get_contents("../common/header_base.html") ?>
 		<link href="<?= $requestUrl ?>" rel="canonical self" type="text/html">
-		<meta content="<?= $youTubeThumbnail ?>" id="microdata-thumbnail" itemprop="image thumbnailUrl" name="twitter:image" property="og:image">
+		<meta content="<?= $youTubeThumbnail ?>" id="microdata-thumbnail" name="twitter:image" property="og:image">
+		<meta content="<?= $youTubeThumbnail ?>" itemprop="image thumbnailUrl">
 		<meta content="1280" property="og:image:width">
 		<meta content="720" property="og:image:height">
 		<meta content="image/png" property="og:image:type">
 		<meta content="website" property="og:type">
 		<meta content="<?= $requestUrl ?>" itemprop="url" property="og:url">
 		<meta content="<?= $episodeFullTitle ?>" name="title" property="og:title">
-		<meta content="<?= $description ?>" id="microdata-description" itemprop="description" name="description" property="og:description">
-		<meta content="<?= $keywords ?>" itemprop="keywords" name="keywords">
+		<meta content="<?= $description ?>" id="microdata-description" name="description" property="og:description">
+		<meta content="<?= $description ?>" itemprop="description">
+		<meta content="<?= $keywords ?>" name="keywords">
+		<meta content="<?= $keywords ?>" itemprop="keywords">
 		<meta content="<?= $episodeFullTitle ?>" name="twitter:title">
 		<meta content="<?= $description ?>" name="twitter:description">
 		<script type="application/ld+json">
@@ -86,7 +88,7 @@
 		<title><?= $episodeFullTitle ?></title>
 		<script async defer nomodule src="/js/output.js"></script>
 		<script async src="/module/output.js" type="module"></script>
-		<style type="text/css">
+		<style>
 			:root {
 				--title-prefix-text: "<?= $_SERVER["SITE_TITLE"] ?> ";
 			}
@@ -100,13 +102,17 @@
 	</head>
 	<body class="mdc-typography">
 		<noscript id="deferred-stylesheets">
-			<link href="/css/audio.css" rel="stylesheet" type="text/css">
-			<link href="/css/output.css" rel="stylesheet" type="text/css">
+			<link href="/css/audio.css" rel="stylesheet">
+			<link href="/css/card.css" rel="stylesheet">
+			<link href="/css/common.css" rel="stylesheet">
+			<link href="/css/output.css" rel="stylesheet">
+			<link href="/css/typography.css" rel="stylesheet">
 		</noscript>
-		<picture>
+		<!-- <picture data-pagespeed-no-transform>
 			<source data-pagespeed-no-transform sizes="(min-width: 1024px) 70vw, 100vw" srcset="/image/mlpodcast_couch/3840w.webp 3840w, /image/mlpodcast_couch/2880w.webp 2880w, /image/mlpodcast_couch/1920w.webp 1920w, /image/mlpodcast_couch/1280w.webp 1280w, /image/mlpodcast_couch/960w.webp 960w" type="image/webp">
 			<img alt="" data-pagespeed-no-transform id="mlp-img-bg" role="presentation" sizes="(min-width: 1024px) 70vw, 100vw" src="/image/mlpodcast_couch/960w.png" srcset="/image/mlpodcast_couch/3840w.png 3840w, /image/mlpodcast_couch/2880w.png 2880w, /image/mlpodcast_couch/1920w.png 1920w, /image/mlpodcast_couch/1280w.png 1280w" type="image/png">
-		</picture>
+		</picture> -->
+		<!--# include file="/common/background.html" -->
 		<header class="mdc-top-app-bar">
 			<div class="mdc-top-app-bar__row">
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
@@ -129,7 +135,7 @@
 			</div>
 		</header>
 		<main>
-			<article itemid="<?= $guid ?>" itemref="microdata-episode-number microdata-head" itemscope itemtype="http://schema.org/RadioEpisode" class="mdc-card">
+			<article class="mdc-card" itemid="<?= $guid ?>" itemref="microdata-episode-number microdata-head" itemscope itemtype="http://schema.org/RadioEpisode">
 				<data itemprop="isAccessibleForFree" value="true"></data>
 				<link href="https://donutsteel.pl" itemprop="license">
 				<span itemid="<?= $_SERVER["PODCAST_TAG"] ?>?season=1" itemprop="partOfSeason" itemscope itemtype="http://schema.org/RadioSeason"></span>
@@ -155,8 +161,8 @@
  					</span>
  				</audio>
 				<header>
-					<h1 class="mdc-typography--headline6" id="microdata-name" itemprop="headline name"><?= $this->episode->title ?></h1>
-					<aside class="mdc-typography--caption">
+					<h6 id="microdata-name" itemprop="headline name"><?= $this->episode->title ?></h6>
+					<aside>
 						<time aria-label="Date this episode was published" datetime="<?= $publishDateIsoFormat ?>" itemprop="datePublished" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
 						<span title="Episode Duration">
 							<?= \Mlp\getSvg("../material-design-icons/device/svg/production/ic_access_time_24px.svg", ["height" => 12, "role" => "presentation", "width" => 12]) ?>
@@ -164,7 +170,7 @@
 						</span>
 					</aside>
 				</header>
-				<section class="mdc-typography--body2">
+				<section>
 					<?= is_null($this->episode->note) ? str_replace("\n", "<br>", $this->episode->description) : str_ireplace("<a href=", "<a rel=\"noopener\" target=\"_blank\" href=", $this->episode->note) ?>
 				</section>
 				<footer class="mdc-card__actions">

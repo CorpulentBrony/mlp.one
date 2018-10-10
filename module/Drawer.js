@@ -1,5 +1,6 @@
 import { ToggleableComponentHandler } from "./ToggleableComponentHandler.js";
-import "../js/mdc-bundle.js";
+// import "../js/mdc-bundle.js";
+import { MDCTemporaryDrawer } from "../node_modules/@material/drawer";
 
 export class Drawer extends ToggleableComponentHandler {
 	constructor({ currentElement, topAppBar, triggerElementId, triggerElementSelector }) {
@@ -9,7 +10,7 @@ export class Drawer extends ToggleableComponentHandler {
 				["MDCTemporaryDrawer:open"]: () => this.mdcObject.drawer.setAttribute("aria-hidden", false),
 				["MDCTemporaryDrawer:close"]: () => this.mdcObject.drawer.setAttribute("aria-hidden", true)
 			}, 
-			mdcType: window.mdc.MDCTemporaryDrawer,
+			mdcType: MDCTemporaryDrawer,
 			triggerElementId,
 			triggerElementSelector
 		});

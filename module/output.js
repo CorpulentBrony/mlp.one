@@ -4,41 +4,12 @@ import { Drawer } from "./Drawer.js";
 import { MoreFormatsMenu } from "./MoreFormatsMenu.js";
 import { ShareMenu } from "./ShareMenu.js";
 import { TopAppBar } from "./TopAppBar.js";
-import { async, isDocumentLoaded, loadDeferredStylesheets } from "./util.js";
+import { async, checkWebpSupport, isDocumentLoaded, loadDeferredStylesheets } from "./util.js";
 
 (async function output() {
 	const rippleButtonClassNames = [".mdc-button", ".mdc-chip", ".mdc-fab", ".mdc-list-item", ".mdc-ripple-surface"]; // removing ".mdc-card__primary-action"
 
 	function attachRipple(querySelector) { window.document.querySelectorAll(querySelector).forEach((item) => new window.mdc.MDCRipple(item)); }
-
-	function checkWebpSupport() {
-		const cacheKey = "isWebpSupported";
-		const cacheValue = Cache.get(cacheKey);
-		const setWebpSupportedClass = (isWebpSupported) => window.document.body.classList.add(({ true: "webp-support", false: "webp-no-support" })[isWebpSupported]);
-
-		if (cacheValue != null)
-			setWebpSupportedClass(cacheValue);
-		else {
-			const check = new window.Promise((resolve, reject) => {
-				const image = new window.Image();
-				image.addEventListener("error", (err) => reject(err), false);
-				image.addEventListener("load", () => {
-					if (image.width === 1 && image.height === 1)
-						resolve();
-					else
-						reject(new window.Error("Loaded WebP does not have the expected dimensions."));
-				}, false);
-				image.src = "data:image/webp;base64,UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAABBxAR/Q9ERP8DAABWUDggGAAAADABAJ0BKgEAAQADADQlpAADcAD++/1QAA==";
-			});
-			check.then(() => {
-				Cache.set(cacheKey, "true");
-				setWebpSupportedClass("true");
-			}).catch(() => {
-				Cache.set(cacheKey, "false");
-				setWebpSupportedClass("false");
-			});
-		}
-	}
 
 	async function documentOnLoad() {
 		loadDeferredStylesheets();
@@ -46,15 +17,15 @@ import { async, isDocumentLoaded, loadDeferredStylesheets } from "./util.js";
 		const episodeNumber = window.Number(window.document.getElementById("microdata-episode-number").textContent);
 		// window.document.addEventListener("mousedown", console.log);
 		// window.addEventListener("mouseup", console.log);
-		window.Promise.all(async([
-			checkWebpSupport,
+		window.document.removeEventListener("DOMContentLoaded", documentOnLoad, false)
+		return window.Promise.all(async([
+			// checkWebpSupport,
 			setupAudioControls.bind(undefined, episodeNumber),
 			() => new Drawer({ currentElement: findSelectedEpisodeListItem(episodeNumber), topAppBar: new TopAppBar(), triggerElementSelector: "header.mdc-top-app-bar button.mdc-top-app-bar__navigation-icon" }),
 			() => new MoreFormatsMenu({ triggerElementId: "mlp-btn-more-formats" }),
 			() => new ShareMenu({ triggerElementId: "mlp-btn-share" }),
 			() => rippleButtonClassNames.forEach((querySelector) => attachRipple(querySelector))
-		])).catch(console.error);
-		window.document.removeEventListener("DOMContentLoaded", documentOnLoad, false)
+		]));
 	}
 
 	function findSelectedEpisodeListItem(episodeNumber) {
@@ -83,5 +54,5 @@ import { async, isDocumentLoaded, loadDeferredStylesheets } from "./util.js";
 		audioElement.addEventListener("volumechange", () => Cache.set(cachedVolumeKey, audioElement.volume), false);
 	}
 
-	documentOnLoad();
+	return documentOnLoad();
 })().catch(console.error);

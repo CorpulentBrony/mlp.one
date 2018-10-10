@@ -1,0 +1,34 @@
+@import "@material/card/mdc-card";
+
+.mdc-card {
+	@include mdc-typography(body2);
+	background-color: $mdc-theme-surface-transparent;
+	margin: 0.5rem auto;
+	padding: 0.5rem;
+	width: 100%;
+
+	& > header {
+		padding: 1rem;
+
+		& > h6 { @include mdc-typography(headline6); }
+		& > aside {
+			@include mdc-typography(caption);
+			font-size: 0.66rem;
+		}
+	}
+	& > section { padding: 0 1rem 8px 1rem; }
+
+	&__action {
+		&-buttons { flex-grow: 1; }
+		&-buttons + &-icons { margin-left: 0; }
+		&-icons {
+			@include mdc-button-icon-color($mdc-theme-on-surface);
+			.mdc-button {
+				min-width: 40px;
+				padding: 0;
+			}
+			.mdc-button__icon { margin: auto; }
+			.mdc-card__action--icon { padding: 0; }
+		}
+	}
+}

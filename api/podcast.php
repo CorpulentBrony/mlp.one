@@ -6,8 +6,7 @@
 	// apcu_delete("podcast_hash");
 	
 	const BUCKET = "podcast.mlp.one";
-	const CHANNEL_SUMMARY = "Some anons from /mlp/ get together to discuss the show, fandom, and for general bants.  Please be patient, we have autism.";
-	const CHANNEL_SUBTITLE = "Pure Autism";
+	const CHANNEL_SUBTITLE = "Random anons from 4chan's /mlp/ board talk ponies, fandom drama, and more";
 	const CHANNEL_TITLE = "/mlp/odcast";
 	const CONTACT_NAME = "Corpulent Brony";
 	const KEYWORDS = [CHANNEL_TITLE, "mlpodcast", "mlp", "4chan", "pony", "horse", "podcast"];
@@ -23,6 +22,8 @@
 	const CHANNEL_IMAGE_LARGE = URL_PREFIX . "mlpodcast-large-d41a4943bf081bcb3968921ddaab59ce.jpg";
 	const RSS_ICON_URL = URL_PREFIX . "rss.png";
 
+	$channelSummary = "{$_SERVER["SITE_DESCRIPTION"]}  \n\nhttps://mlp.one/";
+
 	header("Content-Type: text/plain");
 
 	function output(string $output): void {
@@ -35,7 +36,7 @@
 	$rss = new \Mlp\Api\Rss();
 	$rss->createElement("title", [], CHANNEL_TITLE);
 	$rss->createElement("link", [], WEB_URL);
-	$rss->createElement("description", [], CHANNEL_SUMMARY);
+	$rss->createElement("description", [], $channelSummary);
 	$rss->createElement("language", [], "en");
 	$rss->createElement("managingEditor", [], CONTACT_EMAIL);
 	$rss->createElement("webMaster", [], CONTACT_EMAIL);
@@ -49,9 +50,10 @@
 	$rss->createElement("atom:link", ["href" => RSS_ICON_URL, "rel" => "icon", "type" => "image/png"]);
 	$rss->createElement("atom:icon", [], RSS_ICON_URL);
 	$rss->createElement("atom:logo", [], CHANNEL_IMAGE_LARGE);
+	$rss->createElement("itunes:new-feed-url", [], "https://api.mlp.one/podcast");
 	$rss->createElement("itunes:type", [], "episodic");
 	$rss->createElement("itunes:subtitle", [], CHANNEL_SUBTITLE);
-	$rss->createElement("itunes:author", [], "/mlp/");
+	$rss->createElement("itunes:author", [], "Anons from /mlp/");
 	$itunesOwner = $rss->createElement("itunes:owner");
 	$rss->createElement("itunes:name", [], CONTACT_NAME, $itunesOwner);
 	$rss->createElement("itunes:email", [], CONTACT_EMAIL, $itunesOwner);

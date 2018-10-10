@@ -2,6 +2,7 @@
 	require_once "header.php";
 	// based on https://github.com/google/google-api-php-client/blob/master/examples/idtoken.php
 	// https://developers.google.com/api-client-library/php/auth/web-app#example is a bit helpful
+
 	(function (): void {
 		$cookie = Cookie::getSession();
 		if ($cookie === false)
@@ -53,7 +54,79 @@
 				<output class="bold" role="alert">Please log in with the Google widget, once your access is verified you will be redirected to the /mlp/odcast manager application.</output>
 			</section>
 		</main>
-		<script type="application/javascript">
+		<script>
+			"use strict";
+			(function() {
+				let auth;
+				let output;
+
+				function documentOnLoad() {
+					function scriptOnLoad() {
+						gapi.load("client:auth2", () => initClient().catch(console.error));
+						this.removeEventListener("load", scriptOnLoad, false);
+					}
+					function scriptOnReadyStateChange() {
+						if (this.readyState === "complete")
+							scriptOnLoad();
+					}
+					output = document.querySelector("output");
+					const script = document.createElement("script");
+					[script.async, script.defer, script.src] = [true, true, "https://apis.google.com/js/api.js"];
+					script.addEventListener("load", scriptOnLoad, false);
+					script.addEventListener("readystatechange", scriptOnReadyStateChange, false);
+					document.head.appendChild(script);
+					document.removeEventListener("DOMContentLoaded", documentOnLoad, false);
+				}
+				async function initClient() {
+					await gapi.client.init({ apiKey: "AIzaSyBW0o9lKmHJnjoTeKeuEzOvFsLGvKTaXxs", clientId: "12143257959-uqutti8pigo4pf5cuqe6vtn1ddtv8860.apps.googleusercontent.com", scope: "profile" });
+					auth = gapi.auth2.getAuthInstance();
+					auth.isSignedIn.listen(updateAuthStatus);
+					setAuthStatus().catch(console.error);
+
+					if (!auth.isSignedIn.get())
+						auth.signIn();
+				}
+				async function setAuthStatus() {
+					const user = auth.currentUser.get();
+					const credential = user.getAuthResponse(true);
+					credential.displayName = user.getBasicProfile().getName();
+
+					if (user.hasGrantedScopes("profile")) {
+						showMessage("Response received from Google, verifying credentials with server");
+						const form = new FormData();
+						form.set("credential", JSON.stringify(credential));
+						try {
+							const result = await fetch("access.php", { credentials: "include", method: "POST", body: form });
+							const response = await result.json();
+
+							if (!response || response.isValid !== true)
+								showMessage(response.error ? response.error : "Server says you are not a valid user.  Please contact the administrator for more help.", true);
+							else {
+								showMessage("User validated, redirecting to index.php");
+								window.location = "index.php";
+							}
+						} catch (err) { showMessage(err.message, true); }
+					} else
+						console.log("user is not authorized");
+				}
+				function showMessage(message, isError = false) {
+					output.textContent = message;
+					output.style.color = isError ? "red" : "inherit";
+				}
+				function updateAuthStatus() { setAuthStatus().catch(console.error); }
+
+				if (document.readyState === "complete")
+					documentOnLoad();
+				else
+					document.addEventListener("DOMContentLoaded", documentOnLoad, false);
+			})();
+		</script>
+		<!--
+			google disabled yolo, but here's the old code for google yolo authentication in case they even re-enable it.  in the meanwhile, using oauth2 as above.
+			if you revert back to yolo, you will need to change access.php to look for idToken instead of id_token in the credential
+			will probably also need to edit CSP
+		-->
+<!-- 		<script>
 			"use strict";
 			(function() {
 				const elements = window.Object.create(window.Object.prototype);
@@ -63,8 +136,8 @@
 				}
 				// googleyolo: https://developers.google.com/identity/one-tap/web/overview
 				function googleOnLoad(googleyolo) {
-					const yoloParams = { 
-						supportedAuthMethods: ["https://accounts.google.com"], 
+					const yoloParams = {
+						supportedAuthMethods: ["https://accounts.google.com"],
 						supportedIdTokenProviders: [{ uri: "https://accounts.google.com", clientId: "12143257959-uqutti8pigo4pf5cuqe6vtn1ddtv8860.apps.googleusercontent.com" }]
 					};
 					googleyolo.hint(yoloParams).then((credential) => {
@@ -92,13 +165,13 @@
 					elements.output.textContent = message;
 					elements.output.style.color = isError ? "red" : "inherit";
 				}
-				if (document.readyState === "loading")
-					document.addEventListener("DOMContentLoaded", documentOnLoad, false);
-				else
-					documentOnLoad();
-				window.onGoogleYoloLoad = googleOnLoad;
+				// if (document.readyState === "loading")
+				// 	document.addEventListener("DOMContentLoaded", documentOnLoad, false);
+				// else
+				// 	documentOnLoad();
+				// window.onGoogleYoloLoad = googleOnLoad;
 			})();
-		</script>
-		<script async defer src="https://smartlock.google.com/client" type="application/javascript"></script>
+		</script> -->
+		<!-- <script async defer src="https://smartlock.google.com/client" type="application/javascript"></script> -->
 	</body>
 </html>

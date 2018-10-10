@@ -1,37 +1,18 @@
 @charset "utf-8";
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500");
 
-@import "colors";
-@import "placeholders";
+@import "color_vars";
+@import "mixins";
 @import "@material/button/mdc-button";
-@import "@material/card/mdc-card";
-@import "@material/elevation/mdc-elevation";
 @import "@material/menu/mdc-menu";
 @import "@material/snackbar/mdc-snackbar";
-@import "@material/typography/mdc-typography";
-@import "mdc-drawer";
-@import "mdc-list";
-@import "mdc-theme";
-@import "mdc-top-app-bar";
 
-$background-width: 70%;
 $main-width: 50%;
 $media-width-phone: 768px;
 $media-width-tablet: 1024px;
 
-%card-item-elevated { @include mdc-elevation(4); }
-
-:root {
-	--background-position-x: right;
-	--main-width: #{$main-width};
-
-	@media only screen and (max-width: $media-width-tablet) {
-		--background-position-x: center;
-		--main-width: 90%;//calc(95vw - #{2 * $top-app-bar-padding});
-	}
-}
-
 body {
+	color: $mdc-theme-primary;
 	margin: 0;
 }
 footer nav ul {
@@ -39,55 +20,17 @@ footer nav ul {
 	margin: 0;
 	padding: 0;
 }
-html { background-color: $mdc-theme-background; }
 main {
 	width: var(--main-width);
-
-	article.mdc-card {
-		opacity: 0.97;
-		padding: 0.4rem;
-		width: 100%;
-
-		&:before {
-			backdrop-filter: blur(10px);
-			filter: blur(20px);
-		}
-		header {
-			padding: 1rem;
-
-			aside.mdc-typography--caption { font-size: 0.66rem; }
-			h1 { margin: 0; }
-		}
-		section.mdc-typography--body2 {
-			color: var(--mdc-theme-text-secondary-on-background, rgba(0, 0, 0, 0.54));
-			padding: 0 1rem 8px 1rem;
-		}
-	}
 }
 
 .mdc-button {
-	@include mdc-button-icon-color($mdc-theme-on-primary);
-	@extend %disable-user-select;
+	@include mlp-disable-user-select;
 
 	&--raised &__icon { margin: auto; }
 	&:disabled .mdc-button__icon { fill-opacity: 0.37; }
 }
-.mdc-card {
-	$color-value: var(--mdc-theme-text-icon-on-background, rgba(0, 0, 0, 0.38));
-
-	&__action-buttons { flex-grow: 1; }
-	&__action-buttons+.mdc-card__action-icons { margin-left: 0; }
-	&__action-icons {
-		@include mdc-button-icon-color($mdc-theme-on-surface);
-		.mdc-button {
-			min-width: 40px;
-			padding: 0;
-		}
-		.mdc-button__icon { margin: auto; }
-		.mdc-card__action--icon { padding: 0; }
-	}
-	h1 { color: $mdc-theme-primary; }
-}
+.mdc-card { max-width: 50rem; }
 .mdc-menu {
 	.mdc-list { @extend .mdc-list; }
 }
@@ -97,10 +40,11 @@ main {
 	.mdc-snackbar__text { color: $mdc-theme-on-primary; }
 }
 
+// this is also in common.scss now; need to fix
 #mlp-img-bg {
 	bottom: 0;
 	filter: drop-shadow(8px 8px 4px rgba(0, 0, 0, 0.55));
-	position: absolute;
+	position: fixed;
 	right: 0;
 	z-index: -999;
 }

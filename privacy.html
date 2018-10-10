@@ -4,6 +4,8 @@
 <!--# set var="pageTitleDisplay" value="$pageTitle - $siteTitle" -->
 <html lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
 	<head>
+		<meta charset="utf-8">
+		<link href="https://<!--# echo var='host' -->/privacy.html" rel="canonical self" type="text/html">
 		<!-- preconnects -->
 		<link href="//fonts.googleapis.com" rel="preconnect">
 		<link href="//fonts.gstatic.com" rel="preconnect">
@@ -13,18 +15,13 @@
 		<link as="image" href="//www.gstatic.com/psa/static/1.gif" rel="preload" type="image/gif">
 		<link as="script" href="//www.google-analytics.com/analytics.js" rel="preload" type="application/javascript">
 		<link as="style" href="//fonts.googleapis.com/css?family=Roboto:300,400,500" rel="preload" type="text/css">
-		<!-- modules -->
-		<link href="/module/common.js" rel="modulepreload">
-		<link href="/module/ComponentHandler.js" rel="modulepreload">
-		<link href="/module/Drawer.js" rel="modulepreload">
-		<link href="/module/ToggleableComponentHandler.js" rel="modulepreload">
-		<link href="/module/TopAppBar.js" rel="modulepreload">
-		<link href="/module/util.js" rel="modulepreload">
-		<link href="/js/mdc-bundle.js" rel="modulepreload">
+		<!--# include file="/common/common.js.html" -->
 		<!--# include file="/common/header.html" -->
 		<meta content="<!--# echo var="pageTitleDisplay" -->" name="title" property="og:title">
-		<meta content="<!--# echo var="privacyPolicyDescription" -->" itemprop="description" name="description" property="og:description">
-		<meta content="/mlp/odcast, privacy policy" itemprop="keywords" name="keywords">
+		<meta content="<!--# echo var="privacyPolicyDescription" -->" name="description" property="og:description">
+		<meta content="<!--# echo var="privacyPolicyDescription" -->" itemprop="description">
+		<meta content="/mlp/odcast, privacy policy" name="keywords">
+		<meta content="/mlp/odcast, privacy policy" itemprop="keywords">
 		<meta content="<!--# echo var="pageTitleDisplay" -->" name="twitter:title">
 		<meta content="<!--# echo var="privacyPolicyDescription" -->" name="twitter:description">
 		<script type="application/ld+json">
@@ -51,20 +48,18 @@
 			}
 		</script>
 		<title><!--# echo var="pageTitleDisplay" --></title>
-		<script async defer nomodule src="/js/common.js"></script>
-		<script async src="/module/common.js" type="module"></script>
 	</head>
 	<body>
 		<noscript id="deferred-stylesheets">
-			<link href="/css/common.css" rel="stylesheet" type="text/css">
-			<link href="/css/typography.css" rel="stylesheet" type="text/css">
+			<link href="/css/common.css" rel="stylesheet">
+			<link href="/css/typography.css" rel="stylesheet">
 		</noscript>
 		<!--# include file="/common/top_app_bar.html" -->
 		<main>
-			<article>
+			<section>
 				<h3>Your Privacy and You and Us</h3>
 				<dl>
-					<dt><h6>Web server logs 📜</h6></dt>
+					<dt><h6>Web server logs <span aria-label="scroll emoticon" role="img">📜</span></h6></dt>
 					<dd>
 						We collect information in our server logs from every visitor in order to ensure the security of our servers.  These data are deleted after 4-5 weeks.  The data we collect here include:
 						<ul>
@@ -74,7 +69,7 @@
 							<li>Your browser type/version</li>
 						</ul>
 					</dd>
-					<dt><h6>Mmmm, cookies 🍪</h6></dt>
+					<dt><h6>Mmmm, cookies <span aria-label="cookie emoticon" role="img">🍪</span></h6></dt>
 					<dd>
 						<a href="//policies.google.com/technologies/cookies" rel="external noopener" target="_blank">Cookies</a> are used to track sessions.  While we do not currently leverage this internally (even though <a href="//php.net" rel="external noopener" target="_blank"><abbr title="Personal Home Page">PHP</abbr></a> sometimes likes to set cookies anyway), we do use <a href="//www.google.com/analytics" rel="external noopener" target="_blank">Google Analytics</a>.  This service is used to provide general information helping us to understand our visitors and what content they may enjoy.  No personally identifying information is ever collected in this manner, it's always viewed in standard aggregate Google Analytics reports.  Some of the stuff they track:
 						<ul>
@@ -86,7 +81,7 @@
 						</ul>
 						Please <a href="//support.google.com/analytics/answer/6004245?hl=en" rel="external noopener" target="_blank">read Google's privacy page</a> to learn more about what they do with the information.
 					</dd>
-					<dt><h6>No sir, I don't like it 👎</h6></dt>
+					<dt><h6>No sir, I don't like it <span aria-label="thumbs down emoticon" role="img">👎</span></h6></dt>
 					<dd>
 						If you don't want to share your cookies with Google, then please read about how to <a href="//www.google.com/privacy_ads.html" rel="external noopener" target="_blank">opt out of Google's tracking cookies</a> or you can also look into the <a href="//tools.google.com/dlpage/gaoptout/" rel="external noopener" target="_blank">Google Analytics Opt-out Browser Add-on</a>.
 					</dd>
@@ -94,7 +89,7 @@
 				<footer class="mlp-footer">
 					Last Updated: <time datetime="2018-06-02">June 2, 2018</time>.
 				</footer>
-			</article>
+			</section>
 		</main>
 		<!--# include file="/common/drawer.html" -->
 		<!--# include file="/common/footer.html" -->

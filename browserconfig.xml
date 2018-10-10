@@ -3,11 +3,11 @@
 <browserconfig>
 	<msapplication>
 		<tile>
-			<square70x70logo src="https://podcast.mlp.one/mlpodcast-large.jpg"/>
-			<square150x150logo src="https://podcast.mlp.one/mlpodcast-large.jpg"/>
-			<wide310x150logo src="<!--# echo var='siteThumbnail' -->"/>
-			<square310x310logo src="https://podcast.mlp.one/mlpodcast-large.jpg"/>
-			<TileColor>#a99dd7</TileColor>
+			<square70x70logo src="<!--# echo var="ponisonus_thumbnail" -->"/>
+			<square150x150logo src="<!--# echo var="ponisonus_thumbnail" -->"/>
+			<!-- <wide310x150logo src=""/> -->
+			<square310x310logo src="<!--# echo var="ponisonus_thumbnail" -->"/>
+			<TileColor>#22093f</TileColor>
 		</tile>
 	</msapplication>
 </browserconfig>

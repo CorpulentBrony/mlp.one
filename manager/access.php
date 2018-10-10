@@ -14,11 +14,11 @@
 		$credential = json_decode($_POST["credential"]);
 		header("Content-Type: application/json");
 
-		if (!($credential && $credential->idToken))
+		if (!($credential && $credential->id_token))
 			sendMessage("Invalid credential or no ID token received in request.  Please try again.");
 		$client = new \Google_Client();
 		$client->setAuthConfig("client_secrets.json");
-		$data = $client->verifyIdToken($credential->idToken);
+		$data = $client->verifyIdToken($credential->id_token);
 
 		if ($data) {
 			$pdo = new \PDO(...PDO_ARGS);

@@ -1,10 +1,50 @@
-<nav aria-label="Footer navigation links" class="mlp-footer">
-	<ul>
-		<li><a href="/" rel="home index" title="<!--# echo var="siteTitle" -->"><!--# echo var="siteTitle" --></a></li>
-		<li><a href="/privacy.html" rel="privacy-policy" title="Privacy Policy">Privacy Policy</a></li>
-	</ul>
-</nav>
-<style type="text/css">
+<footer aria-label="Footer navigation links" class="mlp-footer">
+	<nav role="navigation">
+		<ul class="mlp-footer__icons">
+			<li>
+				<a class="mlp-ripple-surface" href="//www.youtube.com/playlist?list=PLpXLx1a_owv0xfz2JH8TEHcCLGBE2kfaX" itemprop="sameAs" rel="external noopener" target="_blank">
+					<img alt="Watch on YouTube" src="/image/youtube.svg" title="Watch on YouTube" type="image/svg+xml">
+				</a>
+			</li>
+			<li>
+				<a class="mlp-ripple-surface" href="//playmusic.app.goo.gl/?ibi=com.google.PlayMusic&isi=691797987&ius=googleplaymusic&apn=com.google.android.music&link=https://play.google.com/music/m/Iwpkbfdp7sh2eoyspoloemepfiy?t%3D/mlp/odcast%26pcampaignid%3DMKT-na-all-co-pr-mu-pod-16" itemprop="sameAs" rel="external noopener" target="_blank">
+					<img alt="Listen on Google Play Music" src="/image/google.svg" title="Listen on Google Play Music" type="image/svg+xml">
+				</a>
+			</li>
+			<li>
+				<a class="mlp-ripple-surface" href="//itunes.apple.com/us/podcast/mlp-odcast/id1319420599" itemprop="sameAs" rel="external noopener" target="_blank">
+					<img alt="Listen on iTunes" src="/image/apple.svg" title="Listen on iTunes" type="image/svg+xml">
+				</a>
+			</li>
+			<li>
+				<a class="mlp-ripple-surface" href="http://stitcher.com/s?fid=159260&refid=stpr" itemprop="sameAs" rel="external noopener" target="_blank">
+					<img alt="Listen on Stitcher" src="/image/stitcher.svg" title="Listen on Stitcher" type="image/svg+xml">
+				</a>
+			</li>
+			<li>
+				<a class="mlp-ripple-surface" href="//tunein.com/radio/mlpodcast-p1079874/" itemprop="sameAs" rel="external noopener" target="_blank">
+					<img alt="Listen on TuneIn" src="/image/tunein.svg" title="Listen on TuneIn" type="image/svg+xml">
+				</a>
+			</li>
+			<li>
+				<a class="mlp-ripple-surface" href="//ponyvillelive.com/show/view/id/91" itemprop="sameAs" rel="external noopener" target="_blank">
+					<img alt="Listen on Ponyville Live!" src="/image/pvl.svg" title="Listen on Ponyville Live!" type="image/svg+xml">
+				</a>
+			</li>
+			<li>
+				<a class="mlp-ripple-surface" href="//api.mlp.one/podcast" rel="noopener" target="_blank" type="application/rss+xml">
+					<img alt="Subscribe to RSS Feed" src="/image/rss.svg" title="Subscribe to RSS Feed" type="image/svg+xml">
+				</a>
+			</li>
+		</ul>
+		<ul class="mlp-footer__text" role="contentinfo">
+			<li><a href="/" rel="home index" title="<!--# echo var="siteTitle" -->"><!--# echo var="siteTitle" --></a></li>
+			<li><a data-href="/about.html" title="About Us">About Us</a></li>
+			<li><a href="/privacy.html" rel="privacy-policy" title="Privacy Policy">Privacy Policy</a></li>
+		</ul>
+	</nav>
+</footer>
+<style>
 	.mlp-footer {
 		font-family: Roboto, sans-serif;
 		font-size: 0.75rem;
@@ -19,29 +59,59 @@
 		text-rendering: optimizeLegibility;
 		text-transform: inherit;
 	}
-	.mlp-footer ul {
-		display: flex;
+	.mlp-footer__icons, .mlp-footer__text {
+		background-color: var(--mdc-theme-surface-transparent, rgba(136, 136, 136, 0.3));
+		border-radius: 2px;
+		box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+		box-sizing: border-box;
 		list-style: none;
 		margin: 0;
 		padding: 0;
 	}
-	.mlp-footer ul li {
+	.mlp-footer__icons {
+		align-content: space-evenly;
+		display: grid;
+		grid-gap: 1rem;
+		grid-template-columns: repeat(7, minmax(1rem, 3rem));
+		justify-content: space-evenly;
+		justify-items: center;
+		margin: 0 auto 0.5rem;
+		max-width: 43rem;
+		padding: 0.5rem;
+	}
+	.mlp-footer__text {
+		display: flex;
+		flex-wrap: wrap;
+		margin: 0 0 0.5rem;
+		padding: 0 0.5rem;
+		width: -moz-fit-content;
+		width: -webkit-fit-content;
+		width: fit-content;
+	}
+	.mlp-footer__icons li, .mlp-footer__text li {
 		align-items: center;
 		display: inline-flex;
 	}
-	.mlp-footer ul li::before {
+	.mlp-footer__icons li, .mlp-footer__icons li a, .mlp-footer__icons li a img { width: 100%; }
+	.mlp-footer__icons li img {
+		max-height: 3rem;
+		object-fit: cover;
+	}
+	.mlp-footer__text li::before {
 		background-image: url(/image/twi_qt.svg);
 		background-position: center;
 		background-repeat: no-repeat;
 		color: var(--twi-hair-highlight-purple, #ed438a);
 		content: "\a0";
 		height: 1rem;
+		padding: 0 0.5rem;
 		width: 1rem;
 	}
-	.mlp-footer ul li:first-child::before {
+	.mlp-footer__text li:first-child::before {
 		background-image: none;
 		content: "";
 		height: 0;
+		padding: 0;
 		width: 0;
 	}
 </style>
