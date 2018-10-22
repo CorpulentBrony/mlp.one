@@ -4,6 +4,8 @@
 	require_once "Rss.class.php";
 	require_once "RssOutput.interface.php";
 
+	const DETAILED_EPISODE_HISTORY = 5;
+	const EOL_REGEX = "/(?:\r\n|\r|\n)/";
 	const MAX_DESCRIPTION_LENGTH = 250;
 	const TRIM_MARKER = "… (read more at %s)";
 	const TRIM_MARKER_HTML = "… (read more)";
@@ -15,8 +17,7 @@
 			$eow = " ";
 			$eolLength = mb_strlen($eol);
 			$eowLength = mb_strlen($eow);
-			$eolRegex = "/(?:\r\n|\r|\n)/";
-			$lines = array_map(function(string $line) use ($eow, $text): array { return explode($eow, $line); }, preg_split($eolRegex, $optionalTrim($text)));
+			$lines = array_map(function(string $line) use ($eow, $text): array { return explode($eow, $line); }, preg_split(EOL_REGEX, $optionalTrim($text)));
 			$output = "";
 
 			foreach ($lines as $words) {
@@ -37,8 +38,6 @@
 		}
 
 		private function getTrimmedDescription(): string {
-			if ($this->number > $this->lastEpisodeNumber)
-				return $this->description;
 			$trimMarker = sprintf(TRIM_MARKER, parent::getEpisodeManagerUrl());
 			$maxLength = MAX_DESCRIPTION_LENGTH - mb_strlen($trimMarker);
 			return self::trimText($this->description, $trimMarker, $maxLength);
@@ -83,12 +82,10 @@
 
 		public function toRss(Rss $rss): void {
 			$episodeManagerUrl = parent::getEpisodeManagerUrl();
-			[$description, $note] = ($this->number <= $this->lastEpisodeNumber - 5) ? [$this->getTrimmedDescription(), $this->getTrimmedNote()] : [$this->description, $this->note];
-			// $description = ($this->number <= $this->lastEpisodeNumber - 5) ? $this->getTrimmedDescription() : $this->description;
-			// $note = ($this->number <= $this->lastEpisodeNumber - 5) ? $this->getTrimmedNote() : $this->description;
+			[$description, $note] = ($this->number <= $this->lastEpisodeNumber - DETAILED_EPISODE_HISTORY) ? [$this->getTrimmedDescription(), $this->getTrimmedNote()] : [$this->description, $this->note];
+			$description = preg_replace(EOL_REGEX, "<br>", $description);
 			$youtubeUrl = parent::getYouTubeUrl();
 			$item = $rss->createElement("item");
-			$rss->createElement("test", [], mb_strlen($this->description), $item);
 			$rss->createElement("title", [], $this->title, $item);
 			$rss->createElement("link", [], $episodeManagerUrl, $item);
 			$rss->createCDATASection("description", [], $description, $item);
@@ -111,14 +108,14 @@
 			$rss->createElement("itunes:title", [], $this->title, $item);
 
 			if (is_null($this->note))
-				$rss->createElement("media:description", ["type" => "plain"], $description, $item);
+				$rss->createCDATASection("media:description", ["type" => "plain"], $description, $item);
 			else
 				$rss->createCDATASection("media:description", ["type" => "html"], $note, $item);
 			$mediaGroup = $rss->createElement("media:group", [], null, $item);
 
 			foreach ($this->files as $file)
 				$file->toRss($rss, $mediaGroup);
-			$rss->createElement("media:content", ["channels" => 2, "duration" => $this->length, "lang" => "en", "medium" => "audio", "type" => "audio/ogg", "url" => "{$this->getEpisodeManagerUrl()}.ogg"], null, $mediaGroup);
+			$rss->createElement("media:content", ["channels" => 2, "duration" => $this->length, "lang" => "en", "medium" => "audio", "type" => "audio/ogg", "url" => "{$episodeManagerUrl}.ogg"], null, $mediaGroup);
 			$rss->createElement("media:player", ["url" => $this->getYouTubeEmbedUrl()], null, $rss->createElement("media:content", ["lang" => "en", "medium" => "video"], null, $mediaGroup));
 			$rss->createElement("media:keywords", [], implode(", ", $this->keywords), $item);
 			$rss->createElement("media:thumbnail", ["url" => parent::getYouTubeThumbnail()], null, $item);

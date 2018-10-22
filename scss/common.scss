@@ -1,5 +1,6 @@
 @charset "utf-8";
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500");
+@import url("https://fonts.googleapis.com/css?family=Roboto+Mono:400");
 
 @import "colors";
 @import "mdc-theme";
@@ -12,6 +13,10 @@ body {
 	margin: 0;
 }
 h1, h2, h3, h4, h5, h6 { margin: 0; }
+pre {
+	font-family: "Roboto Mono", Consolas, monospace;
+	white-space: pre-wrap;
+}
 span[role=img] { color: $mdc-theme-secondary; }
 
 .mlp-bold { font-weight: 500; }
@@ -20,6 +25,10 @@ span[role=img] { color: $mdc-theme-secondary; }
 	fill: #789922;
 
 	&::before { content: "\3e"; }
+}
+.mlp-pre {
+	@extend pre;
+	margin: 14px 0;
 }
 .mlp-ripple-surface {
 	@include mdc-ripple-surface;

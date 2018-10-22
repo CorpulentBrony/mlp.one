@@ -45,6 +45,18 @@ export function checkWebpSupport() {
 	}
 }
 
+export function createElement(name, attributes = {}, parent = undefined, text = undefined) {
+	const element = window.document.createElement(name);
+	setAttributes(element, attributes);
+
+	if (text !== undefined)
+		element.textContent = text;
+
+	if (parent !== undefined)
+		parent.appendChild(element);
+	return element;
+}
+
 export function getElement({ elementId, elementSelector }) { return elementId ? window.document.getElementById(elementId) : window.document.querySelector(elementSelector); }
 
 export async function loadDeferredStylesheets(containerId = "deferred-stylesheets") {
@@ -58,6 +70,11 @@ export async function loadDeferredStylesheets(containerId = "deferred-stylesheet
 		await isDocumentLoaded;
 		loader.call(undefined);
 	}
+}
+
+function setAttributes(element, attributes = {}) {
+	for (const key in attributes)
+		element.setAttribute(key, attributes[key]);
 }
 
 export function writeTextToClipboard(text) { // returns window.Promise
@@ -83,18 +100,6 @@ export function writeTextToClipboard(text) { // returns window.Promise
 // 		if (fromElementAttribute !== null)
 // 			toElement.setAttribute(attributeIsString ? attribute : attribute[1], fromElementAttribute);
 // 	});
-// }
-
-// function createElement(name, attributes = {}, parent = undefined, text = undefined) {
-// 	const element = window.document.createElement(name);
-// 	setAttributes(element, attributes);
-
-// 	if (text !== undefined)
-// 		element.textContent = text;
-
-// 	if (parent !== undefined)
-// 		parent.appendChild(element);
-// 	return element;
 // }
 
 // function javaStringHash(string) { return window.Array.prototype.reduce.call(window.String(string), (hash, character) => (hash << 5) - hash + character.charCodeAt(0) | 0, 0); }
@@ -144,9 +149,4 @@ export function writeTextToClipboard(text) { // returns window.Promise
 // 	if (svg.tagName != "svg")
 // 		throw new window.Error(`Loaded document is not formatted as an SVG.  Received: ${svgText}`);
 // 	return svg;
-// }
-
-// function setAttributes(element, attributes = {}) {
-// 	for (const key in attributes)
-// 		element.setAttribute(key, attributes[key]);
 // }

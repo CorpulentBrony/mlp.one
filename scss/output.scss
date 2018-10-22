@@ -20,8 +20,16 @@ footer nav ul {
 	margin: 0;
 	padding: 0;
 }
-main {
-	width: var(--main-width);
+html::selection { background: $mdc-theme-secondary; }
+html::-moz-selection { background: $mdc-theme-secondary; }
+video {
+	height: 75px;
+	object-fit: initial;
+}
+::cue {
+	background-color: rgba(0, 0, 0, 0);
+	color: $mdc-theme-primary;
+	font-size: 18px;
 }
 
 .mdc-button {
@@ -39,6 +47,10 @@ main {
 
 	.mdc-snackbar__text { color: $mdc-theme-on-primary; }
 }
+.mlp-audio-timestamp {
+	cursor: pointer;
+	text-decoration: underline dotted $mdc-theme-secondary;
+}
 
 // this is also in common.scss now; need to fix
 #mlp-img-bg {
@@ -52,7 +64,7 @@ main {
 // the below was used for some fancy media query stuff that i abandoned, keeping it here for refernce in case
 
 // @function -mlp-media-res-query($min-pixel-ratio: false, $max-pixel-ratio: false) {
-// 	$pixel-ratio-components: 
+// 	$pixel-ratio-components:
 // 		(min-selector: "-webkit-min-device-pixel-ratio", max-selector: "-webkit-max-device-pixel-ratio", multiplier: 1, unit: ""),
 // 		(min-selector: "min-device-pixel-ratio", max-selector: "max-device-pixel-ratio", multiplier: 1, unit: ""),
 // 		(min-selector: "min-resolution", max-selector: "max-resolution", multiplier: 96, unit: "dpi"),

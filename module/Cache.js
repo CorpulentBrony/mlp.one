@@ -1,4 +1,3 @@
-"use strict";
 export class Cache {
 	static get(key) {
 		try { return window.localStorage.getItem(key); } catch (err) { return null; }

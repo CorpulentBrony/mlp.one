@@ -16,7 +16,8 @@
 			RequestType::TXT => ["extension" => "txt", "mimeType" => "text/plain", "outputHandler" => "output/txt.php"],
 			RequestType::JPG => ["extension" => "jpg", "mimeType" => "image/jpeg", "outputHandler" => "output/jpg.php"],
 			RequestType::TORRENT => ["extension" => "torrent", "mimeType" => "application/x-bittorrent", "outputHandler" => "output/torrent.php"],
-			RequestType::OGG => ["extension" => "ogg", "mimeType" => "audio/ogg", "outputHandler" => "output/ogg.php"]
+			RequestType::OGG => ["extension" => "ogg", "mimeType" => "audio/ogg", "outputHandler" => "output/ogg.php"],
+			RequestType::VTT => ["extension" => "vtt", "mimeType" => "text/vtt", "outputHandler" => "output/vtt.php"]
 		];
 
 		public static $types = self::TYPES; // array
@@ -44,7 +45,9 @@
 			if ($this->isIntegrityChecked)
 				return $this;
 			else if ($this->pathinfo["dirname"] !== self::EXPECTED_DIRECTORY)
-				throw new \Mlp\UnexpectedDirectoryException("Expected directory to be `" . self::EXPECTED_DIRECTORY . "`.  Received: `{$this->requestPath}`");
+				$this->outputError();
+			// else if ($this->pathinfo["dirname"] !== self::EXPECTED_DIRECTORY)
+			// 	throw new \Mlp\UnexpectedDirectoryException("Expected directory to be `" . self::EXPECTED_DIRECTORY . "`.  Received: `{$this->requestPath}`");
 			else if (!is_numeric($this->number))
 				throw new \UnexpectedValueException("Expected a numeric episode number.  Received: {$this->number}");
 			$this->type = RequestType::fromExtension($this->type);

@@ -14,6 +14,7 @@
 		public const JPG = 7;
 		public const TORRENT = 8;
 		public const OGG = 9;
+		public const VTT = 10;
 
 		public static function fromExtension($extension): int {
 			if (is_int($extension))

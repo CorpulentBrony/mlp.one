@@ -42,7 +42,7 @@
 	<mlp:title><?= xml($_SERVER["SITE_TITLE"]) ?></mlp:title>
 	<mlp:episode href="<?= $this->getRequestUrl(RequestType::HTML) ?>" id="<?= $this->episode->getGuid() ?>" number="<?= $this->episode->number ?>">
 		<mlp:default-file><?= filterFile($this->episode->defaultFile) ?></mlp:default-file>
-		<mlp:description type="text/plain"><?= xml($this->episode->description) ?></mlp:description>
+		<mlp:description type="text/plain"><![CDATA[<?= xml($this->episode->description) ?>]]></mlp:description>
 		<?php if (!is_null($this->episode->note)): ?>
 			<mlp:description type="text/html"><![CDATA[<?= $this->episode->note ?>]]></mlp:description>
 		<?php endif; ?>

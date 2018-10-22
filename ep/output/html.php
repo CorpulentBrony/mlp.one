@@ -95,9 +95,6 @@
 			@media only screen and (max-width: 768px) {
 				:root { --title-prefix-text: ""; }
 			}
-
-			html::selection { background: var(--mdc-theme-secondary); }
-			html::-moz-selection { background: var(--mdc-theme-secondary); }
 		</style>
 	</head>
 	<body class="mdc-typography">
@@ -108,10 +105,6 @@
 			<link href="/css/output.css" rel="stylesheet">
 			<link href="/css/typography.css" rel="stylesheet">
 		</noscript>
-		<!-- <picture data-pagespeed-no-transform>
-			<source data-pagespeed-no-transform sizes="(min-width: 1024px) 70vw, 100vw" srcset="/image/mlpodcast_couch/3840w.webp 3840w, /image/mlpodcast_couch/2880w.webp 2880w, /image/mlpodcast_couch/1920w.webp 1920w, /image/mlpodcast_couch/1280w.webp 1280w, /image/mlpodcast_couch/960w.webp 960w" type="image/webp">
-			<img alt="" data-pagespeed-no-transform id="mlp-img-bg" role="presentation" sizes="(min-width: 1024px) 70vw, 100vw" src="/image/mlpodcast_couch/960w.png" srcset="/image/mlpodcast_couch/3840w.png 3840w, /image/mlpodcast_couch/2880w.png 2880w, /image/mlpodcast_couch/1920w.png 1920w, /image/mlpodcast_couch/1280w.png 1280w" type="image/png">
-		</picture> -->
 		<!--# include file="/common/background.html" -->
 		<header class="mdc-top-app-bar">
 			<div class="mdc-top-app-bar__row">
@@ -141,9 +134,20 @@
 				<span itemid="<?= $_SERVER["PODCAST_TAG"] ?>?season=1" itemprop="partOfSeason" itemscope itemtype="http://schema.org/RadioSeason"></span>
 				<span itemid="<?= $_SERVER["PODCAST_TAG"] ?>" itemprop="partOfSeries" itemscope itemtype="http://schema.org/RadioSeries"></span>
 				<!-- <section class="mdc-card__media mdc-card__media--16-9"></section> -->
- 				<audio aria-label="Embedded audio player to listen to a stream of this episode" controls controlslist="nodownload" id="mlp-audio-element" preload="metadata">
+				<header>
+					<h6 id="microdata-name" itemprop="headline name"><?= $this->episode->title ?></h6>
+					<aside>
+						<time aria-label="Date this episode was published" datetime="<?= $publishDateIsoFormat ?>" itemprop="datePublished" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
+						<span title="Episode Duration">
+							<?= \Mlp\getSvg("../material-design-icons/device/svg/production/ic_access_time_24px.svg", ["height" => 12, "role" => "presentation", "width" => 12]) ?>
+							<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>" itemprop="timeRequired"><?= $this->episode->getDurationFormatted() ?></time>
+						</span>
+					</aside>
+				</header>
+ 				<video aria-label="Embedded audio player to listen to a stream of this episode" controls controlslist="nodownload" id="mlp-audio-element" preload="metadata">
  					<source src="<?= $thisEpisodeNumber ?>.ogg" type="audio/ogg">
  					<source src="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg">
+ 					<track default kind="subtitles" label="Topic List" src="<?= $thisEpisodeNumber ?>.vtt" srclang="en">
  					It appears your browser doesn't support embedded audio.  No worries, you can download the audio from one of the links on this page.
  					<span itemprop="audio" itemref="microdata-access-mode microdata-media-common microdata-thumbnail" itemscope itemtype="http://schema.org/AudioObject">
  						<link href="<?= $requestUrlOgg ?>" itemprop="contentUrl url">
@@ -159,17 +163,7 @@
  						<span content="<?= Request::TYPES[RequestType::MP3]["mimeType"] ?>" itemprop="fileFormat"></span>
  						<span content="<?= $this->episode->defaultFile->name ?>" itemprop="name"></span>
  					</span>
- 				</audio>
-				<header>
-					<h6 id="microdata-name" itemprop="headline name"><?= $this->episode->title ?></h6>
-					<aside>
-						<time aria-label="Date this episode was published" datetime="<?= $publishDateIsoFormat ?>" itemprop="datePublished" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
-						<span title="Episode Duration">
-							<?= \Mlp\getSvg("../material-design-icons/device/svg/production/ic_access_time_24px.svg", ["height" => 12, "role" => "presentation", "width" => 12]) ?>
-							<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>" itemprop="timeRequired"><?= $this->episode->getDurationFormatted() ?></time>
-						</span>
-					</aside>
-				</header>
+ 				</video>
 				<section>
 					<?= is_null($this->episode->note) ? str_replace("\n", "<br>", $this->episode->description) : str_ireplace("<a href=", "<a rel=\"noopener\" target=\"_blank\" href=", $this->episode->note) ?>
 				</section>
