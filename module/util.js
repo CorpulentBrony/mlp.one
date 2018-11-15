@@ -50,9 +50,9 @@ export function createElement(name, attributes = {}, parent = undefined, text = 
 	setAttributes(element, attributes);
 
 	if (text !== undefined)
-		element.textContent = text;
+		element.textContent = window.String(text);
 
-	if (parent !== undefined)
+	if (parent instanceof window.Node)
 		parent.appendChild(element);
 	return element;
 }
@@ -70,6 +70,7 @@ export async function loadDeferredStylesheets(containerId = "deferred-stylesheet
 		await isDocumentLoaded;
 		loader.call(undefined);
 	}
+	return true;
 }
 
 function setAttributes(element, attributes = {}) {

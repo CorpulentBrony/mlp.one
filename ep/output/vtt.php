@@ -1,7 +1,7 @@
 <?php
 	namespace Mlp\Ep;
 
-	const CUE_SETTINGS = "align:middle line:100% size:100%";
+	const CUE_SETTINGS = "";//"align:middle line:100% size:100%";
 	const TIME_FORMAT = "%02u:%02u:%06.3f";
 
 	function noTopicList(\DateInterval $episodeDuration) {
@@ -50,6 +50,9 @@ EOT;
 		$timeLabels = (strlen($topic[0]) > 5) ? ["H", "M", "S"] : ["M", "S"];
 		$time = "PT" . implode("", array_map(function (string $timeComponent, string $timeLabel): string { return $timeComponent . $timeLabel; }, explode(":", $topic[0]), $timeLabels));
 		$topic[0] = new \DateInterval($time);
+
+		if ($topic[0]->i >= 60)
+			list($topic[0]->h, $topic[0]->i) = [$topic[0]->h + ($topic[0]->i / 60 >> 0), $topic[0]->i % 60];
 		return $topic;
 	}, explode("\n", $topicListElement->textContent));
 	outputCue(1, new \DateInterval("PT0S"), $topics[0][0], "Intro", true);

@@ -40,7 +40,7 @@
 	<mlp:start-date>2017-11-10</mlp:start-date>
 	<mlp:thumbnail href="https:<?= $_SERVER["SITE_IMAGE"] ?>" />
 	<mlp:title><?= xml($_SERVER["SITE_TITLE"]) ?></mlp:title>
-	<mlp:episode href="<?= $this->getRequestUrl(RequestType::HTML) ?>" id="<?= $this->episode->getGuid() ?>" number="<?= $this->episode->number ?>">
+	<mlp:episode href="<?= preg_replace("/\.html$/", "", $this->getRequestUrl(RequestType::HTML)) ?>" id="<?= $this->episode->getGuid() ?>" number="<?= $this->episode->number ?>">
 		<mlp:default-file><?= filterFile($this->episode->defaultFile) ?></mlp:default-file>
 		<mlp:description type="text/plain"><![CDATA[<?= xml($this->episode->description) ?>]]></mlp:description>
 		<?php if (!is_null($this->episode->note)): ?>

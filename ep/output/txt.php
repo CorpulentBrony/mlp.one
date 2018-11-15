@@ -22,7 +22,7 @@ Description
 Keywords: <?= implode(", ", $this->episode->keywords) ?>
 
 
-Web page: <?= $this->getRequestUrl(RequestType::HTML) ?>
+Web page: <?= preg_replace("/\.html$/", "", $this->getRequestUrl(RequestType::HTML)) ?>
 
 MP3 file: <?= $this->getRequestUrl(RequestType::MP3) ?> (file size: <?= $this->episode->defaultFile->size ?> bytes)
 YouTube: <?= $this->episode->getYouTubeUrl() ?>

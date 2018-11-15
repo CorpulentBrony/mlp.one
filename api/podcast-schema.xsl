@@ -45,8 +45,8 @@
 		<script type="application/ld+json">
 			{
 				"@context": "http://schema.org",
-				"@id": "<xsl:value-of select="$seasonTag" />", 
-				"@type": "RadioSeason", 
+				"@id": "<xsl:value-of select="$seasonTag" />",
+				"@type": "RadioSeason",
 				"name": "<xsl:value-of select="title" /> Season <xsl:value-of select="item[1]/itunes:season" />",
 				"numberOfEpisodes": <xsl:value-of select="count(item)" />,
 				"partOfSeries": { "@id": "<xsl:value-of select="$seriesTag" />", "@type": "RadioSeries" },
@@ -61,7 +61,7 @@
 				"@type": "ItemList",
 				"itemListElement": [<xsl:for-each select="item">
 						<xsl:sort select="itunes:episode" data-type="number" order="descending" />
-						<xsl:variable name="enclosureUrl">https://<xsl:value-of select="substring-after(enclosure/@url, 'http://')" /></xsl:variable>
+						<xsl:variable name="enclosureUrl"><xsl:value-of select="../link" />/ep/<xsl:value-of select="itunes:episode" />.<xsl:value-of select="substring-after(dcterms:alternative, '.')" /></xsl:variable>
 						<xsl:variable name="episodeDescription">
 							<xsl:call-template name="escape-quotes">
 								<xsl:with-param name="text">
@@ -83,9 +83,9 @@
 						{
 							"@type": "ListItem",
 							"position": <xsl:value-of select="position()" />,
-							"item": {
+<!-- 							"item": {
 								"@type": "RadioEpisode",
-								"@id": "<xsl:value-of select="guid" />",
+								"@id": "<xsl:value-of select="../link" />/ep/<xsl:value-of select="itunes:episode" />",
 								"episodeNumber": <xsl:value-of select="itunes:episode" />,
 								"audio": {
 									"@type": "AudioObject",
@@ -95,7 +95,7 @@
 									"bitrate": "<xsl:value-of select="(media:group[1]/media:content[@medium='audio'])[1]/@bitrate" />",
 									"contentSize": "<xsl:value-of select="enclosure/@length" />",
 									"contentUrl": "<xsl:value-of select="$enclosureUrl" />",
-									"duration": "PT<xsl:value-of select="(media:group[1]/media:content[@medium='audio'])[1]/@duration" />S", 
+									"duration": "PT<xsl:value-of select="(media:group[1]/media:content[@medium='audio'])[1]/@duration" />S",
 									"encodingFormat": "<xsl:value-of select="substring-after(dcterms:alternative, '.')" />",
 									"fileFormat": "<xsl:value-of select="enclosure/@type" />",
 									"name": "<xsl:value-of select="dcterms:alternative" />",
@@ -113,58 +113,10 @@
 								"partOfSeason": { "@id": "<xsl:value-of select="$seasonTag" />", "@type": "RadioSeason" },
 								"partOfSeries": { "@id": "<xsl:value-of select="$seriesTag" />", "@type": "RadioSeries" },
 								"position": <xsl:value-of select="itunes:episode" />,
-								"potentialAction": [{
-									"@type": "ConsumeAction",
-									"actionStatus": "PotentialActionStatus",
-									"additionalType": "http://schema.org/ListenAction",
-									"expectsAcceptanceOf": {
-										"@type": "Offer",
-										"availabilityStarts": "<xsl:value-of select="$filePublishedDate" />",
-										"category": "free"
-									},
-									"name": "Listen to <xsl:value-of select="source" />: <xsl:value-of select="$episodeName" />",
-									"target": {
-										"@type": "EntryPoint",
-										"actionPlatform": [
-											"http://schema.googleapis.com/GoogleVideoCast", "http://schema.org/AndroidPlatform", "http://schema.org/DesktopWebPlatform", "http://schema.org/IOSPlatform", "http://schema.org/MobileWebPlatform"
-										],
-										"inLanguage": "<xsl:value-of select="substring(../language, 1, 2)" />",
-										"urlTemplate": "<xsl:value-of select="$enclosureUrl" />"
-									},
-									"url": "<xsl:value-of select="$enclosureUrl" />"
-								}, {
-									"@type": "WatchAction",
-									"actionStatus": "PotentialActionStatus",
-									"expectsAcceptanceOf": {
-										"@type": "Offer",
-										"availabilityStarts": "<xsl:value-of select="$filePublishedDate" />",
-										"category": "free"
-									},
-									"name": "Watch <xsl:value-of select="source" />: <xsl:value-of select="$episodeName" />",
-									"target": {
-										"@type": "EntryPoint",
-										"actionPlatform": [
-											"http://schema.googleapis.com/GoogleVideoCast", "http://schema.org/AndroidPlatform", "http://schema.org/DesktopWebPlatform", "http://schema.org/IOSPlatform", "http://schema.org/MobileWebPlatform"
-										],
-										"inLanguage": "<xsl:value-of select="substring(../language, 1, 2)" />",
-										"urlTemplate": "<xsl:value-of select="link" />"
-									},
-									"url": "<xsl:value-of select="link" />"
-								}],
 								"thumbnailUrl": "<xsl:value-of select="$thumbnailUrl" />",
-								"timeRequired": "PT<xsl:value-of select="(media:group[1]/media:content[@medium='audio'])[1]/@duration" />S",
-								"url": "<xsl:value-of select="../link" />/#episode-<xsl:value-of select="itunes:episode" />",
-								"video": {
-									"@type": "VideoObject",
-									"@id": "<xsl:value-of select="comments" />",
-									"description": "<xsl:value-of select="$episodeDescription" />",
-									"embedUrl": "<xsl:value-of select="(media:group[1]/media:content[@medium='video'])[1]/media:player/@url" />",
-									"name": "<xsl:value-of select="$episodeName" />",
-									"thumbnailUrl": "<xsl:value-of select="$thumbnailUrl" />",
-									"uploadDate": "<xsl:value-of select="$filePublishedDate" />",
-									"url": "<xsl:value-of select="comments" />"
-								}
-							}
+								"timeRequired": "PT<xsl:value-of select="(media:group[1]/media:content[@medium='audio'])[1]/@duration" />S", -->
+								"url": "<xsl:value-of select="../link" />/ep/<xsl:value-of select="itunes:episode" />"
+							<!-- } -->
 						}</xsl:for-each>
 				]
 			}

@@ -1,5 +1,5 @@
 import { ComponentHandler } from "./ComponentHandler.js";
-import "../js/mdc-bundle.js";
+import "../js/mdc-snackbar.js";
 
 export class Snackbar extends ComponentHandler {
 	static alert(message, timeout = 5000) {

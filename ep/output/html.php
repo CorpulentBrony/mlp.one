@@ -13,52 +13,59 @@
 	$nextEpisodeNumber = $this->getNextEpisodeNumber();
 	$previousEpisodeNumber = $this->getPreviousEpisodeNumber();
 	$publishDateIsoFormat = $this->episode->publishDate->format("Y-m-d");
-	$requestUrl = $this->getRequestUrl(RequestType::HTML);
+	$requestUrl = preg_replace("/\.html$/", "", $this->getRequestUrl(RequestType::HTML));
 	$requestUrlMp3 = $this->getRequestUrl(RequestType::MP3);
 	$requestUrlOgg = $this->getRequestUrl(RequestType::OGG);
 	$youTubeThumbnail = $this->episode->getYouTubeThumbnail();
 	$youTubeUrl = $this->episode->getYouTubeUrl();
+	$skipPreviousSvg = \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_previous_24px.svg", ["aria-label" => "Go to previous episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Previous Episode"]);
+	$skipNextSvg = \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_next_24px.svg", ["aria-label" => "Go to next episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Next Episode"]);
+
+	function wrapNavSvg(bool $isDisabled, string $svg, string $targetEpisode): string {
+		if ($isDisabled)
+			return "<button aria-disabled=\"true\" class=\"mdc-button mdc-card__action\" disabled type=\"button\">{$svg}</button>";
+		return "<a class=\"mdc-button mdc-card__action\" href=\"{$targetEpisode}\" rel=\"prev\" role=\"button\">{$svg}</a>";
+	}
+
 	http_response_code(200);
 	header("Content-Type: {$this->mimeType}");
 ?><!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#" 🦄 🐎🐱>
-	<head id="microdata-head">
+	<head>
 		<meta charset="utf-8">
 		<!-- preconnects -->
-		<link href="//fonts.googleapis.com" rel="preconnect">
-		<link href="//fonts.gstatic.com" rel="preconnect">
-		<link href="//stats.g.doubleclick.net" rel="preconnect">
-		<link href="//www.google-analytics.com" rel="preconnect">
+		<link href="//fonts.googleapis.com" importance="high" rel="preconnect">
+		<link href="//fonts.gstatic.com" importance="high" rel="preconnect">
+		<link href="//stats.g.doubleclick.net" importance="low" rel="preconnect">
+		<link href="//www.google-analytics.com" importance="low" rel="preconnect">
 		<!-- preloads -->
-		<link as="style" href="//fonts.googleapis.com/css?family=Roboto:300,400,500" rel="preload" type="text/css">
+		<link as="style" importance="high" href="//fonts.googleapis.com/css?family=Roboto:300,400,500" rel="preload" type="text/css">
 		<!-- prefetches -->
-		<!-- <link as="audio" href="/ep/<?= $thisEpisodeNumber ?>.mp3" rel="prefetch" type="audio/mpeg"> -->
+		<!-- <link as="audio" importance="low" href="/ep/<?= $thisEpisodeNumber ?>.mp3" rel="prefetch" type="audio/mpeg"> -->
 		<!-- modules -->
-		<link href="/module/output.js" rel="modulepreload">
-		<link href="/module/ComponentHandler.js" rel="modulepreload">
-		<link href="/module/Cache.js" rel="modulepreload">
-		<link href="/module/Drawer.js" rel="modulepreload">
-		<link href="/module/MenuComponentHandler.js" rel="modulepreload">
-		<link href="/module/MoreFormatsMenu.js" rel="modulepreload">
-		<link href="/module/ShareMenu.js" rel="modulepreload">
-		<link href="/module/Snackbar.js" rel="modulepreload">
-		<link href="/module/ToggleableComponentHandler.js" rel="modulepreload">
-		<link href="/module/TopAppBar.js" rel="modulepreload">
-		<link href="/module/util.js" rel="modulepreload">
+		<link href="/module/output.js" importance="high" rel="modulepreload">
+		<link href="/module/ComponentHandler.js" importance="low" rel="modulepreload">
+		<link href="/module/Cache.js" importance="low" rel="modulepreload">
+		<link href="/module/Drawer.js" importance="low" rel="modulepreload">
+		<link href="/module/MenuComponentHandler.js" importance="low" rel="modulepreload">
+		<link href="/module/MoreFormatsMenu.js" importance="low" rel="modulepreload">
+		<link href="/module/ShareMenu.js" importance="low" rel="modulepreload">
+		<link href="/module/Snackbar.js" importance="low" rel="modulepreload">
+		<link href="/module/ToggleableComponentHandler.js" importance="low" rel="modulepreload">
+		<link href="/module/TopAppBar.js" importance="low" rel="modulepreload">
+		<link href="/module/util.js" importance="low" rel="modulepreload">
 		<?= file_get_contents("../common/header_base.html") ?>
 		<link href="<?= $requestUrl ?>" rel="canonical self" type="text/html">
-		<meta content="<?= $youTubeThumbnail ?>" id="microdata-thumbnail" name="twitter:image" property="og:image">
-		<meta content="<?= $youTubeThumbnail ?>" itemprop="image thumbnailUrl">
+		<meta content="<?= $youTubeThumbnail ?>" name="twitter:image" property="og:image">
+		<meta content="<?= $youTubeThumbnail ?>">
 		<meta content="1280" property="og:image:width">
 		<meta content="720" property="og:image:height">
 		<meta content="image/png" property="og:image:type">
 		<meta content="website" property="og:type">
-		<meta content="<?= $requestUrl ?>" itemprop="url" property="og:url">
+		<meta content="<?= $requestUrl ?>" property="og:url">
 		<meta content="<?= $episodeFullTitle ?>" name="title" property="og:title">
-		<meta content="<?= $description ?>" id="microdata-description" name="description" property="og:description">
-		<meta content="<?= $description ?>" itemprop="description">
+		<meta content="<?= $description ?>" name="description" property="og:description">
 		<meta content="<?= $keywords ?>" name="keywords">
-		<meta content="<?= $keywords ?>" itemprop="keywords">
 		<meta content="<?= $episodeFullTitle ?>" name="twitter:title">
 		<meta content="<?= $description ?>" name="twitter:description">
 		<script type="application/ld+json">
@@ -84,14 +91,12 @@
 				}]
 			}
 		</script>
-		<script src="<?= $thisEpisodeNumber ?>.jsonld" type="application/ld+json"></script>
+		<script id="mlp-episode-schema" type="application/ld+json"><?= file_get_contents("https://mlp.one/ep/{$thisEpisodeNumber}.jsonld") ?></script>
 		<title><?= $episodeFullTitle ?></title>
-		<script async defer nomodule src="/js/output.js"></script>
-		<script async src="/module/output.js" type="module"></script>
+		<script async defer importance="low" nomodule src="/js/output.js"></script>
+		<script async importance="low" src="/module/output.js" type="module"></script>
 		<style>
-			:root {
-				--title-prefix-text: "<?= $_SERVER["SITE_TITLE"] ?> ";
-			}
+			:root { --title-prefix-text: "<?= $_SERVER["SITE_TITLE"] ?> "; }
 			@media only screen and (max-width: 768px) {
 				:root { --title-prefix-text: ""; }
 			}
@@ -99,13 +104,12 @@
 	</head>
 	<body class="mdc-typography">
 		<noscript id="deferred-stylesheets">
-			<link href="/css/audio.css" rel="stylesheet">
-			<link href="/css/card.css" rel="stylesheet">
-			<link href="/css/common.css" rel="stylesheet">
-			<link href="/css/output.css" rel="stylesheet">
-			<link href="/css/typography.css" rel="stylesheet">
+			<link href="/css/card.css" importance="high" rel="stylesheet">
+			<link href="/css/common.css" importance="high" rel="stylesheet">
+			<link href="/css/output.css" importance="high" rel="stylesheet">
+			<link href="/css/typography.css" importance="high" rel="stylesheet">
 		</noscript>
-		<!--# include file="/common/background.html" -->
+		<?= file_get_contents("../common/background.html") ?>
 		<header class="mdc-top-app-bar">
 			<div class="mdc-top-app-bar__row">
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
@@ -114,7 +118,7 @@
 					</button>
 					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>">
 						<a href="/" rel="home index" title="<?= $_SERVER["SITE_TITLE"] ?>"></a> #
-						<span id="microdata-episode-number" itemprop="episodeNumber position"><?= $thisEpisodeNumber ?></span> - <?= $this->episode->title ?>
+						<?= $thisEpisodeNumber ?> - <?= $this->episode->title ?>
 					</data>
 				</section>
 				<section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end" role="toolbar">
@@ -127,71 +131,31 @@
 				</section>
 			</div>
 		</header>
-		<main>
-			<article class="mdc-card" itemid="<?= $guid ?>" itemref="microdata-episode-number microdata-head" itemscope itemtype="http://schema.org/RadioEpisode">
-				<data itemprop="isAccessibleForFree" value="true"></data>
-				<link href="https://donutsteel.pl" itemprop="license">
-				<span itemid="<?= $_SERVER["PODCAST_TAG"] ?>?season=1" itemprop="partOfSeason" itemscope itemtype="http://schema.org/RadioSeason"></span>
-				<span itemid="<?= $_SERVER["PODCAST_TAG"] ?>" itemprop="partOfSeries" itemscope itemtype="http://schema.org/RadioSeries"></span>
+		<main role="main">
+			<article aria-labelledby="mlp-episode-name" class="mdc-card">
 				<!-- <section class="mdc-card__media mdc-card__media--16-9"></section> -->
 				<header>
-					<h6 id="microdata-name" itemprop="headline name"><?= $this->episode->title ?></h6>
+					<h6 id="mlp-episode-name"><?= $this->episode->title ?></h6>
 					<aside>
-						<time aria-label="Date this episode was published" datetime="<?= $publishDateIsoFormat ?>" itemprop="datePublished" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
+						<time aria-label="Date this episode was published" datetime="<?= $publishDateIsoFormat ?>" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
 						<span title="Episode Duration">
 							<?= \Mlp\getSvg("../material-design-icons/device/svg/production/ic_access_time_24px.svg", ["height" => 12, "role" => "presentation", "width" => 12]) ?>
-							<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>" itemprop="timeRequired"><?= $this->episode->getDurationFormatted() ?></time>
+							<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>"><?= $this->episode->getDurationFormatted() ?></time>
 						</span>
 					</aside>
 				</header>
- 				<video aria-label="Embedded audio player to listen to a stream of this episode" controls controlslist="nodownload" id="mlp-audio-element" preload="metadata">
- 					<source src="<?= $thisEpisodeNumber ?>.ogg" type="audio/ogg">
- 					<source src="<?= $thisEpisodeNumber ?>.mp3" type="audio/mpeg">
- 					<track default kind="subtitles" label="Topic List" src="<?= $thisEpisodeNumber ?>.vtt" srclang="en">
- 					It appears your browser doesn't support embedded audio.  No worries, you can download the audio from one of the links on this page.
- 					<span itemprop="audio" itemref="microdata-access-mode microdata-media-common microdata-thumbnail" itemscope itemtype="http://schema.org/AudioObject">
- 						<link href="<?= $requestUrlOgg ?>" itemprop="contentUrl url">
- 						<span content="ogg" itemprop="encodingFormat"></span>
- 						<span content="<?= Request::TYPES[RequestType::OGG]["mimeType"] ?>" itemprop="fileFormat"></span>
- 						<span content="<?= $filePathInfo["filename"] ?>.ogg" itemprop="name"></span>
- 					</span>
- 					<span itemprop="audio" itemref="microdata-access-mode microdata-media-common microdata-thumbnail" itemscope itemtype="http://schema.org/AudioObject">
- 						<data itemprop="bitrate" value="<?= strval($this->episode->defaultFile->bitRate) ?>"></data>
- 						<data itemprop="contentSize" value="<?= strval($this->episode->defaultFile->size) ?>"></data>
- 						<link href="<?= $requestUrlMp3 ?>" itemprop="contentUrl url">
- 						<span content="<?= $filePathInfo["extension"] ?>" itemprop="encodingFormat"></span>
- 						<span content="<?= Request::TYPES[RequestType::MP3]["mimeType"] ?>" itemprop="fileFormat"></span>
- 						<span content="<?= $this->episode->defaultFile->name ?>" itemprop="name"></span>
- 					</span>
- 				</video>
+	 			<mlp-audio-player episode-name="<?= $episodeFullTitle ?>" episode-number="<?= $thisEpisodeNumber ?>"></mlp-audio-player>
 				<section>
 					<?= is_null($this->episode->note) ? str_replace("\n", "<br>", $this->episode->description) : str_ireplace("<a href=", "<a rel=\"noopener\" target=\"_blank\" href=", $this->episode->note) ?>
 				</section>
 				<footer class="mdc-card__actions">
 					<nav class="mdc-card__action-buttons">
 						<a class="mdc-button mdc-button--unelevated mdc-card__action mdc-card__action--button" href="<?= $thisEpisodeNumber ?>.mp3" role="button" type="audio/mpeg">Download</a>
-						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $youTubeUrl ?>" id="microdata-youtube-url" itemprop="discussionUrl" rel="external noopener" role="button" target="_blank" type="text/html">Watch</a>
+						<a class="mdc-button mdc-card__action mdc-card__action--button" href="<?= $youTubeUrl ?>" rel="external noopener" role="button" target="_blank" type="text/html">Watch</a>
 					</nav>
 					<nav class="mdc-card__action-icons">
-						<?php if (is_null($previousEpisodeNumber)): ?>
-							<button aria-disabled="true" class="mdc-button mdc-card__action" disabled type="button">
-								<?= \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_previous_24px.svg", ["aria-label" => "Go to previous episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Previous Episode"]) ?>
-							</button>
-						<?php else: ?>
-							<a class="mdc-button mdc-card__action" href="<?= strval($previousEpisodeNumber) ?>" rel="prev" role="button">
-								<?= \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_previous_24px.svg", ["aria-label" => "Go to previous episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Previous Episode"]) ?>
-							</a>
-						<?php endif; ?>
-
-						<?php if (is_null($nextEpisodeNumber)): ?>
-							<button aria-disabled="true" class="mdc-button mdc-card__action" disabled type="button">
-								<?= \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_next_24px.svg", ["aria-label" => "Go to next episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Next Episode"]) ?>
-							</button>
-						<?php else: ?>
-							<a class="mdc-button mdc-card__action" href="<?= strval($nextEpisodeNumber) ?>" rel="next">
-								<?= \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_next_24px.svg", ["aria-label" => "Go to next episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Next Episode"]) ?>
-							</a>
-						<?php endif; ?>
+						<?= wrapNavSvg(is_null($previousEpisodeNumber), $skipPreviousSvg, strval($previousEpisodeNumber)) ?>
+						<?= wrapNavSvg(is_null($nextEpisodeNumber), $skipNextSvg, strval($nextEpisodeNumber)) ?>
 						<aside class="mdc-menu-anchor">
 							<button aria-controls="mlp-menu-share" aria-haspopup="menu" class="mdc-button mdc-card__action" id="mlp-btn-share" role="button" tabindex="0" type="button">
 								<?= \Mlp\getSvg("../material-design-icons/social/svg/production/ic_share_24px.svg", ["aria-label" => "Share this episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Share"]) ?>
@@ -240,43 +204,6 @@
 						</aside>
 					</nav>
 				</footer>
-				<span itemprop="potentialAction" itemref="microdata-potential-action-common" itemscope itemtype="http://schema.org/ListenAction">
-					<span content="Listen to <?= $_SERVER["SITE_TITLE"] ?>: <?= $this->episode->title ?>" itemprop="name"></span>
-					<span itemprop="target" itemref="microdata-target-common" itemscope itemtype="http://schema.org/EntryPoint">
-						<link href="<?= $requestUrlMp3 ?>" itemprop="urlTemplate">
-					</span>
-					<link href="<?= $requestUrlMp3 ?>" itemprop="url">
-				</span>
-				<span itemprop="potentialAction" itemref="microdata-potential-action-common" itemscope itemtype="http://schema.org/WatchAction">
-					<span content="Watch <?= $_SERVER["SITE_TITLE"] ?>: <?= $this->episode->title ?>" itemprop="name"></span>
-					<span itemprop="target" itemref="microdata-target-common" itemscope itemtype="http://schema.org/EntryPoint">
-						<link href="<?= $youTubeUrl ?>" itemprop="urlTemplate">
-					</span>
-					<link href="<?= $youTubeUrl ?>" itemprop="url">
-				</span>
-				<span itemprop="video" itemref="microdata-description microdata-media-common microdata-name microdata-thumbnail" itemscope itemtype="http://schema.org/VideoObject">
-					<link href="<?= $this->episode->getYouTubeEmbedUrl() ?>" itemprop="embedUrl">
-					<link href="<?= $youTubeUrl ?>" itemprop="url">
-				</span>
-			</article>
-			<span content="auditory" id="microdata-access-mode" itemprop="accessMode accessModeSufficient"></span>
-			<span id="microdata-media-common">
-				<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>" itemprop="duration"></time>
-				<time datetime="<?= $publishDateIsoFormat ?>" itemprop="uploadDate"></time>
-			</span>
-			<span id="microdata-potential-action-common">
-				<span content="PotentialStatusAction" itemprop="actionStatus"></span>
-				<span itemprop="expectsAcceptanceOf" itemscope itemtype="http://schema.org/Offer">
-					<time datetime="<?= $publishDateIsoFormat ?>" itemprop="availabilityStarts"></time>
-					<span content="free" itemprop="category"></span>
-				</span>
-			</span>
-			<span id="microdata-target-common">
-				<link href="http://schema.googleapis.com/GoogleVideoCast" itemprop="actionPlatform">
-				<link href="http://schema.org/DesktopWebPlatform" itemprop="actionPlatform">
-				<link href="http://schema.org/MobileWebPlatform" itemprop="actionPlatform">
-				<span content="en" itemprop="inLanguage"></span>
-			</span>
 		</main>
 		<?= file_get_contents("../common/drawer.html") ?>
 		<aside aria-hidden="true" class="mdc-snackbar mdc-snackbar--align-start" role="alert">

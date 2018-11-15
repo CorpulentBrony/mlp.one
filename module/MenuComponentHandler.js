@@ -1,6 +1,6 @@
 "use strict";
 import { ToggleableComponentHandler } from "./ToggleableComponentHandler.js";
-import "../js/mdc-bundle.js";
+import "../js/mdc-menu.js";
 
 export class MenuComponentHandler extends ToggleableComponentHandler {
 	constructor({ elementId, triggerElementId, triggerElementSelector }) {

@@ -13,7 +13,7 @@
 	const ACL = "public-read";
 	const BUCKET = "podcast.mlp.one";
 	const KEY = "files/";
-	const STORAGE_CLASS = "REDUCED_REDUNDANCY";
+	const STORAGE_CLASS = "ONEZONE_IA";
 
 	$pdo = new \PDO(...PDO_ARGS);
 	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -182,7 +182,7 @@
 					"PipelineId" => "1527129380843-abgkhi"
 				]);
 			})
-			->otherwise(function ($err): void { throw new OutputException(Errors::single("file", "received following error when attempting to copy file to S3: " . var_export($err, true))); })
+			->otherwise(function ($err): void { throw new OutputException(Errors::single("file", "received following error when attempting to copy file to S3: " . print_r($err, true))); })
 			->wait();
 		// set metadata in database for episode
 		$inputFieldsEpisode->put("length", date_timestamp_set(new \DateTime(), $inputFieldsEpisode->get("length"))->format("H:i:s"));

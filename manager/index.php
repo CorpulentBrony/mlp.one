@@ -151,7 +151,7 @@
 				<output aria-live="polite" form="uploadForm" id="formSubmissionResult" role="status"></output>
 				<!-- for grid layout: https://css-tricks.com/snippets/css/complete-guide-grid/ -->
  				<form action="submit" aria-labelledby="welcomeMessage" autocomplete="on" enctype="multipart/form-data" id="fileUploadForm" method="post" name="fileUploadForm" role="form">
- 					<input name="MAX_FILE_SIZE" type="hidden" value="100000000">
+ 					<input name="MAX_FILE_SIZE" type="hidden" value="200000000">
 					<input aria-errormessage="errorMessageDiv" aria-required accept="audio/*" id="fileUploadInput" name="fileUploadInput" placeholder="Choose podcast file" required type="file">
 					<fieldset>
 						<legend>Upload Episode</legend>

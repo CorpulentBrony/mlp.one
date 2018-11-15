@@ -4,7 +4,6 @@ import { getElement } from "./util.js";
 export class ComponentHandler {
 	constructor({ elementId, elementSelector, eventListeners, mdcType }) {
 		this.__element = getElement({ elementId, elementSelector }); // window.Element
-
 		if (!this.element)
 			return;
 

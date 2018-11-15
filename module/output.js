@@ -1,32 +1,54 @@
 "use strict";
-import { Cache } from "./Cache.js";
 import { Drawer } from "./Drawer.js";
+import { MlpAudioPlayer } from "./MlpAudioPlayer.mjs";
 import { MoreFormatsMenu } from "./MoreFormatsMenu.js";
 import { ShareMenu } from "./ShareMenu.js";
 import { TopAppBar } from "./TopAppBar.js";
-import { async, checkWebpSupport, createElement, isDocumentLoaded, loadDeferredStylesheets } from "./util.js";
+import { async, createElement, isDocumentLoaded, loadDeferredStylesheets } from "./util.js";
+import "../js/mdc-ripple.js";
 
 (async function output() {
-	const URL = window.URL || window.webkitURL;
-	const documentUrl = new URL(window.location.href);
+	const episode = {
+		cache(object, name, value) {
+			delete object[name];
+			return window.Object.defineProperty(object, name, { value })[name];
+		},
+		get number() { return this.cache(this, "number", episode.schema.position); },
+		get schema() { return this.cache(this, "schema", window.JSON.parse(window.document.getElementById("mlp-episode-schema").textContent)); }
+	};
 	const rippleButtonClassNames = [".mdc-button", ".mdc-chip", ".mdc-fab", ".mdc-list-item", ".mdc-ripple-surface"]; // removing ".mdc-card__primary-action"
 
 	function attachRipple(querySelector) { window.document.querySelectorAll(querySelector).forEach((item) => new window.mdc.MDCRipple(item)); }
 
+	function defineCustomElements() {
+		const customElements = { ["mlp-audio-player"]: MlpAudioPlayer };
+		const supportsCustomElements = window.customElements && window.customElements.define;
+		const supportsRegisterElement = window.Boolean(window.document.registerElement);
+
+		if (!supportsCustomElements && !supportsRegisterElement)
+			return;
+
+		for (const element in customElements)
+			if (supportsCustomElements)
+				window.customElements.define(element, customElements[element]);
+			else if (supportsRegisterElement)
+				window.document.registerElement(element, customElements[element]);
+	}
+
 	async function documentOnLoad() {
 		loadDeferredStylesheets();
 		await isDocumentLoaded;
-		const episodeNumber = window.Number(window.document.getElementById("microdata-episode-number").textContent);
+		const episodeNumber = episode.number;
 		// window.document.addEventListener("mousedown", console.log);
 		// window.addEventListener("mouseup", console.log);
 		window.document.removeEventListener("DOMContentLoaded", documentOnLoad, false)
 		return window.Promise.all(async([
-			// checkWebpSupport,
-			setupAudioControls.bind(undefined, episodeNumber),
+			makeTimestampsClickable,
 			() => new Drawer({ currentElement: findSelectedEpisodeListItem(episodeNumber), topAppBar: new TopAppBar(), triggerElementSelector: "header.mdc-top-app-bar button.mdc-top-app-bar__navigation-icon" }),
 			() => new MoreFormatsMenu({ triggerElementId: "mlp-btn-more-formats" }),
 			() => new ShareMenu({ triggerElementId: "mlp-btn-share" }),
-			() => rippleButtonClassNames.forEach((querySelector) => attachRipple(querySelector))
+			() => rippleButtonClassNames.forEach((querySelector) => attachRipple(querySelector)),
+			defineCustomElements
 		]));
 	}
 
@@ -40,13 +62,7 @@ import { async, checkWebpSupport, createElement, isDocumentLoaded, loadDeferredS
 		return selectedEpisodeListItem;
 	}
 
-	function gotoTimestamp(audioElement, seconds) {
-		audioElement.currentTime = seconds;
-		audioElement.play();
-		window.scrollTo({ behavior: "smooth", left: 0, top: 0 });
-	}
-
-	function makeTimestampsClickable(audioElement, episodeNumber) {
+	function makeTimestampsClickable() {
 		const sectionSelector = "main > article > section";
 		const timeLinkClass = "mlp-audio-timestamp";
 		const trimStart = String.prototype.trimStart || String.prototype.trimLeft;
@@ -55,7 +71,9 @@ import { async, checkWebpSupport, createElement, isDocumentLoaded, loadDeferredS
 			const seconds = this.dataset.seconds;
 			event.preventDefault();
 			event.stopPropagation();
-			gotoTimestamp(audioElement, seconds);
+			const audioPlayer = window.document.querySelector("mlp-audio-player");
+			audioPlayer.currentTime = seconds;
+			audioPlayer.play();
 			window.history.pushState({ seconds }, undefined, `?t=${this.dataset.seconds}`);
 			return false;
 		}
@@ -78,35 +96,10 @@ import { async, checkWebpSupport, createElement, isDocumentLoaded, loadDeferredS
 					updateTimestamps(newTextNode);
 				});
 			} else
-					window.Array.prototype.forEach.call(node.childNodes, (child) => updateTimestamps(child));
+				window.Array.prototype.forEach.call(node.childNodes, (child) => updateTimestamps(child));
 		}
 
 		updateTimestamps(window.document.querySelector(sectionSelector));
-		// window.Array.prototype.forEach.call(window.document.getElementsByClassName(timeLinkClass), (timeLink) => timeLink.addEventListener("click", timestampOnClick, false));
-	}
-
-	function setupAudioControls(episodeNumber) {
-		const audioElement = window.document.querySelector("video");
-		const cachedCurrentTimeKey = `episode-${window.String(episodeNumber)}-current-time`;
-		const cachedCurrentTimeValue = Cache.get(cachedCurrentTimeKey);
-		const cachedVolumeKey = "volume";
-		const cachedVolumeValue = Cache.get(cachedVolumeKey);
-
-		if (cachedVolumeValue != null)
-			audioElement.volume = window.Number(cachedVolumeValue);
-
-		if (cachedCurrentTimeValue != null)
-			audioElement.currentTime = window.Number(cachedCurrentTimeValue);
-		audioElement.addEventListener("timeupdate", () => Cache.set(cachedCurrentTimeKey, audioElement.currentTime), false);
-		audioElement.addEventListener("volumechange", () => Cache.set(cachedVolumeKey, audioElement.volume), false);
-
-		if (documentUrl.searchParams.has("t"))
-			gotoTimestamp(audioElement, window.Number(documentUrl.searchParams.get("t")));
-		makeTimestampsClickable(audioElement, episodeNumber);
-		window.addEventListener("popstate", (event) => {
-			if (event.state && "seconds" in event.state)
-				gotoTimestamp(audioElement, event.state.seconds);
-		}, false);
 	}
 
 	return documentOnLoad();
