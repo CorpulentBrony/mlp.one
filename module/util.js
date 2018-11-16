@@ -6,6 +6,7 @@ export const isDocumentLoaded = new window.Promise((resolve) => {
 	else
 		resolve();
 });
+export const URL = window.URL || window.webkitURL;
 
 export function async(funcOrArray) {
 	if (window.Array.isArray(funcOrArray))
@@ -45,6 +46,8 @@ export function checkWebpSupport() {
 	}
 }
 
+export function createDefinedElement({ TAG, ATTRIBUTES = {}, TEXT = undefined }, parent = undefined) { return createElement(TAG, ATTRIBUTES, parent, TEXT); }
+
 export function createElement(name, attributes = {}, parent = undefined, text = undefined) {
 	const element = window.document.createElement(name);
 	setAttributes(element, attributes);
@@ -72,6 +75,8 @@ export async function loadDeferredStylesheets(containerId = "deferred-stylesheet
 	}
 	return true;
 }
+
+export function preload(files = []) { files.forEach((href) => createElement("link", { as: "style", importance: "high", href, rel: "preload", type: "text/css" }, window.document.head)); }
 
 function setAttributes(element, attributes = {}) {
 	for (const key in attributes)

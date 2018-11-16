@@ -140,11 +140,11 @@
 						<time aria-label="Date this episode was published" datetime="<?= $publishDateIsoFormat ?>" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
 						<span title="Episode Duration">
 							<?= \Mlp\getSvg("../material-design-icons/device/svg/production/ic_access_time_24px.svg", ["height" => 12, "role" => "presentation", "width" => 12]) ?>
-							<time datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>"><?= $this->episode->getDurationFormatted() ?></time>
+							<time aria-label="Episode Duration" datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>"><?= $this->episode->getDurationFormatted() ?></time>
 						</span>
 					</aside>
 				</header>
-	 			<mlp-audio-player episode-name="<?= $episodeFullTitle ?>" episode-number="<?= $thisEpisodeNumber ?>"></mlp-audio-player>
+	 			<mlp-audio-player></mlp-audio-player>
 				<section>
 					<?= is_null($this->episode->note) ? str_replace("\n", "<br>", $this->episode->description) : str_ireplace("<a href=", "<a rel=\"noopener\" target=\"_blank\" href=", $this->episode->note) ?>
 				</section>
@@ -204,6 +204,7 @@
 						</aside>
 					</nav>
 				</footer>
+			</article>
 		</main>
 		<?= file_get_contents("../common/drawer.html") ?>
 		<aside aria-hidden="true" class="mdc-snackbar mdc-snackbar--align-start" role="alert">

@@ -26,23 +26,6 @@ main > article > section { margin-top: 0.5rem; }
 pre[data-is-topic-list] { line-height: 36px; }
 *[aria-hidden=true] { visibility: hidden; }
 
-#mlp-audio {
-	&-chapter-display {
-		cursor: default;
-		font-size: large;
-		line-height: 25px;
-		overflow: hidden;
-		text-align: center;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		z-index: 100;
-	}
-	&-player-container {
-		background-color: $mdc-theme-on-secondary;
-		box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
-	}
-}
-
 .mdc-button {
 	@include mlp-disable-user-select;
 

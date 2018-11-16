@@ -13,7 +13,7 @@ import "../js/mdc-ripple.js";
 			delete object[name];
 			return window.Object.defineProperty(object, name, { value })[name];
 		},
-		get number() { return this.cache(this, "number", episode.schema.position); },
+		get number() { return this.cache(this, "number", episode.schema.episodeNumber); },
 		get schema() { return this.cache(this, "schema", window.JSON.parse(window.document.getElementById("mlp-episode-schema").textContent)); }
 	};
 	const rippleButtonClassNames = [".mdc-button", ".mdc-chip", ".mdc-fab", ".mdc-list-item", ".mdc-ripple-surface"]; // removing ".mdc-card__primary-action"

@@ -21,7 +21,7 @@
 			"accessModeSufficient" => "auditory",
 			"bitrate" => strval($this->episode->defaultFile->bitRate * 1000),
 			"contentSize" => strval($this->episode->defaultFile->size),
-			"contentUrl" => $fileUrl,
+			"contentUrl" => $oggUrl,
 			"duration" => $duration,
 			"encodingFormat" => "ogg",
 			"fileFormat" => "audio/ogg",
