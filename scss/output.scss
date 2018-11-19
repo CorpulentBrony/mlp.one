@@ -22,8 +22,6 @@ footer nav ul {
 }
 html::selection { background: $mdc-theme-secondary; }
 html::-moz-selection { background: $mdc-theme-secondary; }
-main > article > section { margin-top: 0.5rem; }
-pre[data-is-topic-list] { line-height: 36px; }
 *[aria-hidden=true] { visibility: hidden; }
 
 .mdc-button {
@@ -40,10 +38,6 @@ pre[data-is-topic-list] { line-height: 36px; }
 	background-color: $mdc-theme-primary;
 
 	.mdc-snackbar__text { color: $mdc-theme-on-primary; }
-}
-.mlp-audio-timestamp {
-	cursor: pointer;
-	text-decoration: underline dotted $mdc-theme-secondary;
 }
 
 // this is also in common.scss now; need to fix

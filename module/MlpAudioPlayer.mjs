@@ -1,12 +1,13 @@
 import { Cache } from "./Cache.js";
 import { Episode } from "./Episode.mjs";
-import { createDefinedElement, createElement, preload, URL } from "./util.js";
+import { createElement, preload, URL } from "./util.js";
 
 // check out MediaSession API: https://developer.mozilla.org/en-US/docs/Web/API/Media_Session_API
 // also: https://developers.google.com/web/updates/2017/02/media-session
 // for custom elements: https://developers.google.com/web/fundamentals/web-components/customelements
 
 // constants
+const BROADCAST_CHANNEL_NAME = "mlp_audio_player";
 const CACHED_TIME_KEY = "episode-%n-current-time";
 const CACHED_VOLUME_KEY = "volume";
 
@@ -30,16 +31,19 @@ const INLINE_CSS = `
 	}
 `;
 
+// HTML
+const TEMPLATE = window.document.createElement("template");
+TEMPLATE.innerHTML = `
+	<style>${INLINE_CSS}</style>
+	<div id="container">
+		<div aria-atomic="true" aria-hidden="true" aria-label="Current topic display" aria-live="polite" id="display" title="Current topic">Currently playing display</div>
+		<audio aria-controls="display" aria-label="Embedded audio player to listen to the podcast audio stream" controls controlslist="nodownload" id="audio" preload="metadata">
+			It appears your browser doesn't support embedded audio.  No worries, you can download the audio from one of the links on this page.
+		</audio>
+	</div>
+`;
+
 // shadow DOM definitions
-const SHADOW_DOM = {
-	CONTAINER: { TAG: "div", ATTRIBUTES: { id: "container" } },
-	DISPLAY: { TAG: "div", ATTRIBUTES: { ["aria-atomic"]: true, ["aria-hidden"]: true, ["aria-label"]: "Current topic display", ["aria-live"]: "polite", id: "display", title: "Current topic" }, TEXT: "Currently playing display" },
-	AUDIO: {
-		TAG: "audio",
-		ATTRIBUTES: { ["aria-controls"]: "display", ["aria-label"]: "Embedded audio player to listen to an audio stream", controls: true, controlslist: "nodownload", id: "audio", preload: "metadata" },
-		TEXT: "It appears your browser doesn't support embedded audio.  No worries, you can download the audio from one of the links on this page."
-	}
-};
 const TRACK_ATTRIBUTES = { default: true, kind: "chapters", label: "Topic List" };
 
 // media session constants (used for Android now-playing)
@@ -58,20 +62,22 @@ const MEDIA_SESSION_SKIP_TIME_SECONDS = 10;
 // other constants (not configurable)
 const _privates = new window.WeakMap();
 const documentUrl = new URL(window.location.href);
+const isBroadcastChannelSupported = "BroadcastChannel" in window;
 
+// private methods
 function createDom() {
-	preload(CSS_FILES);
+	preload(CSS_FILES, { as: "style", importance: "high", type: "text/css" });
+	preload([`${window.String(Episode.number)}.vtt`], { as: "track", type: "text/vtt" });
 	const privates = _privates.get(this);
-	const player = new window.DocumentFragment();
-	CSS_FILES.forEach((href) => createElement("link", { href, importance: "high", rel: "stylesheet" }, player));
-	const container = createDefinedElement(SHADOW_DOM.CONTAINER, player);
-	privates.display = createDefinedElement(SHADOW_DOM.DISPLAY, container);
-	privates.audio = createDefinedElement(SHADOW_DOM.AUDIO, container);
-	Episode.audio.forEach((audio) => createElement("source", { src: audio.url.pathname, type: audio.fileFormat }, privates.audio));
-	createElement("track", window.Object.assign({ src: `${window.String(Episode.number)}.vtt` }, TRACK_ATTRIBUTES), privates.audio);
-	createElement("style", {}, player, INLINE_CSS);
+	const template = TEMPLATE.content.cloneNode(true);
+	privates.audio = template.getElementById("audio");
+	privates.display = template.getElementById("display");
 	const shadow = this.attachShadow({ mode: "open" });
-	shadow.appendChild(player);
+	shadow.appendChild(template);
+}
+function onBroadcastChannelMessage(event) {
+	if (event.data.isPlaying)
+		this.pause();
 }
 function onCueChange() {
 	const privates = _privates.get(this);
@@ -83,6 +89,7 @@ function onEnded() {
 	const privates = _privates.get(this);
 	privates.display.setAttribute("aria-hidden", true);
 	this.cache.currentTime = undefined;
+	this.playing = false;
 }
 function onPlay() {
 	const privates = _privates.get(this);
@@ -94,6 +101,12 @@ function onPlay() {
 	}
 	onCueChange.call(this);
 	privates.display.removeAttribute("aria-hidden");
+	this.playing = true;
+	sendBroadcast.call(this, { isPlaying: true });
+}
+function sendBroadcast(message) {
+	if (isBroadcastChannelSupported)
+		_privates.get(this).broadcastChannel.postMessage(message);
 }
 function setupAudio() {
 	const privates = _privates.get(this);
@@ -104,6 +117,8 @@ function setupAudio() {
 	if (this.cache.currentTime != null)
 		this.currentTime = this.cache.currentTime;
 	privates.audio.addEventListener("ended", onEnded.bind(this), false);
+	// privates.audio.addEventListener("offline", onOffline.bind(this), false);
+	privates.audio.addEventListener("pause", () => this.playing = false, false);
 	privates.audio.addEventListener("play", onPlay.bind(this), false);
 	privates.audio.addEventListener("timeupdate", () => this.cache.currentTime = this.currentTime, false);
 	privates.audio.addEventListener("volumechange", () => this.cache.volume = this.volume, false);
@@ -114,7 +129,6 @@ function setupAudio() {
 		if (event.state && "seconds" in event.state)
 			this.currentTime = event.state.seconds;
 	}, false);
-	privates.audio.textTracks[0].addEventListener("cuechange", onCueChange.bind(this), false);
 }
 function setupCache() {
 	const cache = window.Object.defineProperties({}, { currentTime: Cache.getAccessor(CACHED_TIME_KEY.replace("%n", window.String(Episode.number))), volume: Cache.getAccessor(CACHED_VOLUME_KEY) });
@@ -124,12 +138,18 @@ function setupCache() {
 export class MlpAudioPlayer extends window.HTMLElement {
 	constructor() {
 		super();
-		 _privates.set(this, { audio: {}, display: {} });
+		const privates = _privates.set(this, { audio: {}, display: {}, hasLoaded: false }).get(this);
+
+		if (isBroadcastChannelSupported) {
+			privates.broadcastChannel = new window.BroadcastChannel(BROADCAST_CHANNEL_NAME);
+			privates.broadcastChannel.addEventListener("message", onBroadcastChannelMessage.bind(this), false);
+		}
 		createDom.call(this);
 		setupCache.call(this);
 		setupAudio.call(this);
 	}
 	get currentTime() { return _privates.get(this).audio.currentTime; }
+	get playing() { return this.hasAttribute("playing"); }
 	get readyState() { return _privates.get(this).audio.readyState; }
 	get volume() { return _privates.get(this).audio.volume; }
 	set currentTime(currentTime) {
@@ -145,7 +165,25 @@ export class MlpAudioPlayer extends window.HTMLElement {
 			privates.audio.addEventListener("loadedmetadata", retrySetCurrentTime, false);
 		}
 	}
+	set playing(playing) {
+		if (playing)
+			this.setAttribute("playing", window.Boolean(playing));
+		else
+			this.removeAttribute("playing");
+	}
 	set volume(volume) { _privates.get(this).audio.volume = volume; }
+	connectedCallback() {
+		const privates = _privates.get(this);
+
+		if (!this.isConnected || privates.hasLoaded)
+			return;
+		Episode.audio.forEach((audio) => createElement("source", { src: audio.url.pathname, type: audio.fileFormat }, privates.audio));
+		createElement("track", window.Object.assign({ src: `${window.String(Episode.number)}.vtt` }, TRACK_ATTRIBUTES), privates.audio);
+		CSS_FILES.forEach((href) => createElement("link", { href, importance: "high", rel: "stylesheet" }, this.shadowRoot));
+		privates.audio.textTracks[0].addEventListener("cuechange", onCueChange.bind(this), false);
+		privates.hasLoaded = true;
+	}
+	pause() { _privates.get(this).audio.pause(); }
 	play() { return _privates.get(this).audio.play(); }
 }
 MlpAudioPlayer.prototype.cache = { currentTime: 0, volume: 1 };

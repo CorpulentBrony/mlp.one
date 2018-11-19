@@ -6,6 +6,7 @@ export const isDocumentLoaded = new window.Promise((resolve) => {
 	else
 		resolve();
 });
+export const trimStart = window.String.prototype.trimStart || window.String.prototype.trimLeft || function() { return this.replace(/^\s+/, ""); };
 export const URL = window.URL || window.webkitURL;
 
 export function async(funcOrArray) {
@@ -76,7 +77,9 @@ export async function loadDeferredStylesheets(containerId = "deferred-stylesheet
 	return true;
 }
 
-export function preload(files = []) { files.forEach((href) => createElement("link", { as: "style", importance: "high", href, rel: "preload", type: "text/css" }, window.document.head)); }
+export function preload(files = [], attributes = {}) {
+	files.forEach((hrefOrAttributes) => createElement("link", window.Object.assign({}, attributes, (typeof hrefOrAttributes === "string") ? { href: hrefOrAttributes } : hrefOrAttributes), window.document.head));
+}
 
 function setAttributes(element, attributes = {}) {
 	for (const key in attributes)

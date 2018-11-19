@@ -145,9 +145,9 @@
 					</aside>
 				</header>
 	 			<mlp-audio-player></mlp-audio-player>
-				<section>
+				<mlp-episode-description>
 					<?= is_null($this->episode->note) ? str_replace("\n", "<br>", $this->episode->description) : str_ireplace("<a href=", "<a rel=\"noopener\" target=\"_blank\" href=", $this->episode->note) ?>
-				</section>
+				</mlp-episode-description>
 				<footer class="mdc-card__actions">
 					<nav class="mdc-card__action-buttons">
 						<a class="mdc-button mdc-button--unelevated mdc-card__action mdc-card__action--button" href="<?= $thisEpisodeNumber ?>.mp3" role="button" type="audio/mpeg">Download</a>
@@ -166,22 +166,22 @@
 										<button class="mdc-button mdc-list-item__text mdc-typography--subtitle2" data-href="<?= $requestUrl ?>" id="mlp-menu-share-copy-btn" role="button" tabindex="0" type="button">Clipboard</button>
 									</li>
 									<li class="mdc-list-item" role="menuitem">
-										<a class="mdc-list-item__text mdc-typography--subtitle2" href="https://www.facebook.com/sharer/sharer.php?kid_directed_site=0&sdk=joey&u=<?= rawurlencode($requestUrl) ?>&display=popup&ref=plugin&src=share_button" target="_blank" type="text/html">
+										<a class="mdc-list-item__text mdc-typography--subtitle2" href="https://www.facebook.com/sharer/sharer.php?kid_directed_site=0&sdk=joey&u=<?= rawurlencode($requestUrl) ?>&display=popup&ref=plugin&src=share_button" rel="noopener" target="_blank" type="text/html">
 											Facebook
 										</a>
 									</li>
 									<li class="mdc-list-item" role="menuitem">
-										<a class="mdc-list-item__text mdc-typography--subtitle2" href="http://www.tumblr.com/share/link?url=<?= rawurlencode($requestUrl) ?>&title=<?= rawurlencode("{$_SERVER["SITE_TITLE"]} #{$thisEpisodeNumber} - {$this->episode->title}") ?>" target="_blank" type="text/html">
+										<a class="mdc-list-item__text mdc-typography--subtitle2" href="http://www.tumblr.com/share/link?url=<?= rawurlencode($requestUrl) ?>&title=<?= rawurlencode("{$_SERVER["SITE_TITLE"]} #{$thisEpisodeNumber} - {$this->episode->title}") ?>" rel="noopener" target="_blank" type="text/html">
 											Tumblr
 										</a>
 									</li>
 									<li class="mdc-list-item" role="menuitem">
-										<a class="mdc-list-item__text mdc-typography--subtitle2" href="https://twitter.com/intent/tweet?original_referer<?= rawurlencode($requestUrl) ?>&ref_src=twsrc%5Etfw&text=<?= rawurlencode("{$_SERVER["SITE_TITLE"]} #{$thisEpisodeNumber} - {$this->episode->title}") ?>&tw_p=tweetbutton&url=<?= rawurlencode($requestUrl) ?>" target="_blank" type="text/html">
+										<a class="mdc-list-item__text mdc-typography--subtitle2" href="https://twitter.com/intent/tweet?original_referer<?= rawurlencode($requestUrl) ?>&ref_src=twsrc%5Etfw&text=<?= rawurlencode("{$_SERVER["SITE_TITLE"]} #{$thisEpisodeNumber} - {$this->episode->title}") ?>&tw_p=tweetbutton&url=<?= rawurlencode($requestUrl) ?>" rel="noopener" target="_blank" type="text/html">
 											Twitter
 										</a>
 									</li>
 									<li class="mdc-list-item" role="menuitem">
-										<a class="mdc-list-item__text mdc-typography--subtitle2" href="http://vkontakte.ru/share.php?url=<?= rawurlencode($requestUrl) ?>" target="_blank" type="text/html">
+										<a class="mdc-list-item__text mdc-typography--subtitle2" href="http://vkontakte.ru/share.php?url=<?= rawurlencode($requestUrl) ?>" rel="noopener" target="_blank" type="text/html">
 											Vk
 										</a>
 									</li>
