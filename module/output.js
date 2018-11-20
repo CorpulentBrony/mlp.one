@@ -2,14 +2,14 @@
 import { Drawer } from "./Drawer.js";
 import { MlpAudioPlayer } from "./MlpAudioPlayer.mjs";
 import { MlpEpisodeDescription } from "./MlpEpisodeDescription.mjs";
-import { MlpEpisodeTimestamp } from "./MlpEpisodeTimestamp.mjs";
 import { MoreFormatsMenu } from "./MoreFormatsMenu.js";
 import { ShareMenu } from "./ShareMenu.js";
 import { TopAppBar } from "./TopAppBar.js";
-import { async, isDocumentLoaded, loadDeferredStylesheets } from "./util.js";
+import { async, defineCustomElements, isDocumentLoaded, loadDeferredStylesheets } from "./util.js";
 import "../js/mdc-ripple.js";
 
 (async function output() {
+	const CUSTOM_ELEMENTS = [MlpAudioPlayer, MlpEpisodeDescription];
 	const episode = {
 		cache(object, name, value) {
 			delete object[name];
@@ -21,21 +21,6 @@ import "../js/mdc-ripple.js";
 	const rippleButtonClassNames = [".mdc-button", ".mdc-chip", ".mdc-fab", ".mdc-list-item", ".mdc-ripple-surface"]; // removing ".mdc-card__primary-action"
 
 	function attachRipple(querySelector) { window.document.querySelectorAll(querySelector).forEach((item) => new window.mdc.MDCRipple(item)); }
-
-	function defineCustomElements() {
-		const customElements = { ["mlp-audio-player"]: MlpAudioPlayer, ["mlp-episode-description"]: MlpEpisodeDescription, ["mlp-episode-timestamp"]: MlpEpisodeTimestamp };
-		const supportsCustomElements = window.customElements && window.customElements.define;
-		const supportsRegisterElement = window.Boolean(window.document.registerElement);
-
-		if (!supportsCustomElements && !supportsRegisterElement)
-			return;
-
-		for (const element in customElements)
-			if (supportsCustomElements)
-				window.customElements.define(element, customElements[element]);
-			else if (supportsRegisterElement)
-				window.document.registerElement(element, customElements[element]);
-	}
 
 	async function documentOnLoad() {
 		loadDeferredStylesheets();
@@ -49,7 +34,7 @@ import "../js/mdc-ripple.js";
 			() => new MoreFormatsMenu({ triggerElementId: "mlp-btn-more-formats" }),
 			() => new ShareMenu({ triggerElementId: "mlp-btn-share" }),
 			() => rippleButtonClassNames.forEach((querySelector) => attachRipple(querySelector)),
-			defineCustomElements
+			() => defineCustomElements(CUSTOM_ELEMENTS)
 		]));
 	}
 

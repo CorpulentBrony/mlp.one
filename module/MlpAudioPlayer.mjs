@@ -6,10 +6,11 @@ import { createElement, preload, URL } from "./util.js";
 // also: https://developers.google.com/web/updates/2017/02/media-session
 // for custom elements: https://developers.google.com/web/fundamentals/web-components/customelements
 
-// constants
+// configurable constants
 const BROADCAST_CHANNEL_NAME = "mlp_audio_player";
 const CACHED_TIME_KEY = "episode-%n-current-time";
 const CACHED_VOLUME_KEY = "volume";
+const TAG_NAME = "mlp-audio-player";
 
 // styles
 const CSS_FILES = ["/css/audio.css"];
@@ -72,8 +73,7 @@ function createDom() {
 	const template = TEMPLATE.content.cloneNode(true);
 	privates.audio = template.getElementById("audio");
 	privates.display = template.getElementById("display");
-	const shadow = this.attachShadow({ mode: "open" });
-	shadow.appendChild(template);
+	this.attachShadow({ mode: "open" }).appendChild(template);
 }
 function onBroadcastChannelMessage(event) {
 	if (event.data.isPlaying)
@@ -138,15 +138,7 @@ function setupCache() {
 export class MlpAudioPlayer extends window.HTMLElement {
 	constructor() {
 		super();
-		const privates = _privates.set(this, { audio: {}, display: {}, hasLoaded: false }).get(this);
-
-		if (isBroadcastChannelSupported) {
-			privates.broadcastChannel = new window.BroadcastChannel(BROADCAST_CHANNEL_NAME);
-			privates.broadcastChannel.addEventListener("message", onBroadcastChannelMessage.bind(this), false);
-		}
-		createDom.call(this);
-		setupCache.call(this);
-		setupAudio.call(this);
+		this.createdCallback();
 	}
 	get currentTime() { return _privates.get(this).audio.currentTime; }
 	get playing() { return this.hasAttribute("playing"); }
@@ -172,6 +164,7 @@ export class MlpAudioPlayer extends window.HTMLElement {
 			this.removeAttribute("playing");
 	}
 	set volume(volume) { _privates.get(this).audio.volume = volume; }
+	attachedCallback() { this.connectedCallback(); }
 	connectedCallback() {
 		const privates = _privates.get(this);
 
@@ -183,7 +176,19 @@ export class MlpAudioPlayer extends window.HTMLElement {
 		privates.audio.textTracks[0].addEventListener("cuechange", onCueChange.bind(this), false);
 		privates.hasLoaded = true;
 	}
+	createdCallback() {
+		const privates = _privates.set(this, { audio: {}, display: {}, hasLoaded: false }).get(this);
+
+		if (isBroadcastChannelSupported) {
+			privates.broadcastChannel = new window.BroadcastChannel(BROADCAST_CHANNEL_NAME);
+			privates.broadcastChannel.addEventListener("message", onBroadcastChannelMessage.bind(this), false);
+		}
+		createDom.call(this);
+		setupCache.call(this);
+		setupAudio.call(this);
+	}
 	pause() { _privates.get(this).audio.pause(); }
 	play() { return _privates.get(this).audio.play(); }
 }
+MlpAudioPlayer.TAG_NAME = TAG_NAME;
 MlpAudioPlayer.prototype.cache = { currentTime: 0, volume: 1 };

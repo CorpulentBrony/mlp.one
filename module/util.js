@@ -61,6 +61,34 @@ export function createElement(name, attributes = {}, parent = undefined, text = 
 	return element;
 }
 
+export function defineCustomElement(ElementClass) {
+	const supportsCustomElements = window.customElements && window.customElements.define;
+	const supportsRegisterElement = window.Boolean(window.document.registerElement);
+
+	function customElementsNotSupported() { return; }
+	function defineCustomElementV0(ElementClass) {
+		const testElementConstructor = window.document.createElement(ElementClass.TAG_NAME).constructor;
+
+		if (testElementConstructor === window.HTMLElement || testElementConstructor === window.HTMLUnknownElement)
+			return;
+		window.document.registerElement(ElementClass.TAG_NAME, { prototype: window.Object.create(ElementClass.prototype) });
+	}
+	function defineCustomElementV1(ElementClass) {
+		if (window.customElements.get(ElementClass.TAG_NAME))
+			return;
+		window.customElements.define(ElementClass.TAG_NAME, ElementClass);
+	}
+
+	if (supportsCustomElements)
+		defineCustomElement = defineCustomElementV1;
+	else if (supportsRegisterElement)
+		defineCustomElement = defineCustomElementV0;
+	else
+		defineCustomElement = customElementsNotSupported;
+	defineCustomElement(ElementClass);
+}
+
+export function defineCustomElements(elementClasses) { elementClasses.forEach(defineCustomElement); }
 export function getElement({ elementId, elementSelector }) { return elementId ? window.document.getElementById(elementId) : window.document.querySelector(elementSelector); }
 
 export async function loadDeferredStylesheets(containerId = "deferred-stylesheets") {
@@ -99,6 +127,9 @@ export function writeTextToClipboard(text) { // returns window.Promise
 		return window.Promise.resolve(undefined);
 	}
 }
+
+// polyfills
+
 
 // the below was all used to support the loadSvg function and may be useful code in the future
 // function copyAttributes(fromElement, toElement, attributes = []) {

@@ -1,9 +1,21 @@
+import { MlpAudioPlayer } from "./MlpAudioPlayer.mjs";
+
+const TAG_NAME = "mlp-episode-timestamp";
+
 // styles
-const INLINE_CSS = `a { cursor: pointer; text-decoration: underline dotted var(--twi-hair-highlight-purple, purple); }`;
+const INLINE_CSS = `
+	a {
+		cursor: pointer;
+		text-decoration: underline dotted var(--twi-hair-highlight-purple, purple);
+	}
+`;
 
 // HTML
 const TEMPLATE = window.document.createElement("template");
-TEMPLATE.innerHTML = `<style>${INLINE_CSS}</style><a href="#" id="anchor"><time datetime="PT0S" id="time"><slot></slot></time></a>`;
+TEMPLATE.innerHTML = `
+	<style>${INLINE_CSS}</style>
+	<a href="#" id="anchor"><time datetime="PT0S" id="time"><slot></slot></time></a>
+`;
 
 // other constants (not configurable)
 const _privates = new window.WeakMap();
@@ -14,8 +26,7 @@ function createDom() {
 	const template = TEMPLATE.content.cloneNode(true);
 	privates.anchor = template.getElementById("anchor");
 	privates.time = template.getElementById("time");
-	const shadow = this.attachShadow({ mode: "open" });
-	shadow.appendChild(template);
+	this.attachShadow({ mode: "open" }).appendChild(template);
 }
 function setSeconds(seconds) {
 	const privates = _privates.get(this);
@@ -36,11 +47,11 @@ export class MlpEpisodeTimestamp extends window.HTMLElement {
 	static get observedAttributes() { return ["seconds"]; }
 	constructor() {
 		super();
-		_privates.set(this, { anchor: {}, audio: window.document.querySelector("mlp-audio-player"), hasLoaded: false, time: {} });
-		createDom.call(this);
+		this.createdCallback();
 	}
 	get seconds() { return this.getAttribute("seconds"); }
 	set seconds(seconds) { this.setAttribute("seconds", seconds); }
+	attachedCallback() { this.connectedCallback(); }
 	attributeChangedCallback(name, oldValue, newValue) {
 		if (oldValue === newValue)
 			return;
@@ -55,4 +66,9 @@ export class MlpEpisodeTimestamp extends window.HTMLElement {
 		privates.anchor.addEventListener("click", onClick.bind(this), false);
 		privates.hasLoaded = true;
 	}
+	createdCallback() {
+		_privates.set(this, { anchor: {}, audio: window.document.querySelector(MlpAudioPlayer.TAG_NAME), hasLoaded: false, time: {} });
+		createDom.call(this);
+	}
 }
+MlpEpisodeTimestamp.TAG_NAME = TAG_NAME;

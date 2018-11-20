@@ -1,4 +1,8 @@
-import { createElement, trimStart } from "./util.js";
+import { MlpEpisodeTimestamp } from "./MlpEpisodeTimestamp.mjs";
+import { MlpEpisodeTopicList } from "./MlpEpisodeTopicList.mjs";
+import { createElement, defineCustomElement, trimStart } from "./util.js";
+
+const TAG_NAME = "mlp-episode-description";
 
 // styles
 const INLINE_CSS = `
@@ -17,43 +21,33 @@ TEMPLATE.innerHTML = `
 const _privates = new window.WeakMap();
 
 // private methods
-function createDom() {
-	const template = TEMPLATE.content.cloneNode(true);
-	const shadow = this.attachShadow({ mode: "open" });
-	shadow.appendChild(template);
-}
-function makeTimestampsClickable() {
-	function updateTimestamps(node) {
-		if (!(node instanceof window.Node))
-			return;
-		else if (node.nodeType === window.Node.TEXT_NODE) {
-			node.data.replace(/(?:^|\s)([0-9]+:[0-5][0-9]|[0-9]+:[0-5][0-9]:[0-5][0-9])(?:\s|$)/, (entireMatchedString, timeString, offset, nodeData) => {
-				offset += entireMatchedString.length - trimStart.call(entireMatchedString).length;
-				const newTextNode = node.splitText(offset);
-				const seconds = window.String(timeString.split(":").reduceRight((seconds, timeValue, index, timeArray) => window.Math.pow(60, timeArray.length - 1 - index) * window.Number(timeValue) + seconds, 0));
-				newTextNode.data = newTextNode.data.substr(timeString.length);
-				node.parentNode.insertBefore(createElement("mlp-episode-timestamp", { seconds }, undefined, timeString), newTextNode);
-				updateTimestamps(newTextNode);
-			});
-		} else
-			window.Array.prototype.forEach.call(node.childNodes, (child) => updateTimestamps(child));
-	}
+function createDom() { this.attachShadow({ mode: "open" }).appendChild(TEMPLATE.content.cloneNode(true)); }
+function formatTopicList() {
+	const sourceTopicList = this.querySelector("*[data-is-topic-list]");
 
-	updateTimestamps(this);
+	if (sourceTopicList == null)
+		return;
+	sourceTopicList.parentNode.replaceChild(createElement(MlpEpisodeTopicList.TAG_NAME, {}, undefined, sourceTopicList.textContent), sourceTopicList);
 }
 
 export class MlpEpisodeDescription extends window.HTMLElement {
 	constructor() {
 		super();
-		_privates.set(this, { hasLoaded: false });
-		createDom.call(this);
+		this.createdCallback();
 	}
+	attachedCallback() { this.connectedCallback(); }
 	connectedCallback() {
 		const privates = _privates.get(this);
 
 		if (!this.isConnected || privates.hasLoaded)
 			return;
-		makeTimestampsClickable.call(this);
+		formatTopicList.call(this);
+		defineCustomElement(MlpEpisodeTopicList);
 		privates.hasLoaded = true;
 	}
+	createdCallback() {
+		_privates.set(this, { hasLoaded: false });
+		createDom.call(this);
+	}
 }
+MlpEpisodeDescription.TAG_NAME = TAG_NAME;
