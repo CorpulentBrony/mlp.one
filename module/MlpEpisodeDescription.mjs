@@ -1,12 +1,16 @@
+import "../js/polyfills.js";
 import { MlpEpisodeTimestamp } from "./MlpEpisodeTimestamp.mjs";
 import { MlpEpisodeTopicList } from "./MlpEpisodeTopicList.mjs";
-import { createElement, defineCustomElement, trimStart } from "./util.js";
+import { createElement, defineCustomElement } from "./util.js";
 
 const TAG_NAME = "mlp-episode-description";
 
 // styles
 const INLINE_CSS = `
-	:host { margin-top: 0.5rem; }
+	:host {
+		contain: content;
+		margin-top: 0.5rem;
+	}
 	::slotted(pre[data-is-topic-list]) { line-height: 36px; }
 `;
 

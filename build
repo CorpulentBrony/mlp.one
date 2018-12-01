@@ -1,10 +1,17 @@
 #!/bin/bash
 
 ## use --style compressed or expanded
-find "scss/" -maxdepth 1 -name "[a-z]*.scss" -type f -exec sh -c 'scss --style expanded --load-path node_modules --default-encoding UTF-8 "{}" css/$(basename "{}" ".scss").css' \;
+find "scss/" -maxdepth 1 -name "[a-z]*.scss" -type f -exec sh -c 'scss --style expanded --load-path node_modules --default-encoding UTF-8 "{}" css/$(basename "{}" ".scss").css' \;;
+
+## compress static files
+rm -f image/*.br;
+rm -f image/*.gz;
+brotli -f --best image/*.svg;
+find "image/" -maxdepth 1 -name "*.svg" -type f -exec sh -c 'gzip -f --best --stdout "{}" > "{}.gz"' \;;
 
 ## since pagespeed rewrites these files, it gets upset if they are already encoded and it hasn't cached them yet
 #brotli -f css/*.css
 #brotli -f js/*.js
 
-npm start
+## run npm build (webpack)
+npm start;

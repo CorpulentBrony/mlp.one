@@ -1,5 +1,7 @@
 import { URL } from "./util.js";
 
+/* this may be deprecated now and no longer needed */
+
 function cache(name, value) {
 	delete Episode[name];
 	return window.Object.defineProperty(Episode, name, { value })[name];

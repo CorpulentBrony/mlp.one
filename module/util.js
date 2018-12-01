@@ -1,3 +1,4 @@
+import "../js/polyfills.js";
 import { Cache } from "./Cache.js";
 
 export const isDocumentLoaded = new window.Promise((resolve) => {
@@ -6,9 +7,18 @@ export const isDocumentLoaded = new window.Promise((resolve) => {
 	else
 		resolve();
 });
-export const trimStart = window.String.prototype.trimStart || window.String.prototype.trimLeft || function() { return this.replace(/^\s+/, ""); };
-export const URL = window.URL || window.webkitURL;
 
+function arrayify(something) {
+	if (typeof something === "object")
+		if ("forEach" in something)
+			return something;
+		else if (typeof something.length === "number") {
+			const result = window.Array.prototype.slice.call(something, 0);
+			something.forEach = result.forEach;
+			return result;
+		}
+	return [something];
+}
 export function async(funcOrArray) {
 	if (window.Array.isArray(funcOrArray))
 		return funcOrArray.map((func) => async(func));
@@ -17,7 +27,6 @@ export function async(funcOrArray) {
 		catch (err) { reject(err); }
 	});
 }
-
 export function checkWebpSupport() {
 	const cacheKey = "isWebpSupported";
 	const cacheValue = Cache.get(cacheKey);
@@ -46,9 +55,7 @@ export function checkWebpSupport() {
 		});
 	}
 }
-
 export function createDefinedElement({ TAG, ATTRIBUTES = {}, TEXT = undefined }, parent = undefined) { return createElement(TAG, ATTRIBUTES, parent, TEXT); }
-
 export function createElement(name, attributes = {}, parent = undefined, text = undefined) {
 	const element = window.document.createElement(name);
 	setAttributes(element, attributes);
@@ -60,7 +67,6 @@ export function createElement(name, attributes = {}, parent = undefined, text = 
 		parent.appendChild(element);
 	return element;
 }
-
 export function defineCustomElement(ElementClass) {
 	const supportsCustomElements = window.customElements && window.customElements.define;
 	const supportsRegisterElement = window.Boolean(window.document.registerElement);
@@ -87,33 +93,47 @@ export function defineCustomElement(ElementClass) {
 		defineCustomElement = customElementsNotSupported;
 	defineCustomElement(ElementClass);
 }
-
-export function defineCustomElements(elementClasses) { elementClasses.forEach(defineCustomElement); }
+export function defineCustomElements(elementClasses) { arrayify(elementClasses).forEach(defineCustomElement); }
+// service workers don't support ES6 modules, so this was moved directly into service-worker script
+// export function expandFileList(fileList = [], prefix = "") {
+// 	return fileList.reduce((result, entry) => {
+// 		if (typeof entry === "string")
+// 			result.push(prefix + entry);
+// 		else if (typeof entry === "object") {
+// 			const entryKey = self.Object.keys(entry)[0];
+// 			result = result.concat(expandFileList(entry[entryKey], `${prefix}${entryKey}/`));
+// 		}
+// 		return result;
+// 	}, []);
+// }
+export function getChildrenAsObject(element) {
+	if (!element.children || !element.children.length)
+		return;
+	return getNodesAsObject(element.children);
+}
 export function getElement({ elementId, elementSelector }) { return elementId ? window.document.getElementById(elementId) : window.document.querySelector(elementSelector); }
-
+export function getNodesAsObject(nodes) {
+	return window.Array.prototype.reduce.call(nodes, (result, node, index) => window.Object.defineProperty(result, node.id || window.String(index), { enumerable: true, value: node, writable: true }), {});
+}
 export async function loadDeferredStylesheets(containerId = "deferred-stylesheets") {
 	const parser = new window.DOMParser();
 	const loader = () => parser.parseFromString(document.getElementById(containerId).textContent, "text/html").querySelectorAll("link").forEach((link) => window.document.head.appendChild(link));
-	const requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
 
-	if (requestAnimationFrame)
-		requestAnimationFrame(() => window.setTimeout(loader.call(undefined), 0));
+	if (window.requestAnimationFrame)
+		window.requestAnimationFrame(() => window.setTimeout(loader.call(undefined), 0));
 	else {
 		await isDocumentLoaded;
 		loader.call(undefined);
 	}
 	return true;
 }
-
 export function preload(files = [], attributes = {}) {
-	files.forEach((hrefOrAttributes) => createElement("link", window.Object.assign({}, attributes, (typeof hrefOrAttributes === "string") ? { href: hrefOrAttributes } : hrefOrAttributes), window.document.head));
+	arrayify(files).forEach((hrefOrAttributes) => createElement("link", window.Object.assign({}, attributes, (typeof hrefOrAttributes === "string") ? { href: hrefOrAttributes } : hrefOrAttributes), window.document.head));
 }
-
-function setAttributes(element, attributes = {}) {
+export function setAttributes(element, attributes = {}) {
 	for (const key in attributes)
 		element.setAttribute(key, attributes[key]);
 }
-
 export function writeTextToClipboard(text) { // returns window.Promise
 	if ("navigator" in window && "clipboard" in window.navigator && "writeText" in window.navigator.clipboard) {
 		return window.navigator.clipboard.writeText(window.String(text));
@@ -128,7 +148,6 @@ export function writeTextToClipboard(text) { // returns window.Promise
 	}
 }
 
-// polyfills
 
 
 // the below was all used to support the loadSvg function and may be useful code in the future

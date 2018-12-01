@@ -5,20 +5,25 @@ const TAG_NAME = "mlp-episode-topic-list";
 
 // styles
 const INLINE_CSS = `
+	:host {
+		contain: content;
+		display: block;
+		margin-left: 1rem;
+	}
 	*[aria-hidden=true] { display: none; }
 	dd {
 		grid-column-start: 2;
 		margin-left: 0;
 	}
 	dl {
-		-webkit-column-gap: 2em;
-		-moz-column-gap: 2em;
-		grid-column-gap: 2em;
-		column-gap: 2em;
+		-webkit-column-gap: 2rem;
+		-moz-column-gap: 2rem;
+		grid-column-gap: 2rem;
+		column-gap: 2rem;
 		display: grid;
 		grid-template-columns: max-content auto;
-		/* grid-row-gap: 2em;
-		row-gap: 2em; */
+		/* grid-row-gap: 2rem;
+		row-gap: 2rem; */
 	}
 	dt { grid-column-start: 1; }
 `;

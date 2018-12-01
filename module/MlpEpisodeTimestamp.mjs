@@ -4,6 +4,10 @@ const TAG_NAME = "mlp-episode-timestamp";
 
 // styles
 const INLINE_CSS = `
+	:host {
+		contain: content;
+		text-align: right;
+	}
 	a {
 		cursor: pointer;
 		text-decoration: underline dotted var(--twi-hair-highlight-purple, purple);
@@ -14,7 +18,7 @@ const INLINE_CSS = `
 const TEMPLATE = window.document.createElement("template");
 TEMPLATE.innerHTML = `
 	<style>${INLINE_CSS}</style>
-	<a href="#" id="anchor"><time datetime="PT0S" id="time"><slot></slot></time></a>
+	<a href="#" id="anchor"><time id="time"><slot></slot></time></a>
 `;
 
 // other constants (not configurable)
@@ -31,7 +35,6 @@ function createDom() {
 function setSeconds(seconds) {
 	const privates = _privates.get(this);
 	privates.anchor.href = `?t=${seconds}`;
-	privates.time.setAttribute("datetime", `PT${seconds}S`);
 }
 function onClick(event) {
 	event.preventDefault();

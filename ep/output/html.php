@@ -97,8 +97,12 @@
 		<script async importance="low" src="/module/output.js" type="module"></script>
 		<style>
 			:root { --title-prefix-text: "<?= $_SERVER["SITE_TITLE"] ?> "; }
+			pre[data-is-topic-list] { display: none; }
 			@media only screen and (max-width: 768px) {
 				:root { --title-prefix-text: ""; }
+			}
+			@media only screen and (max-width: 400px) {
+				#mlp-btn-share, #mlp-btn-more-formats { display: none; }
 			}
 		</style>
 	</head>
@@ -144,7 +148,8 @@
 						</span>
 					</aside>
 				</header>
-	 			<mlp-audio-player></mlp-audio-player>
+	 			<mlp-audio-player name="<?= htmlspecialchars($this->episode->title, \ENT_COMPAT | \ENT_HTML5) ?>" number="<?= $thisEpisodeNumber ?>" srcset="<?= $requestUrlOgg ?> <?= self::TYPES[RequestType::OGG]["mimeType"] ?>, <?= $requestUrlMp3 ?> <?= self::TYPES[RequestType::MP3]["mimeType"] ?>">
+	 			</mlp-audio-player>
 				<mlp-episode-description>
 					<?= is_null($this->episode->note) ? str_replace("\n", "<br>", $this->episode->description) : str_ireplace("<a href=", "<a rel=\"noopener\" target=\"_blank\" href=", $this->episode->note) ?>
 				</mlp-episode-description>

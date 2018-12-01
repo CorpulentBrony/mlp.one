@@ -15,3 +15,4 @@ node_modules/
 *.map
 js/*.js
 !js/mdc.js
+!js/polyfills.js

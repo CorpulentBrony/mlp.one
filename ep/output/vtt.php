@@ -44,6 +44,13 @@ EOT;
 		}
 
 	if (is_null($topicListElement))
+		foreach ($doc->getElementsByTagName("span") as $element)
+			if ($element->hasAttribute("data-is-topic-list")) {
+				$topicListElement = $element;
+				break;
+			}
+			
+	if (is_null($topicListElement))
 		noTopicList($this->episode->duration);
 	$topics = array_map(function (string $line): array {
 		$topic = explode(" ", $line, 2);

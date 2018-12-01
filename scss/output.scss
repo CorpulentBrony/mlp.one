@@ -11,6 +11,7 @@ $main-width: 50%;
 $media-width-phone: 768px;
 $media-width-tablet: 1024px;
 
+*[aria-hidden=true] { visibility: hidden; }
 body {
 	color: $mdc-theme-primary;
 	margin: 0;
@@ -22,7 +23,6 @@ footer nav ul {
 }
 html::selection { background: $mdc-theme-secondary; }
 html::-moz-selection { background: $mdc-theme-secondary; }
-*[aria-hidden=true] { visibility: hidden; }
 
 .mdc-button {
 	@include mlp-disable-user-select;
@@ -47,10 +47,6 @@ html::-moz-selection { background: $mdc-theme-secondary; }
 	position: fixed;
 	right: 0;
 	z-index: -999;
-}
-
-@media (max-width: 400px) {
-	pre[data-is-topic-list], #mlp-btn-share, #mlp-btn-more-formats { display: none; }
 }
 
 // the below was used for some fancy media query stuff that i abandoned, keeping it here for refernce in case
