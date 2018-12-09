@@ -1,5 +1,8 @@
 import "../js/polyfills.js";
 import { Cache } from "./Cache.js";
+import { MlpCustomElement } from "./MlpCustomElement.mjs";
+import { MlpSlider } from "./MlpSlider.mjs";
+import { MlpSwitch } from "./MlpSwitch.mjs";
 import * as util from "./util.js";
 
 // web audio API: https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
@@ -15,7 +18,6 @@ const BROADCAST_CHANNEL_NAME = "mlp_audio_player";
 const CACHED_TIME_KEY = "episode-%n-current-time";
 const CACHED_VOLUME_KEY = "volume";
 const MAX_GAIN = 2;
-const SVG_NS = "http://www.w3.org/2000/svg";
 const TAG_NAME = "mlp-audio-player";
 
 // styles
@@ -26,6 +28,7 @@ function cssAppearance(value) {
 		appearance: ${value};
 	`;
 }
+// transform: scale(1.5)
 function platformSpecificPseudoSelectors(strings, ...selectors) { return selectors.reduce((result, selector) => `${result}${strings[0]}${selector}${strings[strings.length - 1]}`, ""); }
 const CSS_FILES = []; //["/css/audio.css"];
 const INLINE_CSS = `
@@ -154,16 +157,16 @@ TEMPLATE.innerHTML = `
 			</audio>
 			<div id="controls">
 				<mlp-switch id="play" aria-checked="false" aria-label="play" autofocus role="switch" tabindex="0" title="Play">
-					<mlp-svg-icon alt="▶" aria-label="play" href="/material-design-icons/av/svg/production/ic_play_arrow_24px.svg" title="Play" when-checked="false">▶</mlp-svg-icon>
-					<mlp-svg-icon hidden alt="⏸" aria-label="pause" href="/material-design-icons/av/svg/production/ic_pause_24px.svg" title="Pause" when-checked="true">⏸</mlp-svg-icon>
+					<mlp-svg-icon alt="▶" aria-label="play" href="/material-design-icons/av/svg/production/ic_play_arrow_24px.svg" role="img" title="Play" when-checked="false">▶</mlp-svg-icon>
+					<mlp-svg-icon hidden alt="⏸" aria-label="pause" href="/material-design-icons/av/svg/production/ic_pause_24px.svg" role="img" title="Pause" when-checked="true">⏸</mlp-svg-icon>
 				</mlp-switch>
 				<time id="current" aria-atomic="true" aria-label="current time" aria-live="off" title="Current Time">0:00:00</time>
 				<span>/</span>
 				<time id="duration" aria-label="duration" datetime="PT0S" title="Total Duration">0:00:00</time>
 				<input id="progress" aria-label="track progress" aria-valuemax="0" aria-valuemin="0" aria-valuenow="0" aria-valuetext="0:00:00" max="0" min="0" role="slider" step="0.001" title="Track Progress" type="range" value="0">
 				<mlp-switch id="muted" aria-checked="false" aria-label="mute" role="switch" tabindex="0" title="Mute">
-					<mlp-svg-icon alt="🔊" aria-label="mute" href="/material-design-icons/av/svg/production/ic_volume_up_24px.svg" title="Mute" when-checked="false">🔊</mlp-svg-icon>
-					<mlp-svg-icon hidden alt="🔇" aria-label="unmute" href="/material-design-icons/av/svg/production/ic_volume_off_24px.svg" title="Unmute" when-checked="true">🔇</mlp-svg-icon>
+					<mlp-svg-icon alt="🔊" aria-label="mute" href="/material-design-icons/av/svg/production/ic_volume_up_24px.svg" role="img" title="Mute" when-checked="false">🔊</mlp-svg-icon>
+					<mlp-svg-icon hidden alt="🔇" aria-label="unmute" href="/material-design-icons/av/svg/production/ic_volume_off_24px.svg" role="img" title="Unmute" when-checked="true">🔇</mlp-svg-icon>
 				</mlp-switch>
 				<input id="volume" aria-label="volume" aria-valuemax="${MAX_GAIN}" aria-valuemin="0" aria-valuenow="1" list="list-gain-vals" max="${MAX_GAIN}" min="0" role="slider" step="0.01" title="Volume" type="range" value="1">
 				<datalist id="list-gain-vals">
@@ -174,7 +177,8 @@ TEMPLATE.innerHTML = `
 			</div>
 		</div>
 	</div>
-`;
+	<mlp-slider></mlp-slider>
+`; //
 
 // shadow DOM definitions
 const TRACK_ATTRIBUTES = { default: true, kind: "chapters", label: "Topic List" };
@@ -291,23 +295,6 @@ function updateCurrentTimeDisplay(formattedTime) {
 function updateProgress(formattedTime) {
 	const progress = _privates.get(this).controls.progress;
 	window.requestAnimationFrame(() => progress.setValue(progress.value = this.currentTime));
-}
-
-class MlpCustomElement extends window.HTMLElement {
-	constructor() {
-		super();
-		this.createdCallback();
-	}
-	attachedCallback() { this.connectedCallback(); }
-	setAttribute(attribute, value) {
-		if (typeof value === "boolean")
-			if (value)
-				super.setAttribute(attribute, "");
-			else
-				super.removeAttribute(attribute);
-		else
-			super.setAttribute(attribute, value);
-	}
 }
 
 export class MlpAudioPlayer extends MlpCustomElement {
@@ -448,7 +435,7 @@ export class MlpAudioPlayer extends MlpCustomElement {
 				this.currentTime = event.state.seconds;
 		}, false);
 		// load button images
-		util.defineCustomElement(MlpSwitch);
+		util.defineCustomElements([MlpSlider, MlpSwitch]);
 		// load external CSS
 		window.requestAnimationFrame(() => CSS_FILES.forEach((href) => util.createElement("link", { href, importance: "high", rel: "stylesheet" }, this.shadowRoot)));
 		// set up AudioContext
@@ -473,7 +460,6 @@ export class MlpAudioPlayer extends MlpCustomElement {
 				canvasContext.fillRect(0, 0, privates.wave.width, privates.wave.height);
 				canvasContext.lineCap = "round";
 				canvasContext.lineWidth = 2;
-				// const themePrimary = computedStyle.getPropertyValue("--mdc-theme-primary").trim();
 				const gradient = canvasContext.createLinearGradient(0, 0, privates.wave.width, 0);
 				gradient.addColorStop(0, "rgb(247, 186, 223)");
 				gradient.addColorStop(0.2, "rgb(249, 201, 117)");
@@ -522,92 +508,3 @@ export class MlpAudioPlayer extends MlpCustomElement {
 }
 MlpAudioPlayer.TAG_NAME = TAG_NAME;
 MlpAudioPlayer.prototype.cache = { currentTime: 0, volume: 1 };
-
-// streams? https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream
-async function loadSvgIcon(sourceElement) {
-	const parser = new window.DOMParser();
-	const href = sourceElement.getAttribute("href");
-	let svgText = Cache.get(href);
-	const isCached = svgText != null;
-
-	if (!isCached) {
-		const response = await window.fetch(href);
-		svgText = await response.text();
-	}
-	const doc = parser.parseFromString(svgText, "image/svg+xml");
-	const svg = doc.documentElement;
-
-	if (!isCached) {
-		const serializer = new window.XMLSerializer();
-		Cache.set(href, serializer.serializeToString(svg));
-	}
-
-	if (sourceElement.hasAttribute("hidden"))
-		svg.setAttributeNS(SVG_NS, "visibility", "collapse");
-	[["desc", "alt"], ["title", "title"]].forEach(([elementName, sourceAttributeName]) => {
-		if (!sourceElement.hasAttribute(sourceAttributeName))
-			return;
-		const element = doc.createElementNS(SVG_NS, elementName);
-		element.appendChild(doc.createTextNode(sourceElement.getAttribute(sourceAttributeName)));
-		svg.insertBefore(element, svg.firstChild);
-	});
-	const attributesAlreadyCopied = ["alt", "hidden", "href", "title"];
-	window.Array.prototype.forEach.call(sourceElement.attributes, (attribute) => {
-		if (attributesAlreadyCopied.includes(attribute.name))
-			return;
-		svg.setAttribute(attribute.name, attribute.value);
-	});
-	sourceElement.replaceWith(svg);
-	return svg;
-}
-async function setIconVisibility(iconToShow, iconToHide) {
-	[iconToShow, iconToHide] = [await window.Promise.resolve(iconToShow), await window.Promise.resolve(iconToHide)];
-	window.requestAnimationFrame(() => {
-		iconToHide.setAttribute("aria-hidden", "");
-		iconToHide.setAttribute("hidden", "");
-		iconToHide.setAttributeNS(SVG_NS, "visibility", "collapse");
-		iconToShow.removeAttribute("aria-hidden");
-		iconToShow.removeAttribute("hidden");
-		iconToShow.removeAttributeNS(SVG_NS, "visibility");
-	});
-	return true;
-}
-
-class MlpSwitch extends MlpCustomElement {
-	static get observedAttributes() { return ["aria-checked"]; }
-	get checked() { return this.getAttribute("aria-checked") != "false"; }
-	set checked(checked) { return this.setAttribute("aria-checked", window.String(window.Boolean(checked))); }
-	attributeChangedCallback(name, oldValue, newValue) {
-		if (oldValue == newValue)
-			return;
-		const privates = _privates.get(this);
-		const iconToShow = this.checked ? privates.iconChecked : privates.iconUnchecked;
-		const iconToHide = this.checked ? privates.iconUnchecked : privates.iconChecked;
-		setIconVisibility(iconToShow, iconToHide).catch(console.error);
-	}
-	// called when object is connected to the DOM
-	connectedCallback() {
-		const privates = _privates.get(this);
-
-		// check if object was disconnected from DOM before connectedCallback() was called or if it was already loaded previously
-		if (!this.isConnected || privates.hasLoaded)
-			return;
-		// load button images
-		[privates.iconChecked, privates.iconUnchecked] = [loadSvgIcon(privates.iconChecked), loadSvgIcon(privates.iconUnchecked)];
-		privates.hasLoaded = true;
-	}
-	createdCallback() {
-		const privates = _privates.set(this, { hasLoaded: false, iconChecked: {}, iconUnchecked: {} }).get(this);
-		privates.iconChecked = this.querySelector("mlp-svg-icon[when-checked=true]");
-		privates.iconUnchecked = this.querySelector("mlp-svg-icon[when-checked=false]");
-		util.preload([privates.iconChecked, privates.iconUnchecked], { as: "fetch", type: "image/svg+xml" });
-	}
-}
-MlpSwitch.TAG_NAME = "mlp-switch";
-
-/*
-<button id="play" aria-checked="false" aria-label="play" autofocus role="switch" title="Play" type="button">
-	<mlp-svg-icon id="icon-playing" alt="▶" aria-label="play" href="/material-design-icons/av/svg/production/ic_play_arrow_24px.svg" title="Play">▶</mlp-svg-icon>
-	<mlp-svg-icon id="icon-paused" hidden alt="⏸" aria-label="pause" href="/material-design-icons/av/svg/production/ic_pause_24px.svg" title="Pause">⏸</mlp-svg-icon>
-</button>
-*/

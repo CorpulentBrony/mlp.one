@@ -7,9 +7,13 @@ if (!window.cancelAnimationFrame)
 	window.cancelAnimationFrame = window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || window.webkitCancelRequestAnimationFrame || window.mozCancelRequestAnimationFrame || window.msCancelRequestAnimationFrame || window.oCancelRequestAnimationFrame;
 // window.Element
 [window.Element.prototype, window.Document.prototype, window.DocumentFragment.prototype].forEach((prototype) => {
-	if (prototype.prepend)
-		return;
-	prototype.prepend = function(...nodes) { this.insertBefore(nodes.reduce((doc, node) => doc.appendChild((node instanceof window.Node) ? node : window.document.createTextNode(window.String(node))), window.document.createDocumentFragment()), this.firstChild); };
+	// window.Element.prototype.append
+	if (!prototype.append)
+		prototype.append = function(...nodes) { this.appendChild(nodes.reduce((doc, node) => doc.appendChild((node instanceof window.Node) ? node : window.document.createTextNode(window.String(node))), window.document.createDocumentFragment())); };
+
+	// window.Element.prototype.prepend
+	if (!prototype.prepend)
+		prototype.prepend = function(...nodes) { this.insertBefore(nodes.reduce((doc, node) => doc.appendChild((node instanceof window.Node) ? node : window.document.createTextNode(window.String(node))), window.document.createDocumentFragment()), this.firstChild); };
 });
 [window.Element.prototype, window.CharacterData.prototype, window.DocumentType.prototype].forEach((prototype) => {
 	if (prototype.replaceWith)
