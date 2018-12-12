@@ -11,7 +11,9 @@ const _privates = new window.WeakMap();
 export class MlpSwitch extends MlpCustomElement {
 	static get observedAttributes() { return ["aria-checked"]; }
 	get checked() { return this.getAttribute("aria-checked") != "false"; }
-	set checked(checked) { return this.setAttribute("aria-checked", window.String(window.Boolean(checked))); }
+	get disabled() { return this.hasAttribute("disabled"); }
+	set checked(checked) { this.setAttribute("aria-checked", window.String(window.Boolean(checked))); }
+	set disabled(disabled) { this.setAttribute("disabled", window.Boolean(disabled)); }
 	attributeChangedCallback(name, oldValue, newValue) {
 		if (oldValue == newValue)
 			return;

@@ -111,6 +111,20 @@ export function getChildrenAsObject(element) {
 		return;
 	return getNodesAsObject(element.children);
 }
+// this is very simplified to allow me to leverage the CSS Typed OM without writing more of a polyfill
+// https://developers.google.com/web/updates/2018/03/cssom
+// https://www.w3.org/TR/css-typed-om-1/
+export function getCssProperty(element, property) {
+	if ("computedStyleMap" in element)
+		return element.computedStyleMap().get(property);
+	const unparsed = window.getComputedStyle(element).getPropertyValue(property).trim();
+	const parsed = /^([0-9]+\.?[0-9]*)(%|[a-z]*)$/.exec(unparsed);
+
+	if (parsed == null)
+		return window.Object.freeze({ value: unparsed, toString() { return value; } });
+	const unit = (parsed[2].length === 0) ? "number" : (parsed[2] === "%") ? "percent" : parsed[2];
+	return window.Object.freeze({ unit: "number", value: window.Number(parsed[1]), toString() { return unparsed; } });
+}
 export function getElement({ elementId, elementSelector }) { return elementId ? window.document.getElementById(elementId) : window.document.querySelector(elementSelector); }
 export function getNodesAsObject(nodes) {
 	return window.Array.prototype.reduce.call(nodes, (result, node, index) => window.Object.defineProperty(result, node.id || window.String(index), { enumerable: true, value: node, writable: true }), {});
@@ -120,7 +134,7 @@ export async function loadDeferredStylesheets(containerId = "deferred-stylesheet
 	const loader = () => parser.parseFromString(document.getElementById(containerId).textContent, "text/html").querySelectorAll("link").forEach((link) => window.document.head.appendChild(link));
 
 	if (window.requestAnimationFrame)
-		window.requestAnimationFrame(() => window.setTimeout(loader.call(undefined), 0));
+		window.requestAnimationFrame(() => loader.call(undefined));
 	else {
 		await isDocumentLoaded;
 		loader.call(undefined);
@@ -130,9 +144,19 @@ export async function loadDeferredStylesheets(containerId = "deferred-stylesheet
 export function preload(files = [], attributes = {}) {
 	arrayify(files).forEach((hrefOrAttributes) => createElement("link", window.Object.assign({}, attributes, (typeof hrefOrAttributes === "string") ? { href: hrefOrAttributes } : hrefOrAttributes), window.document.head));
 }
+export function removeCssProperty(element, property) {
+	if ("attributeStyleMap" in element)
+		return element.attributeStyleMap.delete(property);
+	element.style.removeProperty(property);
+}
 export function setAttributes(element, attributes = {}) {
 	for (const key in attributes)
 		element.setAttribute(key, attributes[key]);
+}
+export function setCssProperty(element, property, value) {
+	if ("attributeStyleMap" in element)
+		return element.attributeStyleMap.set(property, value);
+	element.style.setProperty(property, window.String(value));
 }
 export function writeTextToClipboard(text) { // returns window.Promise
 	if ("navigator" in window && "clipboard" in window.navigator && "writeText" in window.navigator.clipboard) {

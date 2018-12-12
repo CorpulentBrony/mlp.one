@@ -5,6 +5,17 @@ if (!window.AudioContext)
 // window.cancelAnimationFrame
 if (!window.cancelAnimationFrame)
 	window.cancelAnimationFrame = window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || window.webkitCancelRequestAnimationFrame || window.mozCancelRequestAnimationFrame || window.msCancelRequestAnimationFrame || window.oCancelRequestAnimationFrame;
+// window.CSS
+if (!window.CSS)
+	window.CSS = {};
+
+if (!window.CSS.number)
+	window.CSS.number = function(number) { return window.Object.freeze({ unit: "number", value: number, toString() { return window.String(number); } }); };
+// window.DOMRect
+if (!window.DOMRect) {
+	window.DOMRect = class DOMRect { constructor(x = 0, y = 0, width = 0, height = 0) { window.Object.assign(this, { height, width, x, y }); } };
+	window.DOMRect.prototype.bottom = window.DOMRect.prototype.height = window.DOMRect.prototype.left = window.DOMRect.prototype.top = window.DOMRect.prototype.width = window.DOMRect.prototype.x = window.DOMRect.prototype.y = 0;
+}
 // window.Element
 [window.Element.prototype, window.Document.prototype, window.DocumentFragment.prototype].forEach((prototype) => {
 	// window.Element.prototype.append
