@@ -121,7 +121,7 @@ export function getCssProperty(element, property) {
 	const parsed = /^([0-9]+\.?[0-9]*)(%|[a-z]*)$/.exec(unparsed);
 
 	if (parsed == null)
-		return window.Object.freeze({ value: unparsed, toString() { return value; } });
+		return window.Object.freeze({ value: unparsed, toString() { return window.String(unparsed); } });
 	const unit = (parsed[2].length === 0) ? "number" : (parsed[2] === "%") ? "percent" : parsed[2];
 	return window.Object.freeze({ unit: "number", value: window.Number(parsed[1]), toString() { return unparsed; } });
 }

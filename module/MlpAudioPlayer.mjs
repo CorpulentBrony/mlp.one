@@ -41,6 +41,9 @@ const INLINE_CSS = `
 		--mlp-slider-thumb-color: var(--mdc-theme-primary, #263773);
 		--mlp-slider-track-left-color: var(--twi-hair-highlight-pink, #ed438a);
 		--mlp-slider-track-right-color: var(--twi-hair-highlight-purple, #662d8a);
+		flex-basis: auto;
+		flex-grow: 1;
+		min-width: 5rem;
 	}
 	mlp-switch {
 		align-items: center;
@@ -49,11 +52,8 @@ const INLINE_CSS = `
 		box-sizing: border-box;
 		cursor: pointer;
 		display: flex;
-		flex-basis: auto;
-		flex-grow: 1;
 		height: 2rem;
 		justify-content: center;
-		min-width: 1.5625rem;
 		text-align: center;
 		width: 2rem;
 	}
@@ -99,9 +99,10 @@ const INLINE_CSS = `
 		z-index: 100;
 	}
 	/* sliders */
+	#progress { flex-shrink: 1; }
 	#volume {
 		flex-shrink: 1.9;
-		max-width: 4.375rem;
+		max-width: 6rem;
 	}
 	/* visualizer */
 	#wave {
@@ -154,6 +155,7 @@ TEMPLATE.innerHTML = `
 const TRACK_ATTRIBUTES = { default: true, kind: "chapters", label: "Topic List" };
 
 // media session constants (used for Android now-playing)
+const HAS_MEDIA_SESSION = "mediaSession" in window.navigator;
 const MEDIA_SESSION_ATTRIBUTES = {
 	album: "/mlp/odcast",
 	artist: "/mlp/",
@@ -228,12 +230,18 @@ function onPause() {
 		this.playing = false;
 	_privates.get(this).controls.play.checked = false;
 	this.paused = true;
+
+	if (HAS_MEDIA_SESSION)
+		window.navigator.mediaSession.playbackState = "paused";
 }
 function onPlay() {
 	const privates = _privates.get(this);
 
-	if ("mediaSession" in window.navigator) {
+	if (HAS_MEDIA_SESSION) {
 		window.navigator.mediaSession.metadata = new window.MediaMetadata(window.Object.assign({ title: `#${this.number} - ${this.name}` }, MEDIA_SESSION_ATTRIBUTES));
+		window.navigator.mediaSession.playbackState = "playing";
+		window.navigator.mediaSession.setActionHandler("pause", this.pause);
+		window.navigator.mediaSession.setActionHandler("play", this.play);
 		window.navigator.mediaSession.setActionHandler("seekbackward", () => this.currentTime = window.Math.max(privates.audio.currentTime - MEDIA_SESSION_SKIP_TIME_SECONDS, 0));
 		window.navigator.mediaSession.setActionHandler("seekforward", () => this.currentTime = window.Math.min(privates.audio.currentTime + MEDIA_SESSION_SKIP_TIME_SECONDS, privates.audio.duration));
 	}
@@ -245,11 +253,10 @@ function onPlay() {
 }
 function onTimeUpdate() {
 	window.requestAnimationFrame(() => {
-		const privates = _privates.get(this);
-		this.cache.currentTime = this.currentTime;
-		const formattedTime = formatTime(this.currentTime);
-		updateCurrentTimeDisplay.call(this, formattedTime);
-		privates.controls.progress.value = this.currentTime;
+		updateCurrentTimeDisplay.call(this, formatTime(this.cache.currentTime = this.currentTime));
+
+		if (!this.seeking)
+			_privates.get(this).controls.progress.value = this.currentTime;
 	});
 }
 function sendBroadcast(message) {
@@ -276,13 +283,17 @@ export class MlpAudioPlayer extends MlpCustomElement {
 	get srcset() { return this.getAttribute("srcset"); }
 	get volume() { return this.hasAttribute("volume") ? this.getAttribute("volume") : 1; }
 	set currentTime(currentTime) {
+		const privates = _privates.get(this);
+
 		if (this.readyState >= window.HTMLMediaElement.HAVE_METADATA) {
-			_privates.get(this).audio.currentTime = currentTime;
-			window.scrollTo({ behavior: "smooth", left: 0, top: 0 });
+			if (privates.audio.currentTime !== currentTime && !this.seeking) {
+				privates.audio.currentTime = currentTime;
+				window.scrollTo({ behavior: "smooth", left: 0, top: 0 });
+			}
 		} else {
-			const privates = _privates.get(this);
 			const retrySetCurrentTime = () => {
-				this.currentTime = currentTime;
+				if (this.currentTime !== currentTime)
+					this.currentTime = currentTime;
 				privates.audio.removeEventListener("loadedmetadata", retrySetCurrentTime, { once: true, passive: true });
 			};
 			privates.audio.addEventListener("loadedmetadata", retrySetCurrentTime, { once: true, passive: true });
@@ -376,6 +387,7 @@ export class MlpAudioPlayer extends MlpCustomElement {
 		util.createElement("track", window.Object.assign({ src: `${this.number}.vtt` }, TRACK_ATTRIBUTES), privates.audio);
 		// add event listeners for text tracks
 		privates.audio.textTracks[0].addEventListener("cuechange", onCueChange.bind(this), { passive: true });
+		privates.audio.load();
 
 		// check for and handle where page is seeking to particular timestamp in audio
 		if (documentUrl.searchParams.has("t"))
@@ -402,16 +414,15 @@ export class MlpAudioPlayer extends MlpCustomElement {
 			canvasContext.clearRect(0, 0, privates.wave.width, privates.wave.height);
 			const draw = () => {
 				window.requestAnimationFrame(draw);
-				const computedStyle = window.getComputedStyle(this);
 				analyserNode.getFloatTimeDomainData(dataArray);
-				canvasContext.fillStyle = computedStyle.getPropertyValue("--mdc-theme-on-secondary").trim();
+				canvasContext.fillStyle = window.String(util.getCssProperty(this, "--mdc-theme-on-secondary")).trim();
 				canvasContext.fillRect(0, 0, privates.wave.width, privates.wave.height);
 				canvasContext.lineCap = "round";
 				canvasContext.lineWidth = 2;
 				const gradient = canvasContext.createLinearGradient(0, 0, privates.wave.width, 0);
-				gradient.addColorStop(0, "rgb(247, 186, 223)");
-				gradient.addColorStop(0.2, "rgb(249, 201, 117)");
-				gradient.addColorStop(0.4, "rgb(253, 255, 186)");
+				gradient.addColorStop(0, "rgb(247, 186, 223)"); // applejack
+				gradient.addColorStop(0.2, "rgb(249, 201, 117)"); // fluttershy
+				gradient.addColorStop(0.4, "rgb(253, 255, 186)"); // rainbow dash
 				gradient.addColorStop(0.6, "rgb(251, 255, 254)");
 				gradient.addColorStop(0.8, "rgb(201, 218, 253)");
 				gradient.addColorStop(1, "rgb(222, 177, 242)");

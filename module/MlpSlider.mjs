@@ -31,8 +31,8 @@ const INLINE_CSS = `
 		display: block;
 		height: 2rem;
 		position: relative;
-		-ms-touch-action: pan-x;
-		touch-action: pan-x;
+		-ms-touch-action: pan-y pinch-zoom;
+		touch-action: pan-y pinch-zoom;
 		width: 100%;
 	}
 	:host(:focus) { outline: none; }
@@ -61,8 +61,8 @@ const INLINE_CSS = `
 		position: absolute;
 		top: 0;
 		transform: translateY(40%);
-		-ms-touch-action: none;
-		touch-action: none;
+		-ms-touch-action: pan-y pinch-zoom;
+		touch-action: pan-y pinch-zoom;
 		-webkit-user-select: none;
 		-moz-user-select: none;
 		-ms-user-select: none;
@@ -151,7 +151,7 @@ function onInteractionBegin(event) {
 		return min + percentComplete * (max - min);
 	}
 	const onInteractionMove = (event) => {
-		event.preventDefault();
+		// event.preventDefault();
 		const calculatedValue = calculateValueFromInteractionEvent(event);
 
 		if (calculatedValue !== this.value) {
@@ -160,16 +160,16 @@ function onInteractionBegin(event) {
 		}
 	};
 	const onInteractionEnd = (event) => {
-		event.preventDefault();
+		// event.preventDefault();
 		interactionEvents.forEach((interactionEvent) => {
-			window.document.body.removeEventListener(interactionEvent.MOVE, onInteractionMove, false);
-			window.document.body.removeEventListener(interactionEvent.END, onInteractionEnd, { once: true });
+			window.document.body.removeEventListener(interactionEvent.MOVE, onInteractionMove, { passive: true });
+			window.document.body.removeEventListener(interactionEvent.END, onInteractionEnd, { once: true, passive: true });
 
 			if (interactionEvent.CANCEL)
-				window.document.body.removeEventListener(interactionEvent.CANCEL, onInteractionEnd, { once: true });
+				window.document.body.removeEventListener(interactionEvent.CANCEL, onInteractionEnd, { once: true, passive: true });
 
 			if (interactionEvent.LEAVE)
-				window.document.body.removeEventListener(interactionEvent.LEAVE, onInteractionEnd, { once: true });
+				window.document.body.removeEventListener(interactionEvent.LEAVE, onInteractionEnd, { once: true, passive: true });
 		});
 
 		if (startingValue !== this.value)
@@ -178,14 +178,14 @@ function onInteractionBegin(event) {
 	};
 	interactionEvents.forEach((interactionEvent) => {
 		if (interactionEvent.BEGIN === event.type)
-			window.document.body.addEventListener(interactionEvent.MOVE, onInteractionMove, false);
-		window.document.body.addEventListener(interactionEvent.END, onInteractionEnd, { once: true });
+			window.document.body.addEventListener(interactionEvent.MOVE, onInteractionMove, { passive: true });
+		window.document.body.addEventListener(interactionEvent.END, onInteractionEnd, { once: true, passive: true });
 
 		if (interactionEvent.CANCEL)
-			window.document.body.addEventListener(interactionEvent.CANCEL, onInteractionEnd, { once: true });
+			window.document.body.addEventListener(interactionEvent.CANCEL, onInteractionEnd, { once: true, passive: true });
 
 		if (interactionEvent.LEAVE)
-			window.document.body.addEventListener(interactionEvent.LEAVE, onInteractionEnd, { once: true });
+			window.document.body.addEventListener(interactionEvent.LEAVE, onInteractionEnd, { once: true, passive: true });
 	});
 	const calculatedValue = calculateValueFromInteractionEvent(event);
 
