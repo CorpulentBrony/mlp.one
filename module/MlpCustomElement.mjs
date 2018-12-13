@@ -4,6 +4,10 @@ export class MlpCustomElement extends window.HTMLElement {
 		this.createdCallback();
 	}
 	attachedCallback() { this.connectedCallback(); }
+	connectedCallback() { this.dispatchEvent("elementconnected"); }
+	createdCallback() { this.dispatchEvent("elementcreated"); }
+	disconnectedCallback() { this.dispatchEvent("elementdisconnected"); }
+	dispatchEvent(eventName) { window.requestAnimationFrame(() => super.dispatchEvent(new window.Event(eventName))); }
 	setAttribute(attribute, value) {
 		const isAttributeBoolean = typeof value === "boolean";
 		const currentValue = isAttributeBoolean ? super.hasAttribute(attribute) : super.getAttribute(attribute);

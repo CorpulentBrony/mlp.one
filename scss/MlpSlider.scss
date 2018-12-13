@@ -1,0 +1,121 @@
+@charset "utf-8";
+
+$default-thumb-color: rgba(0, 0, 0, 0.8);
+$default-thumb-zero-color: #ddd;
+$default-thumb-zero-stroke-color: rgba(0, 0, 0, 0.5);
+$default-track-left-color: blue;
+$default-track-right-color: rgba(0, 0, 0, 0.5);
+$default-value: 0;
+$height: 2rem;
+$thumb-size: 1.3125rem;
+$track-height: 0.25rem;
+$transition-timing: 0.27s ease-out;
+
+// abstracting thumb selectors since they are not intuitive at all
+$thumb-hover: "#thumb-container:hover #thumb-focus";
+$thumb-focus: ":host(:focus) #thumb-focus";
+$thumb-active: ":host(:focus) #thumb-container:active #thumb-focus";
+
+@function mlp-compile-transitions($transitions...) {
+	$result: ();
+
+	@for $i from 1 through length($transitions) {
+		$result: append($result, #{nth($transitions, $i)} #{$transition-timing}, comma);
+	}
+	@return $result;
+}
+
+@mixin mlp-user-select($value) {
+	-webkit-user-select: $value;
+	-moz-user-select: $value;
+	-ms-user-select: $value;
+	-o-user-select: $value;
+	user-select: $value;
+}
+
+%touch-action {
+	-ms-touch-action: pan-y pinch-zoom;
+	touch-action: pan-y pinch-zoom;
+}
+
+:host {
+	@extend %touch-action;
+	--mlp-slider-thumb-color: #{$default-thumb-color};
+	--mlp-slider-thumb-zero-color: #{$default-thumb-zero-color};
+	--mlp-slider-thumb-zero-stroke-color: #{$default-thumb-zero-stroke-color};
+	--mlp-slider-track-left-color: #{$default-track-left-color};
+	--mlp-slider-track-right-color: #{$default-track-right-color};
+	--value-percentage: #{$default-value};
+	contain: content;
+	cursor: pointer;
+	display: block;
+	height: $height;
+	outline: none;
+	position: relative;
+	width: 100%;
+}
+#track {
+	&-container {
+		background-color: var(--mlp-slider-track-right-color);
+		border-radius: #{$height} / #{$height};
+		height: $track-height;
+		left: $thumb-size / 2;
+		overflow: hidden;
+		position: absolute;
+		top: 50%;
+		width: calc(100% - #{$thumb-size});
+	}
+	&-left {
+		background-color: var(--mlp-slider-track-left-color);
+		height: 100%;
+		left: 0;
+		position: absolute;
+		width: calc(100% * var(--value-percentage));
+	}
+}
+#thumb {
+	fill: var(--thumb-color);
+	left: 0;
+	position: absolute;
+	stroke: var(--thumb-stroke);
+	stroke-width: 5;
+	top: 0;
+	transform: scale(0.75);
+
+	&-container {
+		@extend %touch-action;
+		@include mlp-user-select(none);
+		--thumb-color: var(--mlp-slider-thumb-color);
+		--thumb-stroke: var(--mlp-slider-thumb-color);
+		height: $thumb-size;
+		left: calc(100% * var(--value-percentage) - var(--value-percentage) * #{$thumb-size});
+		position: absolute;
+		top: 0;
+		transform: translateY(40%);
+		width: $thumb-size;
+
+		&[is-zero] {
+			--thumb-color: var(--mlp-slider-thumb-zero-color);
+			--thumb-stroke: var(--mlp-slider-thumb-zero-stroke-color);
+		}
+	}
+	&-focus {
+		background-color: var(--thumb-color);
+		border-color: var(--thumb-stroke);
+		border-radius: 50%;
+		border-style: solid;
+		border-width: 1px;
+		box-sizing: border-box;
+		height: $thumb-size;
+		opacity: 0;
+		transform: scale(0.8);
+		transition: mlp-compile-transitions(background-color, filter, opacity, transform);
+		width: $thumb-size;
+	}
+}
+
+#{$thumb-hover}, #{$thumb-focus} { opacity: 0.1; }
+#{$thumb-active} {
+	filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4));
+	opacity: 1;
+}

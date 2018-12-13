@@ -43,6 +43,7 @@ function onClick(event) {
 	privates.audio.currentTime = this.seconds;
 	privates.audio.play();
 	window.history.pushState({ seconds: this.seconds }, undefined, privates.anchor.href);
+	window.scrollTo({ behavior: "smooth", left: 0, top: 0 });
 	return false;
 }
 

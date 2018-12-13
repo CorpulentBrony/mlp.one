@@ -142,7 +142,9 @@ export async function loadDeferredStylesheets(containerId = "deferred-stylesheet
 	return true;
 }
 export function preload(files = [], attributes = {}) {
-	arrayify(files).forEach((hrefOrAttributes) => createElement("link", window.Object.assign({}, attributes, (typeof hrefOrAttributes === "string") ? { href: hrefOrAttributes } : hrefOrAttributes), window.document.head));
+	window.requestAnimationFrame(() =>
+		arrayify(files).forEach((hrefOrAttributes) => createElement("link", window.Object.assign({}, attributes, (typeof hrefOrAttributes === "string") ? { href: hrefOrAttributes } : hrefOrAttributes), window.document.head))
+	);
 }
 export function removeCssProperty(element, property) {
 	if ("attributeStyleMap" in element)

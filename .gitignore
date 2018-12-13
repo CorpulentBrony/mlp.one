@@ -8,11 +8,13 @@ css/
 manager/client_secrets.json
 manager/secrets.php
 *.br
+*.gz
 fontawesome*
 material-components-web
 material-design-icons
 node_modules/
 *.map
 js/*.js
+gmon.out
 !js/mdc.js
 !js/polyfills.js

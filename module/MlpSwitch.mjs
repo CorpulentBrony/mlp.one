@@ -19,11 +19,9 @@ const INLINE_CSS = `
 		min-width: var(--mlp-switch-size);
 		position: relative;
 		justify-content: center;
+		outline: none;
 		text-align: center;
 	}
-	:host(:hover) { outline: none; }
-	:host(:focus) { outline: none; }
-	:host(:active) { outline: none; }
 	::slotted(mlp-svg-icon) {
 		align-items: center;
 		display: flex;
@@ -35,6 +33,7 @@ const INLINE_CSS = `
 	}
 	#background {
 		background-color: transparent;
+		border-radius: 50%;
 		height: 100%;
 		left: 0;
 		position: absolute;
@@ -71,23 +70,22 @@ export class MlpSwitch extends MlpCustomElement {
 		const [iconToShow, iconToHide] = this.checked ? [privates.iconChecked, privates.iconUnchecked] : [privates.iconUnchecked, privates.iconChecked];
 		[iconToShow.hidden, iconToHide.hidden] = [false, true];
 	}
-	// called when object is connected to the DOM
 	connectedCallback() {
 		const privates = _privates.get(this);
+		this.addEventListener("click", privates.onClick, { passive: true });
 
-		// check if object was disconnected from DOM before connectedCallback() was called or if it was already loaded previously
 		if (!this.isConnected || privates.hasLoaded)
 			return;
 		util.defineCustomElement(MlpSvgIcon);
 		privates.hasLoaded = true;
 	}
 	createdCallback() {
-		const privates = _privates.set(this, { hasLoaded: false, iconChecked: {}, iconUnchecked: {} }).get(this);
+		const privates = _privates.set(this, { hasLoaded: false, iconChecked: {}, iconUnchecked: {}, onClick: () => this.blur() }).get(this);
 		const template = TEMPLATE.content.cloneNode(true);
 		privates.iconChecked = this.querySelector("mlp-svg-icon[when-checked=true]");
 		privates.iconUnchecked = this.querySelector("mlp-svg-icon[when-checked=false]");
-		this.addEventListener("click", () => this.blur(), { passive: true });
 		this.attachShadow({ mode: "open" }).appendChild(template);
 	}
+	disconnectedCallback() { this.removeEventListener("click", privates.onClick, { passive: true }); }
 }
 MlpSwitch.TAG_NAME = TAG_NAME;

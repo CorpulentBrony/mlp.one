@@ -18,96 +18,11 @@ const KEYS = { PAGE_UP: "PageUp", PAGE_DOWN: "PageDown", END: "End", HOME: "Home
 const PAGE_SCROLL_FACTOR = 3;
 
 // styles
-// much of this should may to an external SCSS file eventually
-const INLINE_CSS = `
-	:host {
-		--mlp-slider-thumb-color: green;
-		--mlp-slider-track-left-color: blue;
-		--mlp-slider-track-right-color: rgba(0, 0, 0, 0.5);
-		--thumb-size: 1.3125rem;
-		--value-percentage: 0;
-		contain: content;
-		cursor: pointer;
-		display: block;
-		height: 2rem;
-		position: relative;
-		-ms-touch-action: pan-y pinch-zoom;
-		touch-action: pan-y pinch-zoom;
-		width: 100%;
-	}
-	:host(:focus) { outline: none; }
-	#track-container {
-		background-color: var(--mlp-slider-track-right-color);
-		border-radius: 2rem / 2rem;
-		height: 0.25rem;
-		left: calc(var(--thumb-size) / 2);
-		overflow: hidden;
-		position: absolute;
-		top: 50%;
-		width: calc(100% - var(--thumb-size));
-	}
-	#track-left {
-		background-color: var(--mlp-slider-track-left-color);
-		height: 100%;
-		left: 0;
-		position: absolute;
-		width: calc(100% * var(--value-percentage));
-	}
-	#thumb-container {
-		--thumb-color: var(--mlp-slider-thumb-color);
-		--thumb-stroke: var(--mlp-slider-thumb-color);
-		height: var(--thumb-size);
-		left: calc(100% * var(--value-percentage) - var(--value-percentage) * var(--thumb-size));
-		position: absolute;
-		top: 0;
-		transform: translateY(40%);
-		-ms-touch-action: pan-y pinch-zoom;
-		touch-action: pan-y pinch-zoom;
-		-webkit-user-select: none;
-		-moz-user-select: none;
-		-ms-user-select: none;
-		-o-user-select: none;
-		user-select: none;
-		width: var(--thumb-size);
-	}
-	#thumb-container[is-zero] {
-		--thumb-color: #ddd;
-		--thumb-stroke: rgba(0, 0, 0, 0.5);
-	}
-	#thumb {
-		fill: var(--thumb-color);
-		left: 0;
-		position: absolute;
-		stroke: var(--thumb-stroke);
-		stroke-width: 5;
-		top: 0;
-		transform: scale(0.75);
-	}
-	#thumb-focus {
-		background-color: var(--thumb-color);
-		border-color: var(--thumb-stroke);
-		border-radius: 50%;
-		border-style: solid;
-		border-width: 1px;
-		box-sizing: border-box;
-		height: var(--thumb-size);
-		opacity: 0;
-		transform: scale(0.8);
-		transition: background-color 0.27s ease-out, filter 0.27s ease-out, opacity 0.27s ease-out, transform 0.27s ease-out;
-		width: var(--thumb-size);
-	}
-	#thumb-container:hover #thumb-focus { opacity: 0.1; }
-	:host(:focus) #thumb-focus { opacity: 0.1; }
-	:host(:focus) #thumb-container:active #thumb-focus {
-		filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4));
-		opacity: 1;
-	}
-`;
+const CSS_FILES = ["/css/MlpSlider.css"];
 
 // HTML
 const TEMPLATE = window.document.createElement("template");
 TEMPLATE.innerHTML = `
-	<style>${INLINE_CSS}</style>
 	<div id="track-container">
 		<div id="track-left"></div>
 	</div>
@@ -128,6 +43,7 @@ KEYCODE_MAP.OFFSET = 33;
 // private methods
 function calculateValuePercentage() { return window.String(this.value / (this.max - this.min)); }
 function createDom() {
+	util.preload(CSS_FILES, { as: "style", importance: "high", type: "text/css" });
 	const privates = _privates.get(this);
 	const template = TEMPLATE.content.cloneNode(true);
 	privates.thumbContainer = template.getElementById("thumb-container");
@@ -287,10 +203,9 @@ export class MlpSlider extends MlpCustomElement {
 		this[name] = newValue;
 	}
 	connectedCallback() {
-		const privates = _privates.get(this);
-
 		if (!this.isConnected)
 			return;
+		const privates = _privates.get(this);
 
 		for (const attribute in DEFAULTS)
 			this.setAttribute(attribute.toLowerCase(), DEFAULTS[attribute], true);
@@ -302,6 +217,7 @@ export class MlpSlider extends MlpCustomElement {
 
 		if (privates.hasLoaded)
 			return;
+		window.requestAnimationFrame(() => CSS_FILES.forEach((href) => util.createElement("link", { href, importance: "high", rel: "stylesheet" }, this.shadowRoot)));
 		privates.hasLoaded = true;
 	}
 	createdCallback() {
@@ -313,8 +229,8 @@ export class MlpSlider extends MlpCustomElement {
 			onResize: onResize.bind(this),
 			resizeObserver: undefined,
 			seeking: false,
-			thumbContainer: undefined,
-			trackContainer: undefined,
+			thumbContainer: {},
+			trackContainer: {},
 			valueTextTransform: undefined
 		});
 		const privates = _privates.get(this);
@@ -336,7 +252,7 @@ export class MlpSlider extends MlpCustomElement {
 			_privates.get(this).seeking = true;
 		else if (eventName == "seekend")
 			_privates.get(this).seeking = false;
-		window.requestAnimationFrame(() => super.dispatchEvent(new window.Event(eventName)));
+		super.dispatchEvent(eventName);
 	}
 	getAttribute(attribute) {
 		const result = super.getAttribute(attribute);

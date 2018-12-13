@@ -1,5 +1,6 @@
 import "../js/polyfills.js";
 import { Cache } from "./Cache.js";
+import { MlpAudioVisualizer } from "./MlpAudioVisualizer.mjs";
 import { MlpCustomElement } from "./MlpCustomElement.mjs";
 import { MlpSlider } from "./MlpSlider.mjs";
 import { MlpSwitch } from "./MlpSwitch.mjs";
@@ -47,16 +48,7 @@ const INLINE_CSS = `
 	}
 	mlp-switch {
 		--mlp-switch-background-color: var(--twi-hair-highlight-pink, #ed438a);
-		/*align-items: center;*/
 		${cssAppearance`media-play-button`}
-/*		background-color: transparent;
-		box-sizing: border-box;
-		cursor: pointer;
-		display: flex;
-		height: 2rem;
-		min-width: 2rem;
-		justify-content: center;
-		text-align: center;*/
 	}
 	svg[*|visibility=collapse] { display: none; }
 	/* container */
@@ -106,8 +98,8 @@ const INLINE_CSS = `
 		max-width: 6rem;
 	}
 	/* visualizer */
-	#wave {
-		filter: blur(1px) opacity(60%);
+	#visualizer {
+		--mlp-audio-visualizer-background-color: var(--mdc-theme-on-secondary);
 		height: 100%;
 		left: 0;
 		position: absolute;
@@ -121,10 +113,9 @@ const TEMPLATE = window.document.createElement("template");
 TEMPLATE.innerHTML = `
 	<style>${INLINE_CSS}</style>
 	<div id="container">
-		<canvas id="wave" role="presentation"></canvas>
+		<mlp-audio-visualizer id="visualizer" role="presentation"></mlp-audio-visualizer>
 		<div id="player">
 			<output id="display" aria-atomic="true" aria-hidden="true" aria-label="current topic display" aria-live="polite" for="controls" role="status" title="Current Topic">Loading audio...</output>
-			<!-- <audio id="audio" aria-controls="display" aria-label="Embedded audio player to listen to the podcast audio stream" controls controlslist="nodownload" preload="metadata"> -->
 			<audio id="audio" preload="metadata">
 				It appears your browser doesn't support embedded audio.  No worries, you can download the audio from one of the links on this page.
 			</audio>
@@ -136,12 +127,12 @@ TEMPLATE.innerHTML = `
 				<time id="current" aria-atomic="true" aria-label="current time" aria-live="off" title="Current Time">0:00:00</time>
 				<span>/</span>
 				<time id="duration" aria-label="duration" datetime="PT0S" title="Total Duration">0:00:00</time>
-				<mlp-slider id="progress" aria-label="track progress" max="0" min="0" role="slider" step="0.001" title="Track Progress" value="0"></mlp-slider>
+				<mlp-slider id="progress" aria-label="track progress" max="0" min="0" role="slider" step="0.001" tabindex="0" title="Track Progress" value="0"></mlp-slider>
 				<mlp-switch id="muted" aria-checked="false" aria-label="mute" role="switch" tabindex="0" title="Mute">
 					<mlp-svg-icon alt="🔊" aria-label="mute" href="/material-design-icons/av/svg/production/ic_volume_up_24px.svg" role="img" title="Mute" when-checked="false">🔊</mlp-svg-icon>
 					<mlp-svg-icon hidden alt="🔇" aria-label="unmute" href="/material-design-icons/av/svg/production/ic_volume_off_24px.svg" role="img" title="Unmute" when-checked="true">🔇</mlp-svg-icon>
 				</mlp-switch>
-				<mlp-slider id="volume" aria-label="volume" list="list-gain-vals" max="${MAX_GAIN}" min="0" role="slider" step="0.01" title="Volume" value="1"></mlp-slider>
+				<mlp-slider id="volume" aria-label="volume" list="list-gain-vals" max="${MAX_GAIN}" min="0" role="slider" step="0.01" tabindex="0" title="Volume" value="1"></mlp-slider>
 				<datalist id="list-gain-vals">
 					<option label="muted" value="0">
 					<option label="normal" selected value="1">
@@ -177,14 +168,12 @@ const DEFAULT_AUDIO_CONTEXT = { context: {}, gain: {}, track: {} };
 
 // private methods
 function createDom() {
-	util.preload(CSS_FILES, { as: "style", importance: "high", type: "text/css" });
-	util.preload(`${this.number}.vtt`, { as: "track", type: "text/vtt" });
 	const privates = _privates.get(this);
 	const template = TEMPLATE.content.cloneNode(true);
 	privates.audio = template.getElementById("audio");
 	privates.controls = util.getChildrenAsObject(template.getElementById("controls"));
 	privates.display = template.getElementById("display");
-	privates.wave = template.getElementById("wave");
+	privates.visualizer = template.getElementById("visualizer");
 	this.attachShadow({ mode: "open" }).appendChild(template);
 }
 function formatTime(seconds, includeDuration = false) {
@@ -229,8 +218,10 @@ function onEnded() {
 function onPause() {
 	if (!this.seeking)
 		this.playing = false;
-	_privates.get(this).controls.play.checked = false;
+	const privates = _privates.get(this);
+	privates.controls.play.checked = false;
 	this.paused = true;
+	privates.visualizer.pause();
 
 	if (HAS_MEDIA_SESSION)
 		window.navigator.mediaSession.playbackState = "paused";
@@ -241,16 +232,23 @@ function onPlay() {
 	if (HAS_MEDIA_SESSION) {
 		window.navigator.mediaSession.metadata = new window.MediaMetadata(window.Object.assign({ title: `#${this.number} - ${this.name}` }, MEDIA_SESSION_ATTRIBUTES));
 		window.navigator.mediaSession.playbackState = "playing";
-		window.navigator.mediaSession.setActionHandler("pause", this.pause);
-		window.navigator.mediaSession.setActionHandler("play", this.play);
+		window.navigator.mediaSession.setActionHandler("pause", () => this.pause());
+		window.navigator.mediaSession.setActionHandler("play", () => this.play());
 		window.navigator.mediaSession.setActionHandler("seekbackward", () => this.currentTime = window.Math.max(privates.audio.currentTime - MEDIA_SESSION_SKIP_TIME_SECONDS, 0));
 		window.navigator.mediaSession.setActionHandler("seekforward", () => this.currentTime = window.Math.min(privates.audio.currentTime + MEDIA_SESSION_SKIP_TIME_SECONDS, privates.audio.duration));
 	}
 	onCueChange.call(this);
 	privates.display.removeAttribute("aria-hidden");
+	privates.visualizer.play();
 	this.paused = this.seeking = false;
 	privates.controls.play.checked = this.playing = true;
 	sendBroadcast.call(this, { isPlaying: true });
+}
+function onPopState(event) {
+	if (event.state && "seconds" in event.state) {
+		this.currentTime = event.state.seconds;
+		window.scrollTo({ behavior: "smooth", left: 0, top: 0 });
+	}
 }
 function onTimeUpdate() {
 	window.requestAnimationFrame(() => {
@@ -259,6 +257,14 @@ function onTimeUpdate() {
 		if (!this.seeking)
 			_privates.get(this).controls.progress.value = this.currentTime;
 	});
+}
+function progressOnSeekEnd() {
+	if (this.seeking) {
+		this.seeking = false;
+
+		if (this.playing)
+			_privates.get(this).audio.play();
+	}
 }
 function sendBroadcast(message) {
 	if (isBroadcastChannelSupported)
@@ -287,10 +293,8 @@ export class MlpAudioPlayer extends MlpCustomElement {
 		const privates = _privates.get(this);
 
 		if (this.readyState >= window.HTMLMediaElement.HAVE_METADATA) {
-			if (privates.audio.currentTime !== currentTime && !this.seeking) {
+			if (privates.audio.currentTime !== currentTime && !this.seeking)
 				privates.audio.currentTime = currentTime;
-				window.scrollTo({ behavior: "smooth", left: 0, top: 0 });
-			}
 		} else {
 			const retrySetCurrentTime = () => {
 				if (this.currentTime !== currentTime)
@@ -338,116 +342,60 @@ export class MlpAudioPlayer extends MlpCustomElement {
 				break;
 		}
 	}
-	// called when object is connected to the DOM
 	connectedCallback() {
+		if (!this.isConnected)
+			return;
 		const privates = _privates.get(this);
 
-		// check if object was disconnected from DOM before connectedCallback() was called or if it was already loaded previously
-		if (!this.isConnected || privates.hasLoaded)
-			return;
 		// setup broadcast channel so more than one podcast cannot play simultaneously
-		else if (isBroadcastChannelSupported) {
+		if (isBroadcastChannelSupported) {
 			privates.broadcastChannel = new window.BroadcastChannel(BROADCAST_CHANNEL_NAME);
-			privates.broadcastChannel.addEventListener("message", onBroadcastChannelMessage.bind(this), { passive: true });
+			privates.broadcastChannel.addEventListener("message", privates.onBroadcastChannelMessage, { passive: true });
 		}
-		// set up cache for volume and locations within episodes
-		const cache = window.Object.defineProperties({}, { currentTime: Cache.getAccessor(CACHED_TIME_KEY.replace("%n", this.number)), volume: Cache.getAccessor(CACHED_VOLUME_KEY) });
-		window.Object.defineProperty(this, "cache", { get() { return cache; } });
 		// add event listeners to audio object
-		privates.audio.addEventListener("durationchange", onDurationChange.bind(this), { passive: true });
-		privates.audio.addEventListener("ended", onEnded.bind(this), { passive: true });
+		privates.audio.addEventListener("durationchange", privates.onDurationChange, { passive: true });
+		privates.audio.addEventListener("ended", privates.onEnded, { passive: true });
 		// privates.audio.addEventListener("offline", onOffline.bind(this), { passive: true });
-		privates.audio.addEventListener("pause", onPause.bind(this), { passive: true });
-		privates.audio.addEventListener("play", onPlay.bind(this), { passive: true });
-		privates.audio.addEventListener("seeked", onTimeUpdate.bind(this), { passive: true });
-		privates.audio.addEventListener("timeupdate", onTimeUpdate.bind(this), { passive: true });
+		privates.audio.addEventListener("pause", privates.onPause, { passive: true });
+		privates.audio.addEventListener("play", privates.onPlay, { passive: true });
+		// privates.audio.addEventListener("seeked", onTimeUpdate.bind(this), { passive: true });
+		privates.audio.addEventListener("timeupdate", privates.onTimeUpdate, { passive: true });
 		// privates.audio.addEventListener("volumechange", onVolumeChange.bind(this), { passive: true });
 		// add event listeners to control objects
-		privates.controls.muted.addEventListener("click", () => this.muted = !privates.controls.muted.checked, { passive: true });
-		privates.controls.play.addEventListener("click", () => this.playing = !(this.paused = privates.controls.play.checked), { passive: true });
-		// load custom buttons and sliders
+		privates.controls.muted.addEventListener("click", privates.mutedOnClick, { passive: true });
+		privates.controls.play.addEventListener("click", privates.playOnClick, { passive: true });
+		privates.controls.progress.addEventListener("seekstart", privates.progressOnSeekStart, { passive: true });
+		privates.controls.progress.addEventListener("change", privates.progressOnChange, { passive: true });
+		privates.controls.progress.addEventListener("seekend", privates.progressOnSeekEnd, { passive: true });
+		privates.controls.volume.addEventListener("change", privates.volumeOnChange, { passive: true });
+		window.addEventListener("popstate", privates.onPopState, { passive: true });
+		this.addEventListener("elementconnected", () => {
+			privates.audio.textTracks[0].addEventListener("cuechange", privates.onCueChange, { passive: true });
+			privates.audio.load();
+
+			if (documentUrl.searchParams.has("t"))
+				this.currentTime = window.Number(documentUrl.searchParams.get("t"));
+		}, { once: true, passive: true });
+
+		if (privates.hasLoaded)
+			return super.connectedCallback();
 		util.defineCustomElements([MlpSlider, MlpSwitch]);
 		privates.controls.progress.setValueTextTransform((value) => formatTime(value).short);
-		const progressOnSeekEnd = () => {
-			if (this.seeking) {
-				this.seeking = false;
-
-				if (this.playing)
-					privates.audio.play();
-			}
-		};
-		privates.controls.progress.addEventListener("seekstart", () => this.paused = this.seeking = true, { passive: true });
-		privates.controls.progress.addEventListener("change", () => this.currentTime = privates.controls.progress.value, { passive: true });
-		privates.controls.progress.addEventListener("seekend", progressOnSeekEnd, { passive: true });
-		privates.controls.volume.addEventListener("change", () => this.volume = privates.controls.volume.value, { passive: true });
 		// load sources into audio object
 		this.srcset.trim().replace(/\s{2,}/g, "").split(",").forEach((srcset) => {
 			const [src, type] = srcset.trim().split(" ");
 			util.createElement("source", { src, type }, privates.audio);
 		});
 		util.createElement("track", window.Object.assign({ src: `${this.number}.vtt` }, TRACK_ATTRIBUTES), privates.audio);
-		// add event listeners for text tracks
-		privates.audio.textTracks[0].addEventListener("cuechange", onCueChange.bind(this), { passive: true });
-		privates.audio.load();
-
-		// check for and handle where page is seeking to particular timestamp in audio
-		if (documentUrl.searchParams.has("t"))
-			this.currentTime = window.Number(documentUrl.searchParams.get("t"));
-		window.addEventListener("popstate", (event) => {
-			if (event.state && "seconds" in event.state)
-				this.currentTime = event.state.seconds;
-		}, { passive: true });
 		// load external CSS
 		window.requestAnimationFrame(() => CSS_FILES.forEach((href) => util.createElement("link", { href, importance: "high", rel: "stylesheet" }, this.shadowRoot)));
 		// set up AudioContext
 		if (window.AudioContext) {
-			privates.hasContext = true;
-			privates.context = new window.AudioContext();
-			const analyserNode = privates.context.createAnalyser();
+			util.defineCustomElement(MlpAudioVisualizer);
+			[privates.audio.volume, privates.context, privates.hasContext] = [1, new window.AudioContext(), true];
 			const gainNode = privates.context.createGain();
 			privates.gain = gainNode.gain;
-			privates.context.createMediaElementSource(privates.audio).connect(analyserNode).connect(gainNode).connect(privates.context.destination);
-			privates.audio.volume = 1;
-			// visualizer test
-			const bufferLength = analyserNode.fftSize = 2048;
-			const canvasContext = privates.wave.getContext("2d");
-			const dataArray = new window.Float32Array(bufferLength);
-			canvasContext.clearRect(0, 0, privates.wave.width, privates.wave.height);
-			const draw = () => {
-				window.requestAnimationFrame(draw);
-				analyserNode.getFloatTimeDomainData(dataArray);
-				canvasContext.fillStyle = window.String(util.getCssProperty(this, "--mdc-theme-on-secondary")).trim();
-				canvasContext.fillRect(0, 0, privates.wave.width, privates.wave.height);
-				canvasContext.lineCap = "round";
-				canvasContext.lineWidth = 2;
-				const gradient = canvasContext.createLinearGradient(0, 0, privates.wave.width, 0);
-				gradient.addColorStop(0, "rgb(247, 186, 223)"); // applejack
-				gradient.addColorStop(0.2, "rgb(249, 201, 117)"); // fluttershy
-				gradient.addColorStop(0.4, "rgb(253, 255, 186)"); // rainbow dash
-				gradient.addColorStop(0.6, "rgb(251, 255, 254)");
-				gradient.addColorStop(0.8, "rgb(201, 218, 253)");
-				gradient.addColorStop(1, "rgb(222, 177, 242)");
-				canvasContext.strokeStyle = gradient; //computedStyle.getPropertyValue("--mdc-theme-primary").trim();
-				// canvasContext.strokeStyle = (themePrimary.length > 0) ? `rgba(${/^#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i.exec(themePrimary).slice(1).map((hex) => window.Number.parseInt(hex, 16)).join(",")}, 0.2)` : themePrimary;
-				canvasContext.beginPath();
-				const sliceWidth = privates.wave.width / bufferLength;
-				let x = 0;
-
-				for (let i = 0; i < bufferLength; i++) {
-					if (dataArray[i] === 0)
-						canvasContext.strokeStyle = "rgba(0, 0, 0, 0)";
-					const y = privates.wave.height / 2 + dataArray[i] * 200;
-
-					if (i === 0)
-						canvasContext.moveTo(x, y);
-					else
-						canvasContext.lineTo(x, y);
-					x += sliceWidth;
-				}
-				canvasContext.lineTo(privates.wave.width, privates.wave.height / 2);
-				canvasContext.stroke();
-			};
-			draw();
+			privates.visualizer.createAnalyser(privates.context).connect(privates.context.createMediaElementSource(privates.audio)).connect(gainNode).connect(privates.context.destination);
 		}
 
 		// set values from cache
@@ -457,11 +405,59 @@ export class MlpAudioPlayer extends MlpCustomElement {
 		if (this.cache.currentTime != null)
 			this.currentTime = this.cache.currentTime;
 		privates.hasLoaded = true;
+		super.connectedCallback();
 	}
 	createdCallback() {
-		const privates = _privates.set(this, { audio: {}, context: {}, display: {}, gain: {}, hasContext: false, hasLoaded: false }).get(this);
+		const privates = _privates.set(this, {
+			audio: {},
+			broadcastChannel: {},
+			context: {},
+			display: {},
+			gain: {},
+			hasContext: false,
+			hasLoaded: false,
+			mutedOnClick: () => this.muted = !privates.controls.muted.checked,
+			onBroadcastChannelMessage: onBroadcastChannelMessage.bind(this),
+			onCueChange: onCueChange.bind(this),
+			onDurationChange: onDurationChange.bind(this),
+			onEnded: onEnded.bind(this),
+			onPause: onPause.bind(this),
+			onPlay: onPlay.bind(this),
+			onPopState: onPopState.bind(this),
+			onTimeUpdate: onTimeUpdate.bind(this),
+			playOnClick: () => this.playing = !(this.paused = privates.controls.play.checked),
+			progressOnChange: () => this.currentTime = privates.controls.progress.value,
+			progressOnSeekEnd: progressOnSeekEnd.bind(this),
+			progressOnSeekStart: () => this.paused = this.seeking = true,
+			volumeOnChange: () => this.volume = privates.controls.volume.value
+		}).get(this);
 		window.Object.defineProperty(privates.gain, "value", { get: () => this.volume, set(volume) { privates.audio.volume = volume / MAX_GAIN; } });
+		// set up cache for volume and locations within episodes
+		const cache = window.Object.defineProperties({}, { currentTime: Cache.getAccessor(CACHED_TIME_KEY.replace("%n", this.number)), volume: Cache.getAccessor(CACHED_VOLUME_KEY) });
+		window.Object.defineProperty(this, "cache", { get() { return cache; } });
 		createDom.call(this);
+	}
+	disconnectedCallback() {
+		const privates = _privates.get(this);
+		this.pause();
+
+		if (isBroadcastChannelSupported) {
+			privates.broadcastChannel = {};
+			privates.broadcastChannel.removeEventListener("message", privates.onBroadcastChannelMessage, { passive: true });
+		}
+		privates.audio.removeEventListener("durationchange", privates.onDurationChange, { passive: true });
+		privates.audio.removeEventListener("ended", privates.onEnded, { passive: true });
+		privates.audio.removeEventListener("pause", privates.onPause, { passive: true });
+		privates.audio.removeEventListener("play", privates.onPlay, { passive: true });
+		privates.audio.removeEventListener("timeupdate", privates.onTimeUpdate, { passive: true });
+		privates.controls.muted.removeEventListener("click", privates.mutedOnClick, { passive: true });
+		privates.controls.play.removeEventListener("click", privates.playOnClick, { passive: true });
+		privates.controls.progress.removeEventListener("seekstart", privates.progressOnSeekStart, { passive: true });
+		privates.controls.progress.removeEventListener("change", privates.progressOnChange, { passive: true });
+		privates.controls.progress.removeEventListener("seekend", privates.progressOnSeekEnd, { passive: true });
+		privates.controls.volume.removeEventListener("change", privates.volumeOnChange, { passive: true });
+		privates.audio.textTracks[0].removeEventListener("cuechange", privates.onCueChange, { passive: true });
+		window.removeEventListener("popstate", privates.onPopState, { passive: true });
 	}
 	pause() { this.paused = true; }
 	play() { this.playing = true; }
