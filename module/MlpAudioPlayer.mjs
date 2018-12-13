@@ -46,16 +46,17 @@ const INLINE_CSS = `
 		min-width: 5rem;
 	}
 	mlp-switch {
-		align-items: center;
+		--mlp-switch-background-color: var(--twi-hair-highlight-pink, #ed438a);
+		/*align-items: center;*/
 		${cssAppearance`media-play-button`}
-		background-color: transparent;
+/*		background-color: transparent;
 		box-sizing: border-box;
 		cursor: pointer;
 		display: flex;
 		height: 2rem;
+		min-width: 2rem;
 		justify-content: center;
-		text-align: center;
-		width: 2rem;
+		text-align: center;*/
 	}
 	svg[*|visibility=collapse] { display: none; }
 	/* container */

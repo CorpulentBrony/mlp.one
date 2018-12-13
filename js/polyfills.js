@@ -11,6 +11,10 @@ if (!window.CSS)
 
 if (!window.CSS.number)
 	window.CSS.number = function(number) { return window.Object.freeze({ unit: "number", value: number, toString() { return window.String(number); } }); };
+
+if (!window.CSS.percent)
+	window.CSS.percent = function(percent) { return window.Object.freeze({ unit: "percent", value: percent, toString() { return `${window.String(percent)}%`; } }); }
+
 // window.DOMRect
 if (!window.DOMRect) {
 	window.DOMRect = class DOMRect { constructor(x = 0, y = 0, width = 0, height = 0) { window.Object.assign(this, { height, width, x, y }); } };

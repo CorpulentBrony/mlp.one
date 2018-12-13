@@ -5,6 +5,56 @@ import * as util from "./util.js";
 // configurable constants
 const TAG_NAME = "mlp-switch";
 
+// styles
+const INLINE_CSS = `
+	:host {
+		--mlp-switch-background-color: pink;
+		--mlp-switch-size: 2rem;
+		align-items: center;
+		box-sizing: border-box;
+		contain: content;
+		cursor: pointer;
+		display: flex;
+		height: var(--mlp-switch-size);
+		min-width: var(--mlp-switch-size);
+		position: relative;
+		justify-content: center;
+		text-align: center;
+	}
+	:host(:hover) { outline: none; }
+	:host(:focus) { outline: none; }
+	:host(:active) { outline: none; }
+	::slotted(mlp-svg-icon) {
+		align-items: center;
+		display: flex;
+		height: 100%;
+		justify-content: center;
+		position: absolute;
+		top: 0;
+		width: 100%;
+	}
+	#background {
+		background-color: transparent;
+		height: 100%;
+		left: 0;
+		position: absolute;
+		top: 0;
+		transition: background 0.27s ease-out;
+		width: 100%;
+	}
+	:host(:hover) #background { background-image: radial-gradient(var(--mlp-switch-background-color), rgba(0, 0, 0, 0) 75%); }
+	:host(:focus) #background { background-image: radial-gradient(var(--mlp-switch-background-color), var(--mlp-switch-background-color) 50%, rgba(0, 0, 0, 0) 75%); }
+	:host(:active) #background { background-color: var(--mlp-switch-background-color); }
+`;
+
+// HTML
+const TEMPLATE = window.document.createElement("template");
+TEMPLATE.innerHTML = `
+	<style>${INLINE_CSS}</style>
+	<div id="background"></div>
+	<slot></slot>
+`;
+
 // other constants (not configurable)
 const _privates = new window.WeakMap();
 
@@ -33,8 +83,11 @@ export class MlpSwitch extends MlpCustomElement {
 	}
 	createdCallback() {
 		const privates = _privates.set(this, { hasLoaded: false, iconChecked: {}, iconUnchecked: {} }).get(this);
+		const template = TEMPLATE.content.cloneNode(true);
 		privates.iconChecked = this.querySelector("mlp-svg-icon[when-checked=true]");
 		privates.iconUnchecked = this.querySelector("mlp-svg-icon[when-checked=false]");
+		this.addEventListener("click", () => this.blur(), { passive: true });
+		this.attachShadow({ mode: "open" }).appendChild(template);
 	}
 }
 MlpSwitch.TAG_NAME = TAG_NAME;
