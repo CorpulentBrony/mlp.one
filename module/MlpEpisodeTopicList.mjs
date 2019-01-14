@@ -22,8 +22,6 @@ const INLINE_CSS = `
 		column-gap: 2rem;
 		display: grid;
 		grid-template-columns: max-content auto;
-		/* grid-row-gap: 2rem;
-		row-gap: 2rem; */
 	}
 	dt { grid-column-start: 1; }
 `;

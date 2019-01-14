@@ -14,7 +14,12 @@ if (!window.CSS.number)
 
 if (!window.CSS.percent)
 	window.CSS.percent = function(percent) { return window.Object.freeze({ unit: "percent", value: percent, toString() { return `${window.String(percent)}%`; } }); }
-
+// window.document.hidden
+if (typeof window.document.hidden === "undefined")
+	if (typeof window.document.webkitHidden !== "undefined")
+		window.Object.defineProperty(window.document, "hidden", { get: () => window.document.webkitHidden });
+	else if (typeof window.document.mozHidden !== "undefined")
+		window.Object.defineProperty(window.document, "hidden", { get: () => window.document.mozHidden });
 // window.DOMRect
 if (!window.DOMRect) {
 	window.DOMRect = class DOMRect { constructor(x = 0, y = 0, width = 0, height = 0) { window.Object.assign(this, { height, width, x, y }); } };
@@ -31,23 +36,30 @@ if (!window.DOMRect) {
 		prototype.prepend = function(...nodes) { this.insertBefore(nodes.reduce((doc, node) => doc.appendChild((node instanceof window.Node) ? node : window.document.createTextNode(window.String(node))), window.document.createDocumentFragment()), this.firstChild); };
 });
 [window.Element.prototype, window.CharacterData.prototype, window.DocumentType.prototype].forEach((prototype) => {
-	if (prototype.replaceWith)
-		return;
-	prototype.replaceWith = function(...nodes) {
-		if (!this.parentNode)
-			return;
-		else if (nodes.length === 0)
-			this.parentNode.removeChild(this);
+	// window.Element.prototype.remove
+	if (!prototype.remove)
+		prototype.remove = function() {
+			if (this.parentNode !== null)
+				this.parentNode.removeChild(this);
+		};
 
-		for (let i = nodes.length - 1; i >= 0; i--) {
-			const currentNode = (nodes[i] instanceof window.Node) ? nodes[i] : this.ownerDocument.createTextNode(window.String(nodes[i]));
+	// window.Element.prototype.replaceWith
+	if (!prototype.replaceWith)
+		prototype.replaceWith = function(...nodes) {
+			if (!this.parentNode)
+				return;
+			else if (nodes.length === 0)
+				this.parentNode.removeChild(this);
 
-			if (i === 0)
-				this.parentNode.replaceChild(currentNode, this);
-			else
-				this.parentNode.insertBefore(this.previousSibling, currentNode);
-		}
-	};
+			for (let i = nodes.length - 1; i >= 0; i--) {
+				const currentNode = (nodes[i] instanceof window.Node) ? nodes[i] : this.ownerDocument.createTextNode(window.String(nodes[i]));
+
+				if (i === 0)
+					this.parentNode.replaceChild(currentNode, this);
+				else
+					this.parentNode.insertBefore(this.previousSibling, currentNode);
+			}
+		};
 });
 // window.indexedDB
 if (!window.indexedDB)

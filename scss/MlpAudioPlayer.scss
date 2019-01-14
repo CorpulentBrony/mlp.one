@@ -1,0 +1,82 @@
+@charset "utf-8";
+@import "color_vars";
+@import "mixins";
+
+/*
+Customizable CSS variables:
+	--mlp-audio-player-bg-color: The audio player background color
+	--mlp-audio-player-spinner-color: The color of the loading spinner
+	--mlp-audio-player-switch-bg-color: The background color for switches
+	--mlp-audio-player-thumb-color: The color of the tracking thumbs on sliders
+	--mlp-audio-player-track-left-color: The color of the track to the left of the thumb on sliders
+	--mlp-audio-player-track-right-color: The color of the track to the right of the thumb on sliders
+	--mlp-audio-player-visualizer-bg-color: The background color for the audio visualizer
+*/
+:host {
+	background-color: var(--mlp-audio-player-bg-color, #{$twi-eye-highlight-light});
+	box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+	contain: content;
+	display: block;
+}
+*[aria-hidden=true] { visibility: hidden; }
+mlp-slider {
+	--mlp-slider-thumb-color: var(--mlp-audio-player-thumb-color, #{$twi-hair-primary});
+	--mlp-slider-track-left-color: var(--mlp-audio-player-track-left-color, #{$twi-hair-highlight-pink});
+	--mlp-slider-track-right-color: var(--mlp-audio-player-track-right-color, #{$twi-hair-highlight-purple});
+	flex-basis: auto;
+	flex-grow: 1;
+	min-width: 5rem;
+}
+mlp-spinner { --mlp-spinner-color: var(--mlp-audio-player-spinner-color, #{$twi-hair-primary}); }
+mlp-switch {
+	--mlp-switch-background-color: var(--mlp-audio-player-switch-bg-color, #{$twi-hair-highlight-pink});
+	@include appearance(media-play-button);
+}
+svg[*|visibility=collapse] { display: none; }
+
+#container, #player { position: relative; }
+#controls > span, #current, #duration {
+	font-size: 0.75rem;
+	@include mlp-disable-user-select;
+}
+#controls > span, #current, #display, #duration { line-height: 2rem; }
+/* player */
+#player { z-index: 1; }
+/* controls */
+#controls {
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+
+	& > * { height: 2rem; }
+	& > span { padding: 0 0.25rem; }
+}
+/* time display */
+#current { @include appearance(media-current-time-display); }
+#duration { @include appearance(media-time-remaining-display); }
+/* display */
+#display {
+	cursor: default;
+	display: block;
+	font-size: large;
+	overflow: hidden;
+	text-align: center;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	z-index: 100;
+}
+/* sliders */
+#progress { flex-shrink: 1; }
+#volume {
+	flex-shrink: 1.9;
+	max-width: 6rem;
+}
+/* visualizer */
+#visualizer {
+	--mlp-audio-visualizer-background-color: var(--mlp-audio-player-visualizer-bg-color, #{$twi-eye-highlight-light});
+	height: 100%;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 100%;
+}

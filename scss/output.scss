@@ -40,6 +40,7 @@ html::-moz-selection { background: $mdc-theme-secondary; }
 	.mdc-snackbar__text { color: $mdc-theme-on-primary; }
 }
 
+#mlp-episode-metadata { font-size: 0.75rem; }
 // this is also in common.scss now; need to fix
 #mlp-img-bg {
 	bottom: 0;

@@ -1,4 +1,5 @@
 @charset "utf-8";
+@import "mixins";
 
 $default-thumb-color: rgba(0, 0, 0, 0.8);
 $default-thumb-zero-color: #ddd;
@@ -84,7 +85,7 @@ $thumb-active: ":host(:focus) #thumb-container:active #thumb-focus";
 
 	&-container {
 		@extend %touch-action;
-		@include mlp-user-select(none);
+		@include mlp-disable-user-select;
 		--thumb-color: var(--mlp-slider-thumb-color);
 		--thumb-stroke: var(--mlp-slider-thumb-color);
 		height: $thumb-size;

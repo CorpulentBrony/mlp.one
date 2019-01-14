@@ -120,7 +120,7 @@
 					<button aria-haspopup="menu" class="mdc-top-app-bar__navigation-icon" type="button">
 						<?= \Mlp\getSvg("../material-design-icons/navigation/svg/production/ic_menu_24px.svg", ["aria-label" => "Show the episode menu", "title" => "Show Menu"]) ?>
 					</button>
-					<data class="mdc-top-app-bar__title" value="<?= $thisEpisodeNumber ?>">
+					<data class="mdc-top-app-bar__title" id="mlp-episode-name" value="<?= $thisEpisodeNumber ?>">
 						<a href="/" rel="home index" title="<?= $_SERVER["SITE_TITLE"] ?>"></a> #
 						<?= $thisEpisodeNumber ?> - <?= $this->episode->title ?>
 					</data>
@@ -138,21 +138,22 @@
 		<main role="main">
 			<article aria-labelledby="mlp-episode-name" class="mdc-card">
 				<!-- <section class="mdc-card__media mdc-card__media--16-9"></section> -->
-				<header>
-					<h6 id="mlp-episode-name"><?= $this->episode->title ?></h6>
-					<aside>
-						<time aria-label="Date this episode was published" datetime="<?= $publishDateIsoFormat ?>" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
-						<span title="Episode Duration">
-							<?= \Mlp\getSvg("../material-design-icons/device/svg/production/ic_access_time_24px.svg", ["height" => 12, "role" => "presentation", "width" => 12]) ?>
-							<time aria-label="Episode Duration" datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>"><?= $this->episode->getDurationFormatted() ?></time>
-						</span>
-					</aside>
-				</header>
 	 			<mlp-audio-player name="<?= htmlspecialchars($this->episode->title, \ENT_COMPAT | \ENT_HTML5) ?>" number="<?= $thisEpisodeNumber ?>" srcset="<?= $requestUrlOgg ?> <?= self::TYPES[RequestType::OGG]["mimeType"] ?>, <?= $requestUrlMp3 ?> <?= self::TYPES[RequestType::MP3]["mimeType"] ?>">
 	 			</mlp-audio-player>
+	 			<aside id="mlp-episode-metadata">
+					<time aria-label="Date this episode was published" datetime="<?= $publishDateIsoFormat ?>" title="Publish Date"><?= $this->episode->publishDate->format(DATE_DISPLAY_FORMAT) ?></time>
+					<span title="Episode Duration">
+						<?= \Mlp\getSvg("../material-design-icons/device/svg/production/ic_access_time_24px.svg", ["height" => 12, "role" => "presentation", "width" => 12]) ?>
+						<time aria-label="Episode Duration" datetime="<?= $this->episode->duration->format("PT%hH%iM%sS") ?>"><?= $this->episode->getDurationFormatted() ?></time>
+					</span>
+				</aside>
 				<mlp-episode-description>
 					<?= is_null($this->episode->note) ? str_replace("\n", "<br>", $this->episode->description) : str_ireplace("<a href=", "<a rel=\"noopener\" target=\"_blank\" href=", $this->episode->note) ?>
 				</mlp-episode-description>
+				<mlp-menu>
+					<li tabindex="0">Menu Item 1</li>
+					<li tabindex="0">Menu Item 2</li>
+				</mlp-menu>
 				<footer class="mdc-card__actions">
 					<nav class="mdc-card__action-buttons">
 						<a class="mdc-button mdc-button--unelevated mdc-card__action mdc-card__action--button" href="<?= $thisEpisodeNumber ?>.mp3" role="button" type="audio/mpeg">Download</a>

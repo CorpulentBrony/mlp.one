@@ -2,6 +2,7 @@
 import { Drawer } from "./Drawer.js";
 import { MlpAudioPlayer } from "./MlpAudioPlayer.mjs";
 import { MlpEpisodeDescription } from "./MlpEpisodeDescription.mjs";
+import { MlpMenu } from "./MlpMenu.mjs";
 import { MoreFormatsMenu } from "./MoreFormatsMenu.js";
 import { ShareMenu } from "./ShareMenu.js";
 import { TopAppBar } from "./TopAppBar.js";
@@ -9,7 +10,7 @@ import { async, defineCustomElements, isDocumentLoaded, loadDeferredStylesheets 
 import "../js/mdc-ripple.js";
 
 (async function output() {
-	const CUSTOM_ELEMENTS = [MlpAudioPlayer, MlpEpisodeDescription];
+	const CUSTOM_ELEMENTS = [MlpAudioPlayer, MlpEpisodeDescription, MlpMenu];
 	const episode = {
 		cache(object, name, value) {
 			delete object[name];

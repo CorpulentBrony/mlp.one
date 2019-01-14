@@ -38,12 +38,15 @@ const INLINE_CSS = `
 		left: 0;
 		position: absolute;
 		top: 0;
-		transition: background 0.27s ease-out;
+		transition: background 0.27s ease-out, border-radius 0.27s ease-out;
 		width: 100%;
 	}
 	:host(:hover) #background { background-image: radial-gradient(var(--mlp-switch-background-color), rgba(0, 0, 0, 0) 75%); }
 	:host(:focus) #background { background-image: radial-gradient(var(--mlp-switch-background-color), var(--mlp-switch-background-color) 50%, rgba(0, 0, 0, 0) 75%); }
-	:host(:active) #background { background-color: var(--mlp-switch-background-color); }
+	:host(:active) #background {
+		background-image: radial-gradient(var(--mlp-switch-background-color), var(--mlp-switch-background-color) 50%, rgba(0, 0, 0, 0) 90%);
+		border-radius: 25%;
+	}
 `;
 
 // HTML
@@ -61,7 +64,11 @@ export class MlpSwitch extends MlpCustomElement {
 	static get observedAttributes() { return ["aria-checked"]; }
 	get checked() { return this.getAttribute("aria-checked") != "false"; }
 	get disabled() { return this.hasAttribute("disabled"); }
-	set checked(checked) { this.setAttribute("aria-checked", window.String(window.Boolean(checked))); }
+	set checked(checked) {
+		checked = window.String(window.Boolean(checked));
+		this.setAttribute("aria-checked", checked);
+		this.setAttribute("aria-pressed", checked);
+	}
 	set disabled(disabled) { this.setAttribute("disabled", window.Boolean(disabled)); }
 	attributeChangedCallback(name, oldValue, newValue) {
 		if (oldValue == newValue)
@@ -82,8 +89,8 @@ export class MlpSwitch extends MlpCustomElement {
 	createdCallback() {
 		const privates = _privates.set(this, { hasLoaded: false, iconChecked: {}, iconUnchecked: {}, onClick: () => this.blur() }).get(this);
 		const template = TEMPLATE.content.cloneNode(true);
-		privates.iconChecked = this.querySelector("mlp-svg-icon[when-checked=true]");
-		privates.iconUnchecked = this.querySelector("mlp-svg-icon[when-checked=false]");
+		privates.iconChecked = this.querySelector("mlp-svg-icon[mlp-switch-when-checked=true]");
+		privates.iconUnchecked = this.querySelector("mlp-svg-icon[mlp-switch-when-checked=false]");
 		this.attachShadow({ mode: "open" }).appendChild(template);
 	}
 	disconnectedCallback() { this.removeEventListener("click", privates.onClick, { passive: true }); }

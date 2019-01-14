@@ -133,7 +133,7 @@
 		$fileExtension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
 		$tempFile = new \SplFileInfo($_FILES["file"]["tmp_name"]);
 		$tempFilePath = strval($tempFile);
-		
+
 		// check file is proper mime type
 		$inputFieldsEpisode = $inputFields->get("episode");
 		$inputFieldsFile = $inputFields->get("file");
@@ -171,7 +171,7 @@
 			->then(function () use ($tempFilePath, $fileName, $fileNameBase): void {
 				unlink($tempFilePath);
 				$transcoder = \Aws\ElasticTranscoder\ElasticTranscoderClient::factory(["region" => "us-east-1", "version" => "latest"]);
-				$job = $transcoder->createJob([
+				$transcoder->createJob([
 					"Input" => [
 						"Key" => KEY . $fileName
 					],

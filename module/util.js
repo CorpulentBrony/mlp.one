@@ -1,12 +1,15 @@
 import "../js/polyfills.js";
 import { Cache } from "./Cache.js";
 
+const CACHE_NAME = "mlp-one-browser";
+const CACHE_OPTIONS = { ignoreSearch: true };
 export const isDocumentLoaded = new window.Promise((resolve) => {
 	if (window.document.readyState === "loading")
 		window.document.addEventListener("DOMContentLoaded", resolve, false);
 	else
 		resolve();
 });
+const preloadedFiles = new window.Set();
 
 function arrayify(something) {
 	if (typeof something === "object")
@@ -106,6 +109,21 @@ export function defineCustomElements(elementClasses) { arrayify(elementClasses).
 // 		return result;
 // 	}, []);
 // }
+export async function fetchAndCache(request) {
+	const cache = await window.caches.open(CACHE_NAME);
+	const cachedResponse = await cache.match(request, CACHE_OPTIONS);
+	const response = async function() {
+		const response = await window.fetch(request.clone());
+
+		if (response.status < 400)
+			cache.put(request, response.clone());
+		return response;
+	}().catch(console.error);
+
+	if (cachedResponse)
+		return cachedResponse;
+	return response;
+}
 export function getChildrenAsObject(element) {
 	if (!element.children || !element.children.length)
 		return;
@@ -142,9 +160,14 @@ export async function loadDeferredStylesheets(containerId = "deferred-stylesheet
 	return true;
 }
 export function preload(files = [], attributes = {}) {
-	window.requestAnimationFrame(() =>
-		arrayify(files).forEach((hrefOrAttributes) => createElement("link", window.Object.assign({}, attributes, (typeof hrefOrAttributes === "string") ? { href: hrefOrAttributes } : hrefOrAttributes), window.document.head))
-	);
+	window.requestAnimationFrame(() => arrayify(files).forEach((hrefOrAttributes) => {
+		const fileAttributes = (typeof hrefOrAttributes === "string") ? { href: hrefOrAttributes } : hrefOrAttributes;
+
+		if (preloadedFiles.has(fileAttributes.href))
+			return;
+		createElement("link", window.Object.assign({ rel: "preload" }, attributes, fileAttributes), window.document.head);
+		preloadedFiles.add(fileAttributes.href);
+	}));
 }
 export function removeCssProperty(element, property) {
 	if ("attributeStyleMap" in element)

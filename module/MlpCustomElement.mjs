@@ -7,7 +7,7 @@ export class MlpCustomElement extends window.HTMLElement {
 	connectedCallback() { this.dispatchEvent("elementconnected"); }
 	createdCallback() { this.dispatchEvent("elementcreated"); }
 	disconnectedCallback() { this.dispatchEvent("elementdisconnected"); }
-	dispatchEvent(eventName) { window.requestAnimationFrame(() => super.dispatchEvent(new window.Event(eventName))); }
+	dispatchEvent(eventName, eventInit = undefined) { window.requestAnimationFrame(() => super.dispatchEvent(new window.Event(eventName, eventInit))); }
 	setAttribute(attribute, value) {
 		const isAttributeBoolean = typeof value === "boolean";
 		const currentValue = isAttributeBoolean ? super.hasAttribute(attribute) : super.getAttribute(attribute);

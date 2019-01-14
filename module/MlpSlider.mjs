@@ -9,7 +9,7 @@ import * as util from "./util.js";
 // configurable constants
 const TAG_NAME = "mlp-slider";
 const DEFAULTS = { MAX: 1, MIN: 0, ROLE: "slider", STEP: 0.1, TABINDEX: -1, VALUE: 0 };
-const INTERACTION_EVENTS = {
+const POTENTIAL_INTERACTION_EVENTS = {
 	MOUSE: { BEGIN: "mousedown", MOVE: "mousemove", END: "mouseup", LEAVE: "mouseleave" },
 	POINTER: { BEGIN: "pointerdown", MOVE: "pointermove", END: "pointerup", LEAVE: "pointerleave", CANCEL: "pointercancel" },
 	TOUCH: { BEGIN: "touchstart", MOVE: "touchmove", END: "touchend", CANCEL: "touchcancel" }
@@ -19,6 +19,7 @@ const PAGE_SCROLL_FACTOR = 3;
 
 // styles
 const CSS_FILES = ["/css/MlpSlider.css"];
+util.preload(CSS_FILES, { as: "style", importance: "high", type: "text/css" });
 
 // HTML
 const TEMPLATE = window.document.createElement("template");
@@ -37,13 +38,13 @@ TEMPLATE.innerHTML = `
 // other constants (not configurable)
 const _privates = new window.WeakMap();
 const HAS_RESIZE_OBSERVER = "ResizeObserver" in window;
+const INTERACTION_EVENTS = window.PointerEvent ? [POTENTIAL_INTERACTION_EVENTS.POINTER] : [POTENTIAL_INTERACTION_EVENTS.MOUSE, POTENTIAL_INTERACTION_EVENTS.TOUCH];
 const KEYCODE_MAP = window.Array.from(window.Object.values(KEYS));
 KEYCODE_MAP.OFFSET = 33;
 
 // private methods
 function calculateValuePercentage() { return window.String(this.value / (this.max - this.min)); }
 function createDom() {
-	util.preload(CSS_FILES, { as: "style", importance: "high", type: "text/css" });
 	const privates = _privates.get(this);
 	const template = TEMPLATE.content.cloneNode(true);
 	privates.thumbContainer = template.getElementById("thumb-container");
@@ -53,9 +54,6 @@ function createDom() {
 function onInteractionBegin(event) {
 	if (this.disabled)
 		return;
-	this.dispatchEvent("seekstart");
-	// const interactionEvents = Enum.values(INTERACTION_EVENTS);
-	const interactionEvents = window.PointerEvent ? [INTERACTION_EVENTS.POINTER] : [INTERACTION_EVENTS.MOUSE, INTERACTION_EVENTS.TOUCH];
 	const { max, min, rect, value: startingValue } = this;
 	const calculateValueFromInteractionEvent = (event) => {
 		const pageX = (event.targetTouches && event.targetTouches.length > 0) ? event.targetTouches[0].pageX : event.pageX;
@@ -67,7 +65,6 @@ function onInteractionBegin(event) {
 		return min + percentComplete * (max - min);
 	}
 	const onInteractionMove = (event) => {
-		// event.preventDefault();
 		const calculatedValue = calculateValueFromInteractionEvent(event);
 
 		if (calculatedValue !== this.value) {
@@ -76,8 +73,7 @@ function onInteractionBegin(event) {
 		}
 	};
 	const onInteractionEnd = (event) => {
-		// event.preventDefault();
-		interactionEvents.forEach((interactionEvent) => {
+		INTERACTION_EVENTS.forEach((interactionEvent) => {
 			window.document.body.removeEventListener(interactionEvent.MOVE, onInteractionMove, { passive: true });
 			window.document.body.removeEventListener(interactionEvent.END, onInteractionEnd, { once: true, passive: true });
 
@@ -87,12 +83,15 @@ function onInteractionBegin(event) {
 			if (interactionEvent.LEAVE)
 				window.document.body.removeEventListener(interactionEvent.LEAVE, onInteractionEnd, { once: true, passive: true });
 		});
+		const calculatedValue = calculateValueFromInteractionEvent(event);
 
-		if (startingValue !== this.value)
+		if (startingValue !== calculatedValue) {
+			this.value = calculatedValue;
 			this.dispatchEvent("change");
+		}
 		this.dispatchEvent("seekend");
 	};
-	interactionEvents.forEach((interactionEvent) => {
+	INTERACTION_EVENTS.forEach((interactionEvent) => {
 		if (interactionEvent.BEGIN === event.type)
 			window.document.body.addEventListener(interactionEvent.MOVE, onInteractionMove, { passive: true });
 		window.document.body.addEventListener(interactionEvent.END, onInteractionEnd, { once: true, passive: true });
@@ -109,6 +108,7 @@ function onInteractionBegin(event) {
 		this.value = calculatedValue;
 		this.dispatchEvent("change");
 	}
+	this.dispatchEvent("seekstart");
 }
 function onKeydown(event) {
 	if (this.disabled)

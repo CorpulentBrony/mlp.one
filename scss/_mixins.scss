@@ -2,6 +2,14 @@
 	@return $value / ($value * 0 + 1);
 }
 
+@mixin appearance($property) {
+	& {
+		-webkit-appearance: $property;
+		-moz-appearance: $property;
+		appearance: $property;
+	}
+}
+
 @mixin mlp-background-gradient {
 	& {
 		background-attachment: fixed;
@@ -16,6 +24,8 @@
 		-webkit-touch-callout: none;
 		-webkit-user-select: none;
 		-moz-user-select: none;
+		-ms-user-select: none;
+		-o-user-select: none;
 		user-select: none;
 	}
 }

@@ -3,7 +3,9 @@ import { Cache } from "./Cache.js";
 import { MlpAudioVisualizer } from "./MlpAudioVisualizer.mjs";
 import { MlpCustomElement } from "./MlpCustomElement.mjs";
 import { MlpSlider } from "./MlpSlider.mjs";
+import { MlpSpinner } from "./MlpSpinner.mjs";
 import { MlpSwitch } from "./MlpSwitch.mjs";
+import { mixinMlpVisibilityToggleable } from "./MlpVisibilityToggleable.mjs";
 import * as util from "./util.js";
 
 // web audio API: https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
@@ -12,7 +14,6 @@ import * as util from "./util.js";
 // for custom elements: https://developers.google.com/web/fundamentals/web-components/customelements
 
 // LOOK at this at the bottom for slider tooltip???: https://css-tricks.com/sliding-nightmare-understanding-range-input/
-// still need to figure out how to capture escape events when slider stops sliding :/
 
 // configurable constants
 const BROADCAST_CHANNEL_NAME = "mlp_audio_player";
@@ -21,97 +22,13 @@ const CACHED_VOLUME_KEY = "volume";
 const MAX_GAIN = 2;
 const TAG_NAME = "mlp-audio-player";
 
-// styles
-function cssAppearance(value) {
-	return `
-		-webkit-appearance: ${value};
-		-moz-appearance: ${value};
-		appearance: ${value};
-	`;
-}
-const CSS_FILES = []; //["/css/audio.css"];
-const INLINE_CSS = `
-	:host {
-		background-color: var(--mdc-theme-on-secondary, #c9aad0);
-		box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
-		contain: content;
-		display: block;
-	}
-	*[aria-hidden=true] { visibility: hidden; }
-	mlp-slider {
-		--mlp-slider-thumb-color: var(--mdc-theme-primary, #263773);
-		--mlp-slider-track-left-color: var(--twi-hair-highlight-pink, #ed438a);
-		--mlp-slider-track-right-color: var(--twi-hair-highlight-purple, #662d8a);
-		flex-basis: auto;
-		flex-grow: 1;
-		min-width: 5rem;
-	}
-	mlp-switch {
-		--mlp-switch-background-color: var(--twi-hair-highlight-pink, #ed438a);
-		${cssAppearance`media-play-button`}
-	}
-	svg[*|visibility=collapse] { display: none; }
-	/* container */
-	#container { position: relative; }
-	/* player */
-	#player {
-		position: relative;
-		z-index: 1;
-	}
-	/* controls */
-	#controls {
-		display: flex;
-		align-items: center;
-		justify-content: space-evenly;
-	}
-	#controls > * { height: 2rem; }
-	/* common time display */
-	#controls > span, #current, #duration {
-		font-size: 0.75rem;
-		line-height: 2rem;
-		-webkit-user-select: none;
-		-moz-user-select: none;
-		-ms-user-select: none;
-		-o-user-select: none;
-		user-select: none;
-	}
-	/* time display */
-	#controls > span { padding: 0 0.25rem; }
-	#current { ${cssAppearance`media-current-time-display`} }
-	#duration { ${cssAppearance`media-time-remaining-display`} }
-	/* display */
-	#display {
-		cursor: default;
-		display: block;
-		font-size: large;
-		line-height: 2rem;
-		overflow: hidden;
-		text-align: center;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		z-index: 100;
-	}
-	/* sliders */
-	#progress { flex-shrink: 1; }
-	#volume {
-		flex-shrink: 1.9;
-		max-width: 6rem;
-	}
-	/* visualizer */
-	#visualizer {
-		--mlp-audio-visualizer-background-color: var(--mdc-theme-on-secondary);
-		height: 100%;
-		left: 0;
-		position: absolute;
-		top: 0;
-		width: 100%;
-	}
-`;
+// CSS
+const CSS_FILES = ["/css/MlpAudioPlayer.css"];
+util.preload(CSS_FILES, { as: "style", importance: "high", type: "text/css" });
 
 // HTML
 const TEMPLATE = window.document.createElement("template");
 TEMPLATE.innerHTML = `
-	<style>${INLINE_CSS}</style>
 	<div id="container">
 		<mlp-audio-visualizer id="visualizer" role="presentation"></mlp-audio-visualizer>
 		<div id="player">
@@ -120,17 +37,17 @@ TEMPLATE.innerHTML = `
 				It appears your browser doesn't support embedded audio.  No worries, you can download the audio from one of the links on this page.
 			</audio>
 			<div id="controls">
-				<mlp-switch id="play" aria-checked="false" aria-label="play" autofocus role="switch" tabindex="0" title="Play">
-					<mlp-svg-icon alt="▶" aria-label="play" href="/material-design-icons/av/svg/production/ic_play_arrow_24px.svg" role="img" title="Play" when-checked="false">▶</mlp-svg-icon>
-					<mlp-svg-icon hidden alt="⏸" aria-label="pause" href="/material-design-icons/av/svg/production/ic_pause_24px.svg" role="img" title="Pause" when-checked="true">⏸</mlp-svg-icon>
+				<mlp-switch id="play" aria-checked="false" aria-label="play" aria-pressed="false" autofocus role="switch" tabindex="0" title="Play">
+					<mlp-svg-icon alt="▶" aria-label="play" href="/material-design-icons/av/svg/production/ic_play_arrow_24px.svg" role="img" title="Play" mlp-switch-when-checked="false">▶</mlp-svg-icon>
+					<mlp-svg-icon hidden alt="⏸" aria-label="pause" href="/material-design-icons/av/svg/production/ic_pause_24px.svg" role="img" title="Pause" mlp-switch-when-checked="true">⏸</mlp-svg-icon>
 				</mlp-switch>
 				<time id="current" aria-atomic="true" aria-label="current time" aria-live="off" title="Current Time">0:00:00</time>
 				<span>/</span>
 				<time id="duration" aria-label="duration" datetime="PT0S" title="Total Duration">0:00:00</time>
 				<mlp-slider id="progress" aria-label="track progress" max="0" min="0" role="slider" step="0.001" tabindex="0" title="Track Progress" value="0"></mlp-slider>
-				<mlp-switch id="muted" aria-checked="false" aria-label="mute" role="switch" tabindex="0" title="Mute">
-					<mlp-svg-icon alt="🔊" aria-label="mute" href="/material-design-icons/av/svg/production/ic_volume_up_24px.svg" role="img" title="Mute" when-checked="false">🔊</mlp-svg-icon>
-					<mlp-svg-icon hidden alt="🔇" aria-label="unmute" href="/material-design-icons/av/svg/production/ic_volume_off_24px.svg" role="img" title="Unmute" when-checked="true">🔇</mlp-svg-icon>
+				<mlp-switch id="muted" aria-checked="false" aria-label="mute" aria-pressed="false" role="switch" tabindex="0" title="Mute">
+					<mlp-svg-icon alt="🔊" aria-label="mute" href="/material-design-icons/av/svg/production/ic_volume_up_24px.svg" role="img" title="Mute" mlp-switch-when-checked="false">🔊</mlp-svg-icon>
+					<mlp-svg-icon hidden alt="🔇" aria-label="unmute" href="/material-design-icons/av/svg/production/ic_volume_off_24px.svg" role="img" title="Unmute" mlp-switch-when-checked="true">🔇</mlp-svg-icon>
 				</mlp-switch>
 				<mlp-slider id="volume" aria-label="volume" list="list-gain-vals" max="${MAX_GAIN}" min="0" role="slider" step="0.01" tabindex="0" title="Volume" value="1"></mlp-slider>
 				<datalist id="list-gain-vals">
@@ -165,6 +82,7 @@ const _privates = new window.WeakMap();
 const documentUrl = new window.URL(window.location.href);
 const isBroadcastChannelSupported = "BroadcastChannel" in window;
 const DEFAULT_AUDIO_CONTEXT = { context: {}, gain: {}, track: {} };
+const VISIBILITY_CHANGE_EVENT_NAME = (typeof window.document.webkitHidden !== "undefined") ? "webkitvisibilitychange" : (typeof window.document.mozHidden !== "undefined") ? "mozvisibilitychange" : "visibilitychange";
 
 // private methods
 function createDom() {
@@ -173,6 +91,7 @@ function createDom() {
 	privates.audio = template.getElementById("audio");
 	privates.controls = util.getChildrenAsObject(template.getElementById("controls"));
 	privates.display = template.getElementById("display");
+	window.Object.setPrototypeOf(privates.display, mixinMlpVisibilityToggleable(privates.display.constructor).prototype);
 	privates.visualizer = template.getElementById("visualizer");
 	this.attachShadow({ mode: "open" }).appendChild(template);
 }
@@ -211,7 +130,7 @@ function onDurationChange() {
 }
 function onEnded() {
 	const privates = _privates.get(this);
-	privates.display.setAttribute("aria-hidden", true);
+	privates.display.hide();
 	this.cache.currentTime = undefined;
 	this.playing = false;
 }
@@ -238,7 +157,7 @@ function onPlay() {
 		window.navigator.mediaSession.setActionHandler("seekforward", () => this.currentTime = window.Math.min(privates.audio.currentTime + MEDIA_SESSION_SKIP_TIME_SECONDS, privates.audio.duration));
 	}
 	onCueChange.call(this);
-	privates.display.removeAttribute("aria-hidden");
+	privates.display.show();
 	privates.visualizer.play();
 	this.paused = this.seeking = false;
 	privates.controls.play.checked = this.playing = true;
@@ -257,6 +176,13 @@ function onTimeUpdate() {
 		if (!this.seeking)
 			_privates.get(this).controls.progress.value = this.currentTime;
 	});
+}
+function onVisibilityChange() {
+	if (this.playing)
+		if (window.document.hidden)
+			_privates.get(this).visualizer.pause();
+		else
+			_privates.get(this).visualizer.play();
 }
 function progressOnSeekEnd() {
 	if (this.seeking) {
@@ -369,9 +295,9 @@ export class MlpAudioPlayer extends MlpCustomElement {
 		privates.controls.progress.addEventListener("seekend", privates.progressOnSeekEnd, { passive: true });
 		privates.controls.volume.addEventListener("change", privates.volumeOnChange, { passive: true });
 		window.addEventListener("popstate", privates.onPopState, { passive: true });
+		window.document.addEventListener(VISIBILITY_CHANGE_EVENT_NAME, privates.onVisibilityChange, { passive: true });
 		this.addEventListener("elementconnected", () => {
 			privates.audio.textTracks[0].addEventListener("cuechange", privates.onCueChange, { passive: true });
-			privates.audio.load();
 
 			if (documentUrl.searchParams.has("t"))
 				this.currentTime = window.Number(documentUrl.searchParams.get("t"));
@@ -379,7 +305,7 @@ export class MlpAudioPlayer extends MlpCustomElement {
 
 		if (privates.hasLoaded)
 			return super.connectedCallback();
-		util.defineCustomElements([MlpSlider, MlpSwitch]);
+		util.defineCustomElements([MlpSlider, MlpSpinner, MlpSwitch]);
 		privates.controls.progress.setValueTextTransform((value) => formatTime(value).short);
 		// load sources into audio object
 		this.srcset.trim().replace(/\s{2,}/g, "").split(",").forEach((srcset) => {
@@ -387,12 +313,13 @@ export class MlpAudioPlayer extends MlpCustomElement {
 			util.createElement("source", { src, type }, privates.audio);
 		});
 		util.createElement("track", window.Object.assign({ src: `${this.number}.vtt` }, TRACK_ATTRIBUTES), privates.audio);
+		privates.audio.load();
 		// load external CSS
 		window.requestAnimationFrame(() => CSS_FILES.forEach((href) => util.createElement("link", { href, importance: "high", rel: "stylesheet" }, this.shadowRoot)));
 		// set up AudioContext
 		if (window.AudioContext) {
 			util.defineCustomElement(MlpAudioVisualizer);
-			[privates.audio.volume, privates.context, privates.hasContext] = [1, new window.AudioContext(), true];
+			[privates.audio.volume, privates.context, privates.hasContext] = [1, new window.AudioContext({ latencyHint: "playback" }), true];
 			const gainNode = privates.context.createGain();
 			privates.gain = gainNode.gain;
 			privates.visualizer.createAnalyser(privates.context).connect(privates.context.createMediaElementSource(privates.audio)).connect(gainNode).connect(privates.context.destination);
@@ -425,6 +352,7 @@ export class MlpAudioPlayer extends MlpCustomElement {
 			onPlay: onPlay.bind(this),
 			onPopState: onPopState.bind(this),
 			onTimeUpdate: onTimeUpdate.bind(this),
+			onVisibilityChange: onVisibilityChange.bind(this),
 			playOnClick: () => this.playing = !(this.paused = privates.controls.play.checked),
 			progressOnChange: () => this.currentTime = privates.controls.progress.value,
 			progressOnSeekEnd: progressOnSeekEnd.bind(this),
@@ -458,6 +386,7 @@ export class MlpAudioPlayer extends MlpCustomElement {
 		privates.controls.volume.removeEventListener("change", privates.volumeOnChange, { passive: true });
 		privates.audio.textTracks[0].removeEventListener("cuechange", privates.onCueChange, { passive: true });
 		window.removeEventListener("popstate", privates.onPopState, { passive: true });
+		window.document.removeEventListener(VISIBILITY_CHANGE_EVENT_NAME, privates.onVisibilityChange, { passive: true });
 	}
 	pause() { this.paused = true; }
 	play() { this.playing = true; }
