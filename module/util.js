@@ -3,49 +3,49 @@ import { Cache } from "./Cache.js";
 
 const CACHE_NAME = "mlp-one-browser";
 const CACHE_OPTIONS = { ignoreSearch: true };
-export const isDocumentLoaded = new window.Promise((resolve) => {
-	if (window.document.readyState === "loading")
-		window.document.addEventListener("DOMContentLoaded", resolve, false);
+export const isDocumentLoaded = new self.Promise((resolve) => {
+	if (self.document.readyState === "loading")
+		self.document.addEventListener("DOMContentLoaded", resolve, false);
 	else
 		resolve();
 });
-const preloadedFiles = new window.Set();
+const preloadedFiles = new self.Set();
 
 function arrayify(something) {
 	if (typeof something === "object")
 		if ("forEach" in something)
 			return something;
 		else if (typeof something.length === "number") {
-			const result = window.Array.prototype.slice.call(something, 0);
+			const result = self.Array.prototype.slice.call(something, 0);
 			something.forEach = result.forEach;
 			return result;
 		}
 	return [something];
 }
 export function async(funcOrArray) {
-	if (window.Array.isArray(funcOrArray))
+	if (self.Array.isArray(funcOrArray))
 		return funcOrArray.map((func) => async(func));
-	return new window.Promise((resolve, reject) => {
-		try { window.setTimeout(() => resolve(funcOrArray.call(undefined)), 0); }
+	return new self.Promise((resolve, reject) => {
+		try { self.setTimeout(() => resolve(funcOrArray.call(undefined)), 0); }
 		catch (err) { reject(err); }
 	});
 }
 export function checkWebpSupport() {
 	const cacheKey = "isWebpSupported";
 	const cacheValue = Cache.get(cacheKey);
-	const setWebpSupportedClass = (isWebpSupported) => window.document.body.classList.add(({ true: "webp-support", false: "webp-no-support" })[isWebpSupported]);
+	const setWebpSupportedClass = (isWebpSupported) => self.document.body.classList.add(({ true: "webp-support", false: "webp-no-support" })[isWebpSupported]);
 
 	if (cacheValue != null)
 		setWebpSupportedClass(cacheValue);
 	else {
-		const check = new window.Promise((resolve, reject) => {
-			const image = new window.Image();
+		const check = new self.Promise((resolve, reject) => {
+			const image = new self.Image();
 			image.addEventListener("error", (err) => reject(err), false);
 			image.addEventListener("load", () => {
 				if (image.width === 1 && image.height === 1)
 					resolve();
 				else
-					reject(new window.Error("Loaded WebP does not have the expected dimensions."));
+					reject(new self.Error("Loaded WebP does not have the expected dimensions."));
 			}, false);
 			image.src = "data:image/webp;base64,UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAABBxAR/Q9ERP8DAABWUDggGAAAADABAJ0BKgEAAQADADQlpAADcAD++/1QAA==";
 		});
@@ -58,34 +58,35 @@ export function checkWebpSupport() {
 		});
 	}
 }
+export function copyAttributes(fromElement, toElement) { fromElement.getAttributeNames().forEach((attributeName) => toElement.setAttribute(attributeName, fromElement.getAttribute(attributeName))); }
 export function createDefinedElement({ TAG, ATTRIBUTES = {}, TEXT = undefined }, parent = undefined) { return createElement(TAG, ATTRIBUTES, parent, TEXT); }
 export function createElement(name, attributes = {}, parent = undefined, text = undefined) {
-	const element = window.document.createElement(name);
+	const element = self.document.createElement(name);
 	setAttributes(element, attributes);
 
 	if (text !== undefined)
-		element.textContent = window.String(text);
+		element.textContent = self.String(text);
 
-	if (parent instanceof window.Node)
+	if (parent instanceof self.Node)
 		parent.appendChild(element);
 	return element;
 }
 export function defineCustomElement(ElementClass) {
-	const supportsCustomElements = window.customElements && window.customElements.define;
-	const supportsRegisterElement = window.Boolean(window.document.registerElement);
+	const supportsCustomElements = self.customElements && self.customElements.define;
+	const supportsRegisterElement = self.Boolean(self.document.registerElement);
 
 	function customElementsNotSupported() { return; }
 	function defineCustomElementV0(ElementClass) {
-		const testElementConstructor = window.document.createElement(ElementClass.TAG_NAME).constructor;
+		const testElementConstructor = self.document.createElement(ElementClass.TAG_NAME).constructor;
 
-		if (testElementConstructor === window.HTMLElement || testElementConstructor === window.HTMLUnknownElement)
+		if (testElementConstructor === self.HTMLElement || testElementConstructor === self.HTMLUnknownElement)
 			return;
-		window.document.registerElement(ElementClass.TAG_NAME, { prototype: window.Object.create(ElementClass.prototype) });
+		self.document.registerElement(ElementClass.TAG_NAME, { prototype: self.Object.create(ElementClass.prototype) });
 	}
 	function defineCustomElementV1(ElementClass) {
-		if (window.customElements.get(ElementClass.TAG_NAME))
+		if (self.customElements.get(ElementClass.TAG_NAME))
 			return;
-		window.customElements.define(ElementClass.TAG_NAME, ElementClass);
+		self.customElements.define(ElementClass.TAG_NAME, ElementClass);
 	}
 
 	if (supportsCustomElements)
@@ -110,10 +111,10 @@ export function defineCustomElements(elementClasses) { arrayify(elementClasses).
 // 	}, []);
 // }
 export async function fetchAndCache(request) {
-	const cache = await window.caches.open(CACHE_NAME);
+	const cache = await self.caches.open(CACHE_NAME);
 	const cachedResponse = await cache.match(request, CACHE_OPTIONS);
 	const response = async function() {
-		const response = await window.fetch(request.clone());
+		const response = await self.fetch(request.clone());
 
 		if (response.status < 400)
 			cache.put(request, response.clone());
@@ -135,24 +136,24 @@ export function getChildrenAsObject(element) {
 export function getCssProperty(element, property) {
 	if ("computedStyleMap" in element)
 		return element.computedStyleMap().get(property);
-	const unparsed = window.getComputedStyle(element).getPropertyValue(property).trim();
+	const unparsed = self.getComputedStyle(element).getPropertyValue(property).trim();
 	const parsed = /^([0-9]+\.?[0-9]*)(%|[a-z]*)$/.exec(unparsed);
 
 	if (parsed == null)
-		return window.Object.freeze({ value: unparsed, toString() { return window.String(unparsed); } });
+		return self.Object.freeze({ value: unparsed, toString() { return self.String(unparsed); } });
 	const unit = (parsed[2].length === 0) ? "number" : (parsed[2] === "%") ? "percent" : parsed[2];
-	return window.Object.freeze({ unit: "number", value: window.Number(parsed[1]), toString() { return unparsed; } });
+	return self.Object.freeze({ unit: "number", value: self.Number(parsed[1]), toString() { return unparsed; } });
 }
-export function getElement({ elementId, elementSelector }) { return elementId ? window.document.getElementById(elementId) : window.document.querySelector(elementSelector); }
+export function getElement({ elementId, elementSelector }) { return elementId ? self.document.getElementById(elementId) : self.document.querySelector(elementSelector); }
 export function getNodesAsObject(nodes) {
-	return window.Array.prototype.reduce.call(nodes, (result, node, index) => window.Object.defineProperty(result, node.id || window.String(index), { enumerable: true, value: node, writable: true }), {});
+	return self.Array.prototype.reduce.call(nodes, (result, node, index) => self.Object.defineProperty(result, node.id || self.String(index), { enumerable: true, value: node, writable: true }), {});
 }
 export async function loadDeferredStylesheets(containerId = "deferred-stylesheets") {
-	const parser = new window.DOMParser();
-	const loader = () => parser.parseFromString(document.getElementById(containerId).textContent, "text/html").querySelectorAll("link").forEach((link) => window.document.head.appendChild(link));
+	const parser = new self.DOMParser();
+	const loader = () => parser.parseFromString(document.getElementById(containerId).textContent, "text/html").querySelectorAll("link").forEach((link) => self.document.head.appendChild(link));
 
-	if (window.requestAnimationFrame)
-		window.requestAnimationFrame(() => loader.call(undefined));
+	if (self.requestAnimationFrame)
+		self.requestAnimationFrame(() => loader.call(undefined));
 	else {
 		await isDocumentLoaded;
 		loader.call(undefined);
@@ -160,12 +161,12 @@ export async function loadDeferredStylesheets(containerId = "deferred-stylesheet
 	return true;
 }
 export function preload(files = [], attributes = {}) {
-	window.requestAnimationFrame(() => arrayify(files).forEach((hrefOrAttributes) => {
+	self.requestAnimationFrame(() => arrayify(files).forEach((hrefOrAttributes) => {
 		const fileAttributes = (typeof hrefOrAttributes === "string") ? { href: hrefOrAttributes } : hrefOrAttributes;
 
 		if (preloadedFiles.has(fileAttributes.href))
 			return;
-		createElement("link", window.Object.assign({ rel: "preload" }, attributes, fileAttributes), window.document.head);
+		createElement("link", self.Object.assign({ rel: "preload" }, attributes, fileAttributes), self.document.head);
 		preloadedFiles.add(fileAttributes.href);
 	}));
 }
@@ -181,19 +182,19 @@ export function setAttributes(element, attributes = {}) {
 export function setCssProperty(element, property, value) {
 	if ("attributeStyleMap" in element)
 		return element.attributeStyleMap.set(property, value);
-	element.style.setProperty(property, window.String(value));
+	element.style.setProperty(property, self.String(value));
 }
-export function writeTextToClipboard(text) { // returns window.Promise
-	if ("navigator" in window && "clipboard" in window.navigator && "writeText" in window.navigator.clipboard) {
-		return window.navigator.clipboard.writeText(window.String(text));
+export function writeTextToClipboard(text) { // returns self.Promise
+	if ("navigator" in window && "clipboard" in self.navigator && "writeText" in self.navigator.clipboard) {
+		return self.navigator.clipboard.writeText(self.String(text));
 	} else {
-		const textArea = window.document.createElement("textarea");
-		textArea.value = window.String(text);
-		window.document.body.appendChild(textArea);
+		const textArea = self.document.createElement("textarea");
+		textArea.value = self.String(text);
+		self.document.body.appendChild(textArea);
 		textArea.select();
-		window.document.execCommand("copy");
+		self.document.execCommand("copy");
 		textArea.remove();
-		return window.Promise.resolve(undefined);
+		return self.Promise.resolve(undefined);
 	}
 }
 
@@ -210,18 +211,18 @@ export function writeTextToClipboard(text) { // returns window.Promise
 // 	});
 // }
 
-// function javaStringHash(string) { return window.Array.prototype.reduce.call(window.String(string), (hash, character) => (hash << 5) - hash + character.charCodeAt(0) | 0, 0); }
+// function javaStringHash(string) { return self.Array.prototype.reduce.call(self.String(string), (hash, character) => (hash << 5) - hash + character.charCodeAt(0) | 0, 0); }
 
-// export async function loadSvg(replacesElement, src = undefined) { // returns window.Promise
+// export async function loadSvg(replacesElement, src = undefined) { // returns self.Promise
 // 	if (replacesElement.parentNode == null)
 // 		return;
 // 	else if (typeof src === "undefined" && "currentSrc" in replacesElement)
 // 		src = replacesElement.currentSrc;
-// 	const [width, height] = (replacesElement instanceof window.SVGElement) ? [replacesElement.width.baseVal.value, replacesElement.height.baseVal.value] : [replacesElement.clientWidth, replacesElement.clientHeight];
+// 	const [width, height] = (replacesElement instanceof self.SVGElement) ? [replacesElement.width.baseVal.value, replacesElement.height.baseVal.value] : [replacesElement.clientWidth, replacesElement.clientHeight];
 
-// 	if (window.Number(width) + window.Number(height) <= 0)
+// 	if (self.Number(width) + self.Number(height) <= 0)
 // 		return;
-// 	const cacheKey = window.String(javaStringHash(`${src}|${width}|${height}`));
+// 	const cacheKey = self.String(javaStringHash(`${src}|${width}|${height}`));
 // 	let svgCached = Cache.get(cacheKey);
 
 // 	if (svgCached) {
@@ -230,10 +231,10 @@ export function writeTextToClipboard(text) { // returns window.Promise
 // 		return svg;
 // 	} else {
 // 		notifyPreload("fetch", src, "image/svg+xml");
-// 		return window.fetch(src).then((response) => response.text()).then((svgText) => {
+// 		return self.fetch(src).then((response) => response.text()).then((svgText) => {
 // 			if (replacesElement.parentNode == null)
 // 				return;
-// 			const serializer = new window.XMLSerializer();
+// 			const serializer = new self.XMLSerializer();
 // 			const svg = parseSvgText(svgText);
 // 			copyAttributes(replacesElement, svg, ["aria-label", "class", "title"]);
 // 			setAttributes(svg, { height, width });
@@ -248,13 +249,13 @@ export function writeTextToClipboard(text) { // returns window.Promise
 // 	}
 // }
 
-// function notifyPreload(as, href, type) { createElement("link", { as, href, type }, window.document.head); }
+// function notifyPreload(as, href, type) { createElement("link", { as, href, type }, self.document.head); }
 
 // function parseSvgText(svgText) {
-// 	const parser = new window.DOMParser();
+// 	const parser = new self.DOMParser();
 // 	const svg = parser.parseFromString(svgText, "image/svg+xml").documentElement;
 
 // 	if (svg.tagName != "svg")
-// 		throw new window.Error(`Loaded document is not formatted as an SVG.  Received: ${svgText}`);
+// 		throw new self.Error(`Loaded document is not formatted as an SVG.  Received: ${svgText}`);
 // 	return svg;
 // }

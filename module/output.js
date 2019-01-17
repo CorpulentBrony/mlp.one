@@ -3,14 +3,14 @@ import { Drawer } from "./Drawer.js";
 import { MlpAudioPlayer } from "./MlpAudioPlayer.mjs";
 import { MlpEpisodeDescription } from "./MlpEpisodeDescription.mjs";
 import { MlpMenu } from "./MlpMenu.mjs";
-import { MoreFormatsMenu } from "./MoreFormatsMenu.js";
-import { ShareMenu } from "./ShareMenu.js";
+import { MlpShareMenu } from "./MlpShareMenu.mjs";
+import { MlpSvgIcon } from "./MlpSvgIcon.mjs";
 import { TopAppBar } from "./TopAppBar.js";
 import { async, defineCustomElements, isDocumentLoaded, loadDeferredStylesheets } from "./util.js";
 import "../js/mdc-ripple.js";
 
 (async function output() {
-	const CUSTOM_ELEMENTS = [MlpAudioPlayer, MlpEpisodeDescription, MlpMenu];
+	const CUSTOM_ELEMENTS = [MlpAudioPlayer, MlpEpisodeDescription, MlpMenu, MlpShareMenu, MlpSvgIcon];
 	const episode = {
 		cache(object, name, value) {
 			delete object[name];
@@ -32,8 +32,6 @@ import "../js/mdc-ripple.js";
 		window.document.removeEventListener("DOMContentLoaded", documentOnLoad, false)
 		return window.Promise.all(async([
 			() => new Drawer({ currentElement: findSelectedEpisodeListItem(episodeNumber), topAppBar: new TopAppBar(), triggerElementSelector: "header.mdc-top-app-bar button.mdc-top-app-bar__navigation-icon" }),
-			() => new MoreFormatsMenu({ triggerElementId: "mlp-btn-more-formats" }),
-			() => new ShareMenu({ triggerElementId: "mlp-btn-share" }),
 			() => rippleButtonClassNames.forEach((querySelector) => attachRipple(querySelector)),
 			() => defineCustomElements(CUSTOM_ELEMENTS)
 		]));

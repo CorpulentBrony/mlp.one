@@ -314,8 +314,6 @@ export class MlpAudioPlayer extends MlpCustomElement {
 		});
 		util.createElement("track", window.Object.assign({ src: `${this.number}.vtt` }, TRACK_ATTRIBUTES), privates.audio);
 		privates.audio.load();
-		// load external CSS
-		window.requestAnimationFrame(() => CSS_FILES.forEach((href) => util.createElement("link", { href, importance: "high", rel: "stylesheet" }, this.shadowRoot)));
 		// set up AudioContext
 		if (window.AudioContext) {
 			util.defineCustomElement(MlpAudioVisualizer);
@@ -364,14 +362,16 @@ export class MlpAudioPlayer extends MlpCustomElement {
 		const cache = window.Object.defineProperties({}, { currentTime: Cache.getAccessor(CACHED_TIME_KEY.replace("%n", this.number)), volume: Cache.getAccessor(CACHED_VOLUME_KEY) });
 		window.Object.defineProperty(this, "cache", { get() { return cache; } });
 		createDom.call(this);
+		// load external CSS
+		window.requestAnimationFrame(() => CSS_FILES.forEach((href) => util.createElement("link", { href, importance: "high", rel: "stylesheet" }, this.shadowRoot)));
 	}
 	disconnectedCallback() {
 		const privates = _privates.get(this);
 		this.pause();
 
 		if (isBroadcastChannelSupported) {
-			privates.broadcastChannel = {};
 			privates.broadcastChannel.removeEventListener("message", privates.onBroadcastChannelMessage, { passive: true });
+			privates.broadcastChannel = {};
 		}
 		privates.audio.removeEventListener("durationchange", privates.onDurationChange, { passive: true });
 		privates.audio.removeEventListener("ended", privates.onEnded, { passive: true });

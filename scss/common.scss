@@ -6,6 +6,7 @@
 @import "mdc-theme";
 @import "mdc-top-app-bar";
 
+:not(:defined) { display: none; }
 body {
 	@include mlp-background-gradient;
 	color: $mdc-theme-primary;

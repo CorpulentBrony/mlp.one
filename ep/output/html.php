@@ -18,13 +18,13 @@
 	$requestUrlOgg = $this->getRequestUrl(RequestType::OGG);
 	$youTubeThumbnail = $this->episode->getYouTubeThumbnail();
 	$youTubeUrl = $this->episode->getYouTubeUrl();
-	$skipPreviousSvg = \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_previous_24px.svg", ["aria-label" => "Go to previous episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Previous Episode"]);
-	$skipNextSvg = \Mlp\getSvg("../material-design-icons/av/svg/production/ic_skip_next_24px.svg", ["aria-label" => "Go to next episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Next Episode"]);
+	$skipPreviousSvg = "<mlp-svg-icon alt=\"◀\" aria-label=\"go to previous episode\" class=\"mlp-button\" href=\"/material-design-icons/av/svg/production/ic_skip_previous_24px.svg\" role=\"img\" title=\"Previous Episode\">◀️</mlp-svg-icon>";
+	$skipNextSvg = "<mlp-svg-icon alt=\"▶\" aria-label=\"go to next episode\" class=\"mlp-button\" href=\"/material-design-icons/av/svg/production/ic_skip_next_24px.svg\" role=\"img\" title=\"Next Episode\">▶</mlp-svg-icon>";
 
 	function wrapNavSvg(bool $isDisabled, string $svg, string $targetEpisode): string {
 		if ($isDisabled)
-			return "<button aria-disabled=\"true\" class=\"mdc-button mdc-card__action\" disabled type=\"button\">{$svg}</button>";
-		return "<a class=\"mdc-button mdc-card__action\" href=\"{$targetEpisode}\" rel=\"prev\" role=\"button\">{$svg}</a>";
+			return "<a aria-disabled=\"true\" disabled type=\"button\">{$svg}</a>";
+		return "<a href=\"{$targetEpisode}\" rel=\"prev\" role=\"button\">{$svg}</a>";
 	}
 
 	http_response_code(200);
@@ -44,15 +44,6 @@
 		<!-- <link as="audio" importance="low" href="/ep/<?= $thisEpisodeNumber ?>.mp3" rel="prefetch" type="audio/mpeg"> -->
 		<!-- modules -->
 		<link href="/module/output.js" importance="high" rel="modulepreload">
-		<link href="/module/ComponentHandler.js" importance="low" rel="modulepreload">
-		<link href="/module/Cache.js" importance="low" rel="modulepreload">
-		<link href="/module/Drawer.js" importance="low" rel="modulepreload">
-		<link href="/module/MenuComponentHandler.js" importance="low" rel="modulepreload">
-		<link href="/module/MoreFormatsMenu.js" importance="low" rel="modulepreload">
-		<link href="/module/ShareMenu.js" importance="low" rel="modulepreload">
-		<link href="/module/Snackbar.js" importance="low" rel="modulepreload">
-		<link href="/module/ToggleableComponentHandler.js" importance="low" rel="modulepreload">
-		<link href="/module/TopAppBar.js" importance="low" rel="modulepreload">
 		<link href="/module/util.js" importance="low" rel="modulepreload">
 		<?= file_get_contents("../common/header_base.html") ?>
 		<link href="<?= $requestUrl ?>" rel="canonical self" type="text/html">
@@ -110,6 +101,7 @@
 		<noscript id="deferred-stylesheets">
 			<link href="/css/card.css" importance="high" rel="stylesheet">
 			<link href="/css/common.css" importance="high" rel="stylesheet">
+			<link href="/css/MlpButton.css" importance="high" rel="stylesheet">
 			<link href="/css/output.css" importance="high" rel="stylesheet">
 			<link href="/css/typography.css" importance="high" rel="stylesheet">
 		</noscript>
@@ -137,7 +129,6 @@
 		</header>
 		<main role="main">
 			<article aria-labelledby="mlp-episode-name" class="mdc-card">
-				<!-- <section class="mdc-card__media mdc-card__media--16-9"></section> -->
 	 			<mlp-audio-player name="<?= htmlspecialchars($this->episode->title, \ENT_COMPAT | \ENT_HTML5) ?>" number="<?= $thisEpisodeNumber ?>" srcset="<?= $requestUrlOgg ?> <?= self::TYPES[RequestType::OGG]["mimeType"] ?>, <?= $requestUrlMp3 ?> <?= self::TYPES[RequestType::MP3]["mimeType"] ?>">
 	 			</mlp-audio-player>
 	 			<aside id="mlp-episode-metadata">
@@ -150,10 +141,6 @@
 				<mlp-episode-description>
 					<?= is_null($this->episode->note) ? str_replace("\n", "<br>", $this->episode->description) : str_ireplace("<a href=", "<a rel=\"noopener\" target=\"_blank\" href=", $this->episode->note) ?>
 				</mlp-episode-description>
-				<mlp-menu>
-					<li tabindex="0">Menu Item 1</li>
-					<li tabindex="0">Menu Item 2</li>
-				</mlp-menu>
 				<footer class="mdc-card__actions">
 					<nav class="mdc-card__action-buttons">
 						<a class="mdc-button mdc-button--unelevated mdc-card__action mdc-card__action--button" href="<?= $thisEpisodeNumber ?>.mp3" role="button" type="audio/mpeg">Download</a>
@@ -162,52 +149,15 @@
 					<nav class="mdc-card__action-icons">
 						<?= wrapNavSvg(is_null($previousEpisodeNumber), $skipPreviousSvg, strval($previousEpisodeNumber)) ?>
 						<?= wrapNavSvg(is_null($nextEpisodeNumber), $skipNextSvg, strval($nextEpisodeNumber)) ?>
-						<aside class="mdc-menu-anchor">
-							<button aria-controls="mlp-menu-share" aria-haspopup="menu" class="mdc-button mdc-card__action" id="mlp-btn-share" role="button" tabindex="0" type="button">
-								<?= \Mlp\getSvg("../material-design-icons/social/svg/production/ic_share_24px.svg", ["aria-label" => "Share this episode", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "Share"]) ?>
-							</button>
-							<section aria-hidden="true" class="mdc-menu" id="mlp-menu-share" role="menu">
-								<ul class="mdc-menu__items mdc-list">
-									<li class="mdc-list-item" role="menuitem">
-										<button class="mdc-button mdc-list-item__text mdc-typography--subtitle2" data-href="<?= $requestUrl ?>" id="mlp-menu-share-copy-btn" role="button" tabindex="0" type="button">Clipboard</button>
-									</li>
-									<li class="mdc-list-item" role="menuitem">
-										<a class="mdc-list-item__text mdc-typography--subtitle2" href="https://www.facebook.com/sharer/sharer.php?kid_directed_site=0&sdk=joey&u=<?= rawurlencode($requestUrl) ?>&display=popup&ref=plugin&src=share_button" rel="noopener" target="_blank" type="text/html">
-											Facebook
-										</a>
-									</li>
-									<li class="mdc-list-item" role="menuitem">
-										<a class="mdc-list-item__text mdc-typography--subtitle2" href="http://www.tumblr.com/share/link?url=<?= rawurlencode($requestUrl) ?>&title=<?= rawurlencode("{$_SERVER["SITE_TITLE"]} #{$thisEpisodeNumber} - {$this->episode->title}") ?>" rel="noopener" target="_blank" type="text/html">
-											Tumblr
-										</a>
-									</li>
-									<li class="mdc-list-item" role="menuitem">
-										<a class="mdc-list-item__text mdc-typography--subtitle2" href="https://twitter.com/intent/tweet?original_referer<?= rawurlencode($requestUrl) ?>&ref_src=twsrc%5Etfw&text=<?= rawurlencode("{$_SERVER["SITE_TITLE"]} #{$thisEpisodeNumber} - {$this->episode->title}") ?>&tw_p=tweetbutton&url=<?= rawurlencode($requestUrl) ?>" rel="noopener" target="_blank" type="text/html">
-											Twitter
-										</a>
-									</li>
-									<li class="mdc-list-item" role="menuitem">
-										<a class="mdc-list-item__text mdc-typography--subtitle2" href="http://vkontakte.ru/share.php?url=<?= rawurlencode($requestUrl) ?>" rel="noopener" target="_blank" type="text/html">
-											Vk
-										</a>
-									</li>
-								</ul>
-							</section>
-						</aside>
-						<aside class="mdc-menu-anchor">
-							<button aria-controls="mlp-menu-more-formats" aria-haspopup="menu" class="mdc-button mdc-card__action " id="mlp-btn-more-formats" role="button" tabindex="0" type="button">
-								<?= \Mlp\getSvg("../material-design-icons/navigation/svg/production/ic_more_vert_24px.svg", ["aria-label" => "View episode in more formats", "class" => "mdc-button__icon mdc-card__action--icon", "title" => "More Formats"]) ?>
-							</button>
-							<section aria-hidden="true" class="mdc-menu" id="mlp-menu-more-formats" role="menu">
-								<ul class="mdc-menu__items mdc-list">
-									<?=
-										array_reduce($this->getAllRequestTypes([RequestType::HTML, RequestType::MP3]), function(string $links, array $typeDescriptor): string {
-											return "{$links}<li class=\"mdc-list-item\" role=\"menuitem\"><a class=\"mdc-list-item__text mdc-typography--subtitle2\" href=\"{$typeDescriptor["url"]}\" target=\"_blank\" type=\"{$typeDescriptor["mimeType"]}\">{$typeDescriptor["extension"]}</a></li>";
-										}, "")
-									?>
-								</ul>
-							</section>
-						</aside>
+						<mlp-share-menu content="<?= "{$_SERVER["SITE_TITLE"]} #{$thisEpisodeNumber} - {$this->episode->title}" ?>" href="<?= $requestUrl ?>" title="Share"></mlp-share-menu>
+						<mlp-menu opens-up title="More Formats">
+							<mlp-svg-icon alt="⋮" aria-label="more formats" href="/material-design-icons/navigation/svg/production/ic_more_vert_24px.svg" role="img" slot="label">⋮</mlp-svg-icon>
+							<?=
+								array_reduce($this->getAllRequestTypes([RequestType::HTML, RequestType::MP3]), function(string $links, array $typeDescriptor): string {
+									return "{$links}<mlp-menu-item href=\"{$typeDescriptor["url"]}\" target=\"_blank\" type=\"{$typeDescriptor["mimeType"]}\">{$typeDescriptor["extension"]}</mlp-menu-item>";
+								}, "")
+							?>
+						</mlp-menu>
 					</nav>
 				</footer>
 			</article>
