@@ -24,5 +24,11 @@
 			$this->size = intval($this->size);
 			return $this;
 		}
+		// public function serialize(): string {
+
+		// }
+		// public function unserialize($serialized) {
+
+		// }
 	}
 ?>

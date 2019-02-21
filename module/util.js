@@ -5,7 +5,7 @@ const CACHE_NAME = "mlp-one-browser";
 const CACHE_OPTIONS = { ignoreSearch: true };
 export const isDocumentLoaded = new self.Promise((resolve) => {
 	if (self.document.readyState === "loading")
-		self.document.addEventListener("DOMContentLoaded", resolve, false);
+		self.document.addEventListener("DOMContentLoaded", resolve, { once: true, passive: true });
 	else
 		resolve();
 });
@@ -185,7 +185,7 @@ export function setCssProperty(element, property, value) {
 	element.style.setProperty(property, self.String(value));
 }
 export function writeTextToClipboard(text) { // returns self.Promise
-	if ("navigator" in window && "clipboard" in self.navigator && "writeText" in self.navigator.clipboard) {
+	if ("navigator" in self && "clipboard" in self.navigator && "writeText" in self.navigator.clipboard) {
 		return self.navigator.clipboard.writeText(self.String(text));
 	} else {
 		const textArea = self.document.createElement("textarea");

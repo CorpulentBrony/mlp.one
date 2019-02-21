@@ -7,7 +7,7 @@
 		public const GUID_PREFIX = self::GUID_BASE . "?episode=";
 		private const MANAGER_URL_PREFIX = "https://mlp.one/ep/";
 
-		public $defaultFile; // File
+		// public $defaultFile; // File // i don't think this is used
 		public $description;
 		public $duration; // \DateInterval
 		public $keywords; // array<File>
@@ -46,5 +46,11 @@
 		public function getYouTubeEmbedUrl(): string { return "https://www.youtube.com/embed/" . rawurlencode($this->youTubeId); }
 		public function getYouTubeThumbnail(): string { return "https://img.youtube.com/vi/" . rawurlencode($this->youTubeId) . "/maxresdefault.jpg"; }
 		public function getYouTubeUrl(): string { return "https://www.youtube.com/watch?v=" . rawurlencode($this->youTubeId); }
+		// public function serialize(): string {
+		// 	// [];
+		// }
+		// public function unserialize($serialized) {
+
+		// }
 	}
 ?>

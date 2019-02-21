@@ -89,7 +89,14 @@
 		public function loadEpisode(): self {
 			if (!$this->isIntegrityChecked)
 				$this->checkIntegrity();
-			$this->episode = apcu_entry($this->getCacheKey(), function(string $key): \Mlp\Episode { return Episodes::fetch([$this->number])->first(); }, 60);
+			$cacheKey = $this->getCacheKey();
+
+			if (apcu_exists($cacheKey))
+				$this->episode = igbinary_unserialize(apcu_fetch($cacheKey));
+			else {
+				$this->episode = Episodes::fetch([$this->number])->first();
+				apcu_store($cacheKey, igbinary_serialize($this->episode), 60);
+			}
 			return $this;
 		}
 

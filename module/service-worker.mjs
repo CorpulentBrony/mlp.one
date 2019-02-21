@@ -13,7 +13,7 @@ const FILES_TO_CACHE = [
 		{ js: ["mdc-drawer.js", "mdc-ripple.js", "mdc-top-app-bar.js"] },
 		{ module: ["Cache.js", "ComponentHandler.js", "Drawer.js", "ToggleableComponentHandler.js", "TopAppBar.js", "util.js" /*, "common.js" */] },
 		"manifest.jsonmanifest"
-	] }, 
+	] },
 	"https://fonts.googleapis.com/css?family=Roboto:300,400,500"
 ];
 const CACHE_OPTIONS = { ignoreSearch: true };
@@ -40,9 +40,8 @@ async function onActivate() {
 			return self.caches.delete(key);
 	});
 
-	// what's this do?
-	// if (self.registration.navigationPreload)
-	// 	response.push(self.registration.navigationPreload.enable());
+	if (self.registration.navigationPreload)
+		response.push(self.registration.navigationPreload.enable());
 	return self.Promise.all(response);
 }
 function onFetch(event) {

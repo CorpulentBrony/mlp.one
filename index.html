@@ -21,8 +21,9 @@
 		<meta content="<!--# echo var='siteKeywords' -->" itemprop="keywords">
 		<meta content="<!--# echo var='siteTitle' -->" name="twitter:title">
 		<meta content="<!--# echo var='siteDescription' -->" name="twitter:description">
+		<link href="http://microformats.org/profile/hcalendar" rel="profile">
 		<meta content="dHG36go54Xk_JAAP9rulwG5SRO6FN2LYagwq3Fs0fvw" name="google-site-verification">
-		<meta content="F22D6FD9077AEB86C48E282176E51F9C" name="msvalidate.01">
+		<meta name="msvalidate.01" content="F22D6FD9077AEB86C48E282176E51F9C">
 		<title><!--# echo var="siteTitle" --></title>
 		<script async defer nomodule src="/js/index.js"></script>
 		<script async src="/module/index.js" type="module"></script>
@@ -40,30 +41,30 @@
 			<header class="mdc-card mlp-bg-overlay__index" role="main">
 				<h1>A podcast <span class="mlp-meme-text">for you</span></h1>
 				<h5>Listen Live <span aria-label="radio emoticon" role="img">📻</span></h5>
-				<div>
-					<span itemscope itemtype="http://schema.org/BroadcastEvent">
-						<link href="http://schema.org/EventScheduled" itemprop="eventStatus">
-						<span content="en" itemprop="inLanguage"></span>
-						<data itemprop="isAccessibleForFree" value="true"></data>
-						<data itemprop="isLiveBroadcast" value="true"></data>
-						<span itemprop="location" itemscope itemtype="http://schema.org/Place">
-							<span content="https://www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg/live" itemprop="name"></span>
+				<div class="vevent" itemscope itemtype="http://microformats.org/profile/hcalendar#vevent">
+					<span typeof="BroadcastEvent" vocab="https://schema.org/">
+						<link href="http://schema.org/EventScheduled" property="eventStatus">
+						<meta content="en" property="inLanguage">
+						<meta content="true" property="isAccessibleForFree">
+						<meta content="true" property="isLiveBroadcast">
+						<span property="location" typeof="Place" vocab="https://schema.org/">
+							<meta content="https://www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg/live" property="name">
 						</span>
-						<span content="<!--# echo var='siteTitle' --> Weekly Live Stream" itemprop="name"></span>
-						<data itemprop="startDate" value="<!--# include file="next_podcast_date.txt" -->"></data>
-						<link href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg/live" itemprop="url">
-						<span itemprop="description">Every <time datetime="<!--# include file="next_podcast_date.txt" -->"><strong>Friday night</strong> around <strong>10pm EST <span aria-label="10 o'clock emoticon" role="img">🕙</span></strong></time> we usually stream the podcast recording.</span>
+						<meta class="summary" content="<!--# echo var='siteTitle' --> Weekly Live Stream" itemprop="summary" property="name">
+						<meta content="<!--# include file="next_podcast_date.txt" -->" itemprop="dtstart" property="startDate">
+						<link href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg/live" itemprop="url" property="url">
+						<span class="summary" itemprop="description" property="description">Every <time class="dtstart" datetime="<!--# include file="next_podcast_date.txt" -->"><strong>Friday night</strong> around <strong>10pm EST <span aria-label="10 o'clock emoticon" role="img">🕙</span></strong></time> we usually stream the podcast recording.</span>
 					</span>
-					<span itemprop="potentialAction" itemscope itemtype="http://schema.org/SubscribeAction">
-						<span content="PotentialActionStatus" itemprop="actionStatus"></span>
-						<span content="Subscribe to our YouTube channel" itemprop="name"></span>
-						<span itemprop="target" itemscope itemtype="http://schema.org/EntryPoint">
-							<link href="http://schema.org/DesktopWebPlatform" itemprop="actionPlatform">
-							<link href="http://schema.org/MobileWebPlatform" itemprop="actionPlatform">
-							<span content="en" itemprop="inLanguage"></span>
-							<strong><a href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg?sub_confirmation=1" itemprop="urlTemplate" rel="external noopener" target="_blank">Subscribe to our YouTube channel</a></strong>
+					<span property="potentialAction" typeof="SubscribeAction" vocab="https://schema.org/">
+						<meta content="PotentialActionStatus" property="actionStatus">
+						<meta content="Subscribe to our YouTube channel" property="name">
+						<span property="target" typeof="EntryPoint" vocab="https://schema.org/">
+							<link href="http://schema.org/DesktopWebPlatform" property="actionPlatform">
+							<link href="http://schema.org/MobileWebPlatform" property="actionPlatform">
+							<meta content="en" property="inLanguage">
+							<strong><a href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg?sub_confirmation=1" property="urlTemplate" rel="external noopener" target="_blank">Subscribe to our YouTube channel</a></strong>
 						</span>
-						<link href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg?sub_confirmation=1" itemprop="url">
+						<link href="//www.youtube.com/channel/UCuyOFiGHWoeLTBmB9bk-qrg?sub_confirmation=1" property="url">
 					</span> if you want to be notified, or just visit around that time if you're bored and have nothing better to do on a Friday night.  I know that's basically everyone reading this right now.  Don't kid yourself.
 				</div>
 				<div>
